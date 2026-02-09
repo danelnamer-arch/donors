@@ -31,6 +31,7 @@ You need three things installed on your computer. If you already have any of the
    ```
    postgresql://username:password@ep-something.region.aws.neon.tech/neondb?sslmode=require
    ```
+   **Save this somewhere** (notepad, sticky note, etc.) — you'll paste it into the `.env` file in Step 2 below.
 6. **Important:** After creating the database, run this in the Neon SQL console:
    ```sql
    CREATE EXTENSION IF NOT EXISTS vector;
