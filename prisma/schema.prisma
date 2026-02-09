@@ -1,0 +1,458 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [vector]
+}
+
+// ============================================================
+// AUTH & USERS
+// ============================================================
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  passwordHash   String?
+  role           UserRole  @default(ADMIN)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  activityLogs ActivityLog[]
+  notes        Note[]
+
+  @@index([organizationId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+// ============================================================
+// ORGANIZATIONS (the NGOs using the platform)
+// ============================================================
+
+model Organization {
+  id                   String   @id @default(cuid())
+  name                 String
+  mission              String?  @db.Text
+  website              String?
+  location             String?
+  country              String?
+  size                 OrgSize?
+  annualBudgetRange    String?
+  politicalAffiliation PoliticalAffiliation @default(UNKNOWN)
+
+  causes              String[]
+  targetPopulations   String[]
+  geographicFocus     String[]
+  existingDonorNames  String[]
+  similarOrgNames     String[]
+
+  missionEmbedding    Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users           User[]
+  matches         Match[]
+  pipelineEntries PipelineEntry[]
+  swipeFeedback   SwipeFeedback[]
+  subscription    Subscription?
+}
+
+enum OrgSize {
+  SOLO
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum PoliticalAffiliation {
+  LEFT
+  CENTER_LEFT
+  CENTER
+  CENTER_RIGHT
+  RIGHT
+  NONPARTISAN
+  UNKNOWN
+}
+
+// ============================================================
+// DONORS
+// ============================================================
+
+model Donor {
+  id                   String    @id @default(cuid())
+  name                 String
+  type                 DonorType
+  description          String?   @db.Text
+  website              String?
+  email                String?
+  phone                String?
+  socialLinks          Json?
+
+  country              String?
+  city                 String?
+  location             String?
+
+  politicalAffiliation PoliticalAffiliation @default(UNKNOWN)
+  causes               String[]
+  targetPopulations    String[]
+  geographicFocus      String[]
+
+  missionEmbedding     Unsupported("vector(1536)")?
+
+  dataQualityScore     Float     @default(0)
+  dataSources          Json[]
+  lastResearchedAt     DateTime?
+  researchStatus       ResearchStatus @default(PENDING)
+
+  ein                  String?   @unique
+  irsData              Json?
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  grants          DonorGrant[]
+  publications    DonorPublication[]
+  matches         Match[]
+  pipelineEntries PipelineEntry[]
+  swipeFeedback   SwipeFeedback[]
+
+  @@index([type])
+  @@index([country])
+  @@index([causes])
+  @@index([researchStatus])
+}
+
+enum DonorType {
+  FOUNDATION
+  INDIVIDUAL
+  CORPORATE
+  GOVERNMENT
+  OTHER
+}
+
+enum ResearchStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  NEEDS_UPDATE
+}
+
+model DonorGrant {
+  id              String   @id @default(cuid())
+  donorId         String
+  donor           Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  recipientName   String
+  recipientEin    String?
+  amount          Float?
+  currency        String   @default("USD")
+  year            Int?
+  purpose         String?  @db.Text
+  sourceUrl       String?
+  createdAt       DateTime @default(now())
+
+  @@index([donorId])
+  @@index([recipientName])
+  @@index([year])
+}
+
+model DonorPublication {
+  id          String          @id @default(cuid())
+  donorId     String
+  donor       Donor           @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  title       String
+  type        PublicationType
+  url         String
+  summary     String?         @db.Text
+  publishedAt DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@index([donorId])
+}
+
+enum PublicationType {
+  ARTICLE
+  SOCIAL_MEDIA
+  PODCAST
+  PRESS_RELEASE
+  BLOG_POST
+  VIDEO
+  OTHER
+}
+
+// ============================================================
+// MATCHING & SWIPES
+// ============================================================
+
+model Match {
+  id              String       @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  donorId         String
+  donor           Donor        @relation(fields: [donorId], references: [id], onDelete: Cascade)
+
+  score           Float        @default(0)
+  scoreBreakdown  Json?
+  reasoning       String?      @db.Text
+
+  status          MatchStatus  @default(PENDING)
+  swipedAt        DateTime?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([organizationId, donorId])
+  @@index([organizationId, status])
+  @@index([donorId])
+  @@index([score])
+}
+
+enum MatchStatus {
+  PENDING
+  SWIPED_RIGHT
+  SWIPED_LEFT
+}
+
+// ============================================================
+// PIPELINE
+// ============================================================
+
+model PipelineEntry {
+  id               String           @id @default(cuid())
+  organizationId   String
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  donorId          String
+  donor            Donor            @relation(fields: [donorId], references: [id], onDelete: Cascade)
+
+  stage            PipelineStage    @default(DISCOVERED)
+  enrichmentStatus EnrichmentStatus @default(NONE)
+  enrichedData     Json?
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  notes        Note[]
+  activityLogs ActivityLog[]
+  reminders    Reminder[]
+
+  @@unique([organizationId, donorId])
+  @@index([organizationId, stage])
+}
+
+enum PipelineStage {
+  DISCOVERED
+  RESEARCHING
+  OUTREACH
+  APPLIED
+  IN_CONVERSATION
+  FUNDED
+  REJECTED
+}
+
+enum EnrichmentStatus {
+  NONE
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model Note {
+  id              String        @id @default(cuid())
+  pipelineEntryId String
+  pipelineEntry   PipelineEntry @relation(fields: [pipelineEntryId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  content         String        @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([pipelineEntryId])
+}
+
+model ActivityLog {
+  id              String         @id @default(cuid())
+  pipelineEntryId String?
+  pipelineEntry   PipelineEntry? @relation(fields: [pipelineEntryId], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User?          @relation(fields: [userId], references: [id])
+  action          String
+  details         Json?
+  createdAt       DateTime       @default(now())
+
+  @@index([pipelineEntryId])
+}
+
+model Reminder {
+  id              String        @id @default(cuid())
+  pipelineEntryId String
+  pipelineEntry   PipelineEntry @relation(fields: [pipelineEntryId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  dueDate         DateTime
+  completed       Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([pipelineEntryId])
+  @@index([dueDate])
+}
+
+// ============================================================
+// FEEDBACK
+// ============================================================
+
+model SwipeFeedback {
+  id                  String        @id @default(cuid())
+  organizationId      String
+  organization        Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  donorId             String
+  donor               Donor         @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  action              SwipeAction
+  orgProfileSnapshot  Json?
+  donorSnapshot       Json?
+  outcome             SwipeOutcome?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([organizationId])
+  @@index([action])
+}
+
+enum SwipeAction {
+  RIGHT
+  LEFT
+}
+
+enum SwipeOutcome {
+  CONTACTED
+  APPLIED
+  FUNDED
+  NO_RESPONSE
+}
+
+// ============================================================
+// BILLING (Paddle)
+// ============================================================
+
+model Subscription {
+  id                     String           @id @default(cuid())
+  organizationId         String           @unique
+  organization           Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  paddleCustomerId       String?          @unique
+  paddleSubscriptionId   String?          @unique
+  tier                   SubscriptionTier @default(FREE)
+  status                 SubStatus        @default(ACTIVE)
+
+  totalMatchesUsed       Int              @default(0)
+  dailyMatchesUsed       Int              @default(0)
+  dailyMatchesResetAt    DateTime         @default(now())
+  enrichmentsUsed        Int              @default(0)
+  enrichmentsLimit       Int              @default(0)
+
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+}
+
+enum SubscriptionTier {
+  FREE
+  STARTER
+  PRO
+}
+
+enum SubStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  PAUSED
+}
+
+// ============================================================
+// RESEARCH JOBS
+// ============================================================
+
+model ResearchJob {
+  id          String          @id @default(cuid())
+  type        ResearchJobType
+  status      JobStatus       @default(QUEUED)
+  input       Json
+  output      Json?
+  error       String?
+  attempts    Int             @default(0)
+  maxAttempts Int             @default(3)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([type, status])
+  @@index([createdAt])
+}
+
+enum ResearchJobType {
+  DONOR_SEARCH
+  DONOR_CRAWL
+  DONOR_DEEP_RESEARCH
+  DONOR_ENRICHMENT
+  IRS_990_IMPORT
+  PUBLICATION_SCAN
+}
+
+enum JobStatus {
+  QUEUED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
