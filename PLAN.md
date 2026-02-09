@@ -48,9 +48,11 @@ A donor discovery platform for Israeli NGOs. Users describe their organization, 
 | Styling | **Tailwind CSS** + **shadcn/ui** | Fast, clean UI components |
 | Auth | **NextAuth.js** | Email/password + OAuth |
 | Background Jobs | **BullMQ** + **Redis** | Reliable job queues for crawling, enrichment, scoring |
-| Web Research | **Puppeteer** / **Cheerio** + **Search APIs** | Real web scraping, no hallucination |
+| Web Search | **Tavily API** | Fast, structured web search built for AI agents |
+| Deep Research | **Perplexity API** | AI-powered deep research with citations |
+| Web Crawling | **Firecrawl** | Reliable web scraping/crawling, returns clean markdown |
 | AI/Matching | **OpenAI API** (for NLP tasks) | Embedding missions/causes for semantic similarity |
-| Payments | **Stripe** | Freemium + per-enrichment billing |
+| Payments | **Paddle** | Freemium + per-enrichment billing (handles global tax/compliance) |
 
 ---
 
@@ -228,10 +230,10 @@ This ensures:
   │ Agent  │ │ Agent  │ │ Agent       │
   └────┬───┘ └───┬────┘ └───┬──────────┘
        │         │          │
-  Google/Bing  IRS 990    Social media
-  Crawling     GuideStar  News articles
-  Foundation   Gov DBs    Podcasts
-  websites                Blog posts
+  Tavily       IRS 990    Perplexity
+  Firecrawl    GuideStar  (deep research)
+  (crawling)   Gov DBs    Social media
+                          News/Podcasts
        │         │          │
        └─────────┴──────────┘
                  │
@@ -302,7 +304,7 @@ Cost: Part of subscription tier (e.g., 5 enrichments/month) + $3 per additional 
 ### PHASE 3: Monetization & Feedback
 > Goal: Revenue + improving matches
 
-1. **Stripe integration** — Freemium gating, subscription, per-enrichment billing
+1. **Paddle integration** — Freemium gating, subscription, per-enrichment billing + Terms of Use page
 2. **Usage tracking** — Count matches, enrichments, enforce limits
 3. **Feedback loop** — Collect swipe data, retrain scoring model
 4. **Match quality improvements** — A/B test scoring weights
@@ -338,11 +340,11 @@ Cost: Part of subscription tier (e.g., 5 enrichments/month) + $3 per additional 
 - Bulk insert with deduplication
 
 ### Step 4: Web Research Agents
-- **Search Agent:** Uses web search APIs to find donor information
-- **Crawl Agent:** Visits foundation websites, extracts structured data
-- **Publication Agent:** Finds articles, social posts, podcasts
-- **Validator Agent:** Cross-references facts, requires source URLs
-- **Orchestrator:** Coordinates agents, manages research queue
+- **Search Agent (Tavily):** Fast structured web search to discover donors, find basic info
+- **Crawl Agent (Firecrawl):** Crawl foundation websites, extract structured data as clean markdown
+- **Deep Research Agent (Perplexity):** In-depth research with citations for donor profiles, publications, recent activity
+- **Validator Agent:** Cross-references facts across sources, requires source URLs
+- **Orchestrator:** Coordinates agents, manages research queue, deduplicates results
 
 ### Step 5: Enrichment Pipeline
 - Deep research flow for individual donors
@@ -365,10 +367,21 @@ Cost: Part of subscription tier (e.g., 5 enrichments/month) + $3 per additional 
 
 ---
 
-## Open Questions / Decisions Needed
+## Decisions Made
 
-1. **Domain name / app name?** "DonorMatch" is a working title — do you have a name in mind?
-2. **Hosting preference?** Vercel (easy) vs. self-hosted (cheaper at scale)?
-3. **OpenAI API key?** We'll need one for generating embeddings and powering research agents. Do you have one, or should we plan for that?
-4. **Stripe account?** For billing (can be set up later, but good to know).
-5. **Any existing donor data?** CSVs, spreadsheets — anything we can import?
+1. **App name:** DonorMatch (working title)
+2. **Hosting:** Vercel
+3. **API keys needed (stub for now, connect later):**
+   - OpenAI — embeddings + matching reasoning
+   - Tavily — web search for donor discovery
+   - Perplexity — deep research with citations
+   - Firecrawl — web crawling/scraping
+   - Paddle — billing & subscriptions
+4. **No existing donor data** — building from scratch via research agents + IRS 990
+5. **MVP scope:** One user per org, freemium model
+
+## Legal Pages (Required for Paddle)
+
+- **Terms of Use** — governs how users interact with the platform
+- **Privacy Policy** — data handling, GDPR considerations
+- These will be built as static pages within the app
