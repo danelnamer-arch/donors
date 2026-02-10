@@ -133,27 +133,24 @@ export async function importIsraelRelatedFoundations(options?: {
   searched: number;
   imported: number;
   skipped: number;
+  duplicates: number;
   errors: string[];
 }> {
-  const maxPages = options?.maxPages ?? 5;
-  const batchSize = options?.batchSize ?? 25;
+  const maxPages = options?.maxPages ?? 3;
+  const batchSize = options?.batchSize ?? 10;
   const errors: string[] = [];
   let searched = 0;
   let imported = 0;
   let skipped = 0;
+  let duplicates = 0;
 
   // Search terms relevant to donors who support Israeli NGOs
   const searchTerms = [
     "Israel foundation",
     "Jewish philanthropy",
+    "Jewish community foundation",
     "Israel grant",
     "Middle East peace foundation",
-    "Jewish community foundation",
-    "Israel education foundation",
-    "Israel health foundation",
-    "Israel social services",
-    "Israel environment",
-    "Israel arts culture",
   ];
 
   for (const term of searchTerms) {
@@ -164,7 +161,7 @@ export async function importIsraelRelatedFoundations(options?: {
 
         if (results.organizations.length === 0) break;
 
-        // Process in batches
+        // Process in smaller batches to avoid overload
         for (let i = 0; i < results.organizations.length; i += batchSize) {
           const batch = results.organizations.slice(i, i + batchSize);
           const batchResults = await Promise.allSettled(
@@ -174,6 +171,7 @@ export async function importIsraelRelatedFoundations(options?: {
           for (const result of batchResults) {
             if (result.status === "fulfilled") {
               if (result.value === "imported") imported++;
+              else if (result.value === "duplicate") duplicates++;
               else skipped++;
             } else {
               errors.push(result.reason?.message ?? "Unknown error");
@@ -191,7 +189,7 @@ export async function importIsraelRelatedFoundations(options?: {
     }
   }
 
-  return { searched, imported, skipped, errors };
+  return { searched, imported, skipped, duplicates, errors };
 }
 
 /**
@@ -199,15 +197,17 @@ export async function importIsraelRelatedFoundations(options?: {
  */
 async function importSingleFoundation(
   org: ProPublicaOrg
-): Promise<"imported" | "skipped"> {
+): Promise<"imported" | "skipped" | "duplicate"> {
   const ein = org.ein.toString();
 
   // Skip if already in database
   const existing = await prisma.donor.findUnique({ where: { ein } });
-  if (existing) return "skipped";
+  if (existing) return "duplicate";
 
-  // Only import foundations/grantmakers (subsection code 3 = 501(c)(3))
-  if (org.subsection_code !== 3) return "skipped";
+  // Import 501(c)(3) organizations (subsection_code == 3)
+  // Use loose equality — ProPublica sometimes returns this as a string
+  const code = Number(org.subsection_code);
+  if (code && code !== 3) return "skipped";
 
   // Get detailed info
   let details: ProPublicaOrgDetail | null = null;
