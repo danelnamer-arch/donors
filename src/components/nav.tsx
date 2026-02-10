@@ -17,7 +17,7 @@ export function Nav() {
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-black/80">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <a href="/dashboard" className="text-lg font-bold text-black dark:text-white">
+          <a href="/dashboard" className="text-lg font-bold text-brand">
             DonorMatch
           </a>
           <nav className="flex gap-1">
@@ -27,7 +27,7 @@ export function Nav() {
                 href={item.href}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                   pathname === item.href
-                    ? "bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white"
+                    ? "bg-brand-light text-brand dark:bg-brand-light dark:text-brand"
                     : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
                 }`}
               >

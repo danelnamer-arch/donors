@@ -53,7 +53,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
 
   return (
     <div
-      className={`w-full max-w-md rounded-2xl border border-zinc-200 bg-white shadow-lg transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950 ${
+      className={`w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-none ${
         swiping === "left"
           ? "-translate-x-full rotate-[-10deg] opacity-0"
           : swiping === "right"
@@ -61,16 +61,26 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
             : ""
       }`}
     >
-      {/* Header */}
-      <div className="px-6 pt-6 pb-4">
+      {/* Header with gradient accent */}
+      <div className="bg-gradient-to-r from-brand/5 via-brand/10 to-indigo-500/5 px-6 pt-6 pb-5">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h2 className="text-xl font-bold text-black dark:text-white">
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
               {donor.name}
             </h2>
-            <div className="mt-1 flex items-center gap-2 text-sm text-zinc-500">
-              <Badge variant="info">{donor.type}</Badge>
-              {donor.country && <span>{donor.country}</span>}
+            <div className="mt-1.5 flex items-center gap-2 text-sm text-zinc-500">
+              <span className="inline-flex items-center rounded-md bg-brand-light px-2 py-0.5 text-xs font-medium text-brand">
+                {donor.type}
+              </span>
+              {donor.country && (
+                <span className="flex items-center gap-1">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {donor.country}
+                </span>
+              )}
             </div>
           </div>
           {donor.website && (
@@ -78,29 +88,35 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
               href={donor.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline"
+              className="flex items-center gap-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
               Website
             </a>
           )}
         </div>
 
         {/* Match reasoning */}
-        <div className="mt-4 rounded-lg bg-green-50 px-4 py-3 dark:bg-green-900/20">
-          <p className="text-sm font-medium text-green-800 dark:text-green-300">
-            Why this match?
+        <div className="mt-4 rounded-xl border border-brand/20 bg-white px-4 py-3 dark:bg-zinc-900">
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+            </svg>
+            Why this match
           </p>
-          <p className="mt-1 text-sm text-green-700 dark:text-green-400">
+          <p className="mt-1.5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             {match.reasoning}
           </p>
         </div>
       </div>
 
-      {/* Causes & Focus */}
-      <div className="px-6 pb-4">
+      {/* Content */}
+      <div className="px-6 py-4">
         {donor.causes.length > 0 && (
-          <div className="mb-3">
-            <p className="mb-1.5 text-xs font-medium uppercase text-zinc-400">
+          <div className="mb-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
               Focus Areas
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -112,8 +128,8 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
         )}
 
         {donor.geographicFocus.length > 0 && (
-          <div className="mb-3">
-            <p className="mb-1.5 text-xs font-medium uppercase text-zinc-400">
+          <div className="mb-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
               Geographic Focus
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -127,14 +143,14 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
         )}
 
         {donor.description && (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
             {donor.description.length > 200 && !expanded
               ? `${donor.description.slice(0, 200)}...`
               : donor.description}
             {donor.description.length > 200 && (
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="ml-1 text-blue-600 hover:underline"
+                className="ml-1 font-medium text-brand hover:underline"
               >
                 {expanded ? "Show less" : "Read more"}
               </button>
@@ -146,20 +162,24 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
       {/* Past Grants */}
       {donor.grants.length > 0 && (
         <div className="border-t border-zinc-100 px-6 py-4 dark:border-zinc-800">
-          <p className="mb-2 text-xs font-medium uppercase text-zinc-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-400">
             Past Grants
           </p>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {donor.grants.slice(0, 3).map((grant, i) => (
-              <div key={i} className="flex items-center justify-between text-sm">
-                <span className="text-zinc-700 dark:text-zinc-300">
+              <div key={i} className="flex items-center justify-between">
+                <span className="text-sm text-zinc-700 dark:text-zinc-300">
                   {grant.recipientName}
                 </span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                   {grant.amount
                     ? `$${grant.amount.toLocaleString()}`
-                    : "Amount N/A"}
-                  {grant.year ? ` (${grant.year})` : ""}
+                    : "N/A"}
+                  {grant.year ? (
+                    <span className="ml-1 font-normal text-zinc-400">
+                      ({grant.year})
+                    </span>
+                  ) : null}
                 </span>
               </div>
             ))}
@@ -170,7 +190,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
       {/* Publications */}
       {donor.publications.length > 0 && (
         <div className="border-t border-zinc-100 px-6 py-4 dark:border-zinc-800">
-          <p className="mb-2 text-xs font-medium uppercase text-zinc-400">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
             Publications
           </p>
           <div className="space-y-1.5">
@@ -181,7 +201,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
                     href={pub.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-brand hover:underline"
                   >
                     {pub.title}
                   </a>
@@ -199,7 +219,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
         <button
           onClick={() => handleSwipe("LEFT")}
           disabled={disabled}
-          className="flex flex-1 items-center justify-center gap-2 rounded-bl-2xl py-4 text-sm font-medium text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/20"
+          className="flex flex-1 items-center justify-center gap-2 py-4 text-sm font-semibold text-zinc-400 transition-all hover:bg-red-50 hover:text-red-500 disabled:opacity-50 dark:hover:bg-red-900/20"
         >
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -210,7 +230,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
         <button
           onClick={() => handleSwipe("RIGHT")}
           disabled={disabled}
-          className="flex flex-1 items-center justify-center gap-2 rounded-br-2xl py-4 text-sm font-medium text-green-600 transition-colors hover:bg-green-50 disabled:opacity-50 dark:hover:bg-green-900/20"
+          className="flex flex-1 items-center justify-center gap-2 py-4 text-sm font-semibold text-brand transition-all hover:bg-brand-light disabled:opacity-50"
         >
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
