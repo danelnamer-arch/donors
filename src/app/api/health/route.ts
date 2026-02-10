@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import IORedis from "ioredis";
 
 /**
  * GET /api/health
- * Check that the database and Redis connections work.
+ * Check that the database and API connections work.
+ * Redis is optional — the app works without it.
  */
 export async function GET() {
   const status: Record<string, string> = {};
@@ -17,23 +17,25 @@ export async function GET() {
     status.database = `error: ${error instanceof Error ? error.message : "unknown"}`;
   }
 
-  // Check Redis
-  try {
-    if (process.env.REDIS_URL) {
+  // Check Redis (optional — only report status, don't block)
+  if (process.env.REDIS_URL) {
+    try {
+      const IORedis = (await import("ioredis")).default;
       const redis = new IORedis(process.env.REDIS_URL, {
         maxRetriesPerRequest: 1,
         connectTimeout: 5000,
         lazyConnect: true,
+        tls: process.env.REDIS_URL.startsWith("rediss://") ? {} : undefined,
       });
       await redis.connect();
       await redis.ping();
       status.redis = "connected";
       await redis.quit();
-    } else {
-      status.redis = "not configured (REDIS_URL missing)";
+    } catch (error) {
+      status.redis = `error: ${error instanceof Error ? error.message : "unknown"} (optional — app works without it)`;
     }
-  } catch (error) {
-    status.redis = `error: ${error instanceof Error ? error.message : "unknown"}`;
+  } else {
+    status.redis = "not configured (optional)";
   }
 
   // Check API keys (just whether they're set, not whether they're valid)
@@ -41,8 +43,9 @@ export async function GET() {
   status.tavily = process.env.TAVILY_API_KEY ? "configured" : "missing";
   status.perplexity = process.env.PERPLEXITY_API_KEY ? "configured" : "missing";
   status.firecrawl = process.env.FIRECRAWL_API_KEY ? "configured" : "missing";
+  status.paddle = process.env.PADDLE_API_KEY ? "configured" : "not configured (optional for now)";
 
-  const allOk = status.database === "connected" && status.redis === "connected";
+  const allOk = status.database === "connected";
 
   return NextResponse.json(
     { status: allOk ? "healthy" : "issues found", services: status },
