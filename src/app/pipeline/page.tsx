@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 interface PipelineEntry {
   id: string;
   stage: string;
+  enrichmentStatus: string;
+  enrichedData: Record<string, unknown> | null;
   updatedAt: string;
   donor: {
     id: string;
@@ -80,6 +82,49 @@ export default function PipelinePage() {
     }
   }
 
+  async function enrichDonor(entryId: string) {
+    // Mark as in-progress locally
+    setEntries((prev) =>
+      prev.map((e) =>
+        e.id === entryId ? { ...e, enrichmentStatus: "IN_PROGRESS" } : e
+      )
+    );
+
+    try {
+      const res = await fetch("/api/pipeline/enrich", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entryId }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setEntries((prev) =>
+          prev.map((e) =>
+            e.id === entryId
+              ? { ...e, enrichmentStatus: "COMPLETED", enrichedData: data.enrichedData }
+              : e
+          )
+        );
+      } else {
+        setEntries((prev) =>
+          prev.map((e) =>
+            e.id === entryId ? { ...e, enrichmentStatus: "NONE" } : e
+          )
+        );
+        if (data.upgrade) {
+          router.push("/billing");
+        }
+      }
+    } catch {
+      setEntries((prev) =>
+        prev.map((e) =>
+          e.id === entryId ? { ...e, enrichmentStatus: "NONE" } : e
+        )
+      );
+    }
+  }
+
   if (status === "loading" || loading) {
     return (
       <>
@@ -144,6 +189,7 @@ export default function PipelinePage() {
                       entry={entry}
                       stages={STAGES}
                       onMoveStage={moveStage}
+                      onEnrich={enrichDonor}
                     />
                   ))}
                   {(grouped[stage.key] || []).length === 0 && (
@@ -196,23 +242,34 @@ function PipelineCard({
   entry,
   stages,
   onMoveStage,
+  onEnrich,
 }: {
   entry: PipelineEntry;
   stages: typeof STAGES;
   onMoveStage: (entryId: string, stage: string) => void;
+  onEnrich: (entryId: string) => void;
 }) {
   const [showActions, setShowActions] = useState(false);
 
   const currentIdx = stages.findIndex((s) => s.key === entry.stage);
   const nextStage = stages[currentIdx + 1];
+  const isEnriching = entry.enrichmentStatus === "IN_PROGRESS";
+  const isEnriched = entry.enrichmentStatus === "COMPLETED";
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="font-medium text-zinc-900 dark:text-zinc-100">
-            {entry.donor.name}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-zinc-900 dark:text-zinc-100">
+              {entry.donor.name}
+            </p>
+            {isEnriched && (
+              <span className="rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                Enriched
+              </span>
+            )}
+          </div>
           <p className="mt-0.5 text-xs text-zinc-500">
             {entry.donor.type} {entry.donor.country ? `- ${entry.donor.country}` : ""}
           </p>
@@ -251,6 +308,16 @@ function PipelineCard({
               onClick={() => onMoveStage(entry.id, nextStage.key)}
             >
               Move to {nextStage.label}
+            </Button>
+          )}
+          {!isEnriched && (
+            <Button
+              size="sm"
+              variant="secondary"
+              loading={isEnriching}
+              onClick={() => onEnrich(entry.id)}
+            >
+              {isEnriching ? "Enriching..." : "Enrich"}
             </Button>
           )}
           <Button
