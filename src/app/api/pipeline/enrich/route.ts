@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { canUseEnrichment, recordEnrichmentUsage } from "@/lib/paddle";
 import { runEnrichmentPipeline } from "@/lib/agents/orchestrator";
@@ -13,12 +12,12 @@ import { runEnrichmentPipeline } from "@/lib/agents/orchestrator";
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthUser(request);
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orgId = (session.user as Record<string, unknown>).organizationId as string | undefined;
+    const orgId = user.organizationId;
     if (!orgId) {
       return NextResponse.json({ error: "Complete onboarding first" }, { status: 400 });
     }

@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/pipeline
  * Get all pipeline entries for the user's organization.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthUser(request);
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orgId = (session.user as Record<string, unknown>).organizationId as string | undefined;
+    const orgId = user.organizationId;
     if (!orgId) {
       return NextResponse.json({ error: "Complete onboarding first" }, { status: 400 });
     }
@@ -52,12 +51,12 @@ export async function GET() {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthUser(request);
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orgId = (session.user as Record<string, unknown>).organizationId as string | undefined;
+    const orgId = user.organizationId;
     if (!orgId) {
       return NextResponse.json({ error: "Complete onboarding first" }, { status: 400 });
     }
@@ -98,7 +97,7 @@ export async function PATCH(request: NextRequest) {
     await prisma.activityLog.create({
       data: {
         pipelineEntryId: entryId,
-        userId: session.user.id,
+        userId: user.id,
         action: "STAGE_CHANGE",
         details: JSON.parse(
           JSON.stringify({ from: entry.stage, to: stage })
