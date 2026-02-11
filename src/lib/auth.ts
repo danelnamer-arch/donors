@@ -110,14 +110,21 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.userId = user.id;
       }
-      // Fetch org info on every token refresh
+      // Fetch org info — wrapped in try/catch so auth still works if DB is slow
       if (token.userId) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.userId as string },
-          select: { organizationId: true, role: true },
-        });
-        token.organizationId = dbUser?.organizationId ?? null;
-        token.role = dbUser?.role ?? "ADMIN";
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.userId as string },
+            select: { organizationId: true, role: true },
+          });
+          token.organizationId = dbUser?.organizationId ?? null;
+          token.role = dbUser?.role ?? "ADMIN";
+        } catch (err) {
+          console.error("[auth] DB error in jwt callback:", err);
+          // Keep existing token values if DB is unavailable
+          token.organizationId = token.organizationId ?? null;
+          token.role = token.role ?? "ADMIN";
+        }
       }
       return token;
     },
