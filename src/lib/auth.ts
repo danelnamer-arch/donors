@@ -15,7 +15,7 @@ export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.randomBytes(16).toString("hex");
   return new Promise((resolve, reject) => {
     crypto.scrypt(password, salt, 64, (err, buf) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       resolve(`${salt}:${buf.toString("hex")}`);
     });
   });
@@ -29,7 +29,7 @@ export async function verifyPassword(
   const [salt, key] = hash.split(":");
   return new Promise((resolve, reject) => {
     crypto.scrypt(password, salt, 64, (err, buf) => {
-      if (err) reject(err);
+      if (err) return reject(err);
       resolve(buf.toString("hex") === key);
     });
   });
@@ -45,25 +45,46 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) {
+          console.log("[auth] Missing email or password");
+          return null;
+        }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
 
-        if (!user?.passwordHash) return null;
+          if (!user) {
+            console.log("[auth] No user found for:", credentials.email);
+            return null;
+          }
 
-        const valid = await verifyPassword(
-          credentials.password,
-          user.passwordHash
-        );
-        if (!valid) return null;
+          if (!user.passwordHash) {
+            console.log("[auth] User has no password hash:", credentials.email);
+            return null;
+          }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        };
+          const valid = await verifyPassword(
+            credentials.password,
+            user.passwordHash
+          );
+
+          if (!valid) {
+            console.log("[auth] Invalid password for:", credentials.email);
+            return null;
+          }
+
+          console.log("[auth] Login success for:", credentials.email);
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          };
+        } catch (err) {
+          console.error("[auth] Error during login:", err);
+          return null;
+        }
       },
     }),
     // Google OAuth (optional — works when env vars are set)
