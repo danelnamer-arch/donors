@@ -7,16 +7,16 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient(): PrismaClient {
-  const connStr = process.env.DATABASE_URL ?? "";
-  // Ensure sslmode=require is in the connection string for Neon
-  const url = connStr.includes("sslmode=")
-    ? connStr
-    : connStr + (connStr.includes("?") ? "&sslmode=require" : "?sslmode=require");
+  // Strip sslmode from URL — we configure SSL via Pool options instead.
+  // The pg driver treats sslmode=require as verify-full which breaks Neon.
+  const connStr = (process.env.DATABASE_URL ?? "")
+    .replace(/[?&]sslmode=[^&]*/g, "")
+    .replace(/\?$/, "");
 
   console.log("[prisma] Creating connection pool...");
 
   const pool = new Pool({
-    connectionString: url,
+    connectionString: connStr,
     ssl: { rejectUnauthorized: false },
     max: 5,
     idleTimeoutMillis: 30000,
