@@ -57,6 +57,11 @@ export default function AdminDashboard() {
   const [discoverRegion, setDiscoverRegion] = useState("");
   const [discovering, setDiscovering] = useState(false);
 
+  // IRS 990 import
+  const [importing990, setImporting990] = useState(false);
+  const [importEin, setImportEin] = useState("");
+  const [importingEin, setImportingEin] = useState(false);
+
   // Tab state
   const [tab, setTab] = useState<"donors" | "discover" | "duplicates">("donors");
 
@@ -146,6 +151,63 @@ export default function AdminDashboard() {
       log(`Discovery failed: ${err}`);
     }
     setDiscovering(false);
+  };
+
+  const handleIrs990Import = async () => {
+    setImporting990(true);
+    log("Starting IRS 990 import from ProPublica (this may take a minute)...");
+    try {
+      const res = await fetch("/api/irs990/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ maxPages: 2 }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        log(`IRS 990 import failed: ${data.error}`);
+      } else {
+        log(`IRS 990 import complete: ${data.searched} searched, ${data.imported} imported, ${data.duplicates} duplicates, ${data.skipped} skipped`);
+        if (data.errors?.length) {
+          for (const err of data.errors.slice(0, 5)) log(`  Error: ${err}`);
+        }
+      }
+      fetchDonors();
+      fetchStats();
+    } catch (err) {
+      log(`IRS 990 import failed: ${err}`);
+    }
+    setImporting990(false);
+  };
+
+  const handleEinImport = async () => {
+    const ein = importEin.trim().replace(/-/g, "");
+    if (!ein || !/^\d{9}$/.test(ein)) {
+      log("Invalid EIN — must be 9 digits (e.g., 133015694 or 13-3015694)");
+      return;
+    }
+    setImportingEin(true);
+    log(`Importing foundation with EIN ${ein} from ProPublica...`);
+    try {
+      const res = await fetch("/api/irs990/import-ein", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ein }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        log(`EIN import failed: ${data.error}`);
+      } else if (data.donorId) {
+        log(`Imported: ${data.name ?? ein} (ID: ${data.donorId})`);
+        fetchDonors();
+        fetchStats();
+      } else {
+        log(`EIN ${ein}: ${data.message ?? "already exists or could not import"}`);
+      }
+    } catch (err) {
+      log(`EIN import failed: ${err}`);
+    }
+    setImportingEin(false);
+    setImportEin("");
   };
 
   const handleMerge = async (primaryId: string, mergeIds: string[], groupReason: string) => {
@@ -378,34 +440,87 @@ export default function AdminDashboard() {
 
         {/* Discover Tab */}
         {tab === "discover" && (
-          <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-            <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">Discover New Donors</h2>
-            <p className="mb-4 text-sm text-zinc-500">
-              Search for new donors using Tavily + Perplexity. Results are validated and stored automatically.
-              This uses your API credits (Tavily, Perplexity, OpenAI).
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                type="text"
-                placeholder="Cause area (e.g., Jewish education, healthcare in Israel)"
-                value={discoverCause}
-                onChange={(e) => setDiscoverCause(e.target.value)}
-                className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-              />
-              <input
-                type="text"
-                placeholder="Region (optional, e.g., Israel, US)"
-                value={discoverRegion}
-                onChange={(e) => setDiscoverRegion(e.target.value)}
-                className="w-48 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-              />
-              <button
-                onClick={handleDiscover}
-                disabled={discovering || !discoverCause.trim()}
-                className="rounded-lg bg-brand px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
-              >
-                {discovering ? "Searching..." : "Discover"}
-              </button>
+          <div className="space-y-4">
+            {/* AI Discovery */}
+            <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+              <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">AI Discovery</h2>
+              <p className="mb-4 text-sm text-zinc-500">
+                Search for new donors using Tavily + Perplexity. Results are validated and stored automatically.
+                This uses your API credits (Tavily, Perplexity, OpenAI).
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  placeholder="Cause area (e.g., Jewish education, healthcare in Israel)"
+                  value={discoverCause}
+                  onChange={(e) => setDiscoverCause(e.target.value)}
+                  className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+                />
+                <input
+                  type="text"
+                  placeholder="Region (optional, e.g., Israel, US)"
+                  value={discoverRegion}
+                  onChange={(e) => setDiscoverRegion(e.target.value)}
+                  className="w-48 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+                />
+                <button
+                  onClick={handleDiscover}
+                  disabled={discovering || !discoverCause.trim()}
+                  className="rounded-lg bg-brand px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
+                >
+                  {discovering ? "Searching..." : "Discover"}
+                </button>
+              </div>
+            </div>
+
+            {/* IRS 990 / ProPublica Import */}
+            <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+              <h2 className="mb-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">IRS 990 / ProPublica Import</h2>
+              <p className="mb-4 text-sm text-zinc-500">
+                Import US foundations from ProPublica&apos;s Nonprofit Explorer API. Free, no API key needed.
+                Searches for Israel-related foundations and imports their IRS 990 data (EIN, financials, filings).
+              </p>
+
+              <div className="flex flex-col gap-4">
+                {/* Bulk import */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleIrs990Import}
+                    disabled={importing990}
+                    className="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    {importing990 ? "Importing..." : "Import Israel-Related Foundations"}
+                  </button>
+                  <span className="text-xs text-zinc-400">Searches 5 keywords x 2 pages = ~100 orgs scanned</span>
+                </div>
+
+                {/* Single EIN import */}
+                <div className="border-t border-zinc-200 pt-4 dark:border-zinc-700">
+                  <div className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">Import by EIN</div>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      placeholder="EIN (e.g., 13-3015694 or 133015694)"
+                      value={importEin}
+                      onChange={(e) => setImportEin(e.target.value)}
+                      className="w-64 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
+                    />
+                    <button
+                      onClick={handleEinImport}
+                      disabled={importingEin || !importEin.trim()}
+                      className="rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50 disabled:opacity-50"
+                    >
+                      {importingEin ? "Importing..." : "Import"}
+                    </button>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-400">
+                    Find EINs at{" "}
+                    <a href="https://projects.propublica.org/nonprofits/" target="_blank" rel="noopener noreferrer" className="text-brand underline">
+                      ProPublica Nonprofit Explorer
+                    </a>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}
