@@ -432,9 +432,18 @@ export default function AdminDonorEdit() {
           {/* Right: Grants & Publications */}
           <div className="space-y-4">
             <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">
-                Grants ({donor.grants.length})
-              </h2>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  Grants ({donor.grants.length})
+                </h2>
+                <button
+                  onClick={() => handleEnrichPreview("giving")}
+                  disabled={enrichingScope !== null}
+                  className="rounded border border-blue-200 px-2 py-0.5 text-[10px] font-medium text-blue-600 hover:bg-blue-50 disabled:opacity-40"
+                >
+                  {enrichingScope === "giving" ? "Searching..." : "Find New Grants"}
+                </button>
+              </div>
               <div className="max-h-96 space-y-2 overflow-y-auto">
                 {donor.grants.length === 0 ? (
                   <p className="text-sm text-zinc-400">No grants recorded</p>
