@@ -1,19 +1,20 @@
 /**
- * Matching Engine
- * Scores donors against organizations and generates human-readable reasoning.
+ * Matching Engine v2
+ * Scores donors against organizations and generates data-rich reasoning.
  *
- * Scoring weights (from highest to lowest priority):
- *   1. Similar orgs' donors (40%)
- *   2. Cause alignment (25%)
- *   3. Geographic overlap (15%)
- *   4. Target population overlap (10%)
- *   5. Semantic similarity (10%)
+ * Scoring weights:
+ *   1. Cause alignment (30%)
+ *   2. Geographic overlap (20%) — includes activeRegions
+ *   3. Data quality (20%)
+ *   4. Population overlap (15%)
+ *   5. Semantic similarity (15%)
  *
  * The score is NEVER shown to users — only the reasoning.
+ * Reasoning now includes concrete grant data, amounts, and recipients.
  */
 
 import { prisma } from "@/lib/prisma";
-import { generateEmbedding } from "@/lib/openai";
+import { generateMatchReasoning as geminiReasoning } from "@/lib/gemini";
 import OpenAI from "openai";
 
 const openai = new OpenAI();
@@ -26,8 +27,13 @@ interface MatchCandidate {
   donorCauses: string[];
   donorPopulations: string[];
   donorGeoFocus: string[];
+  donorActiveRegions: string[];
   donorCountry: string | null;
   donorWebsite: string | null;
+  donorWebsiteVerified: boolean;
+  totalGivingUsd: number | null;
+  avgGrantSizeUsd: number | null;
+  donorGrantCount: number;
   dataQualityScore: number;
 }
 
@@ -46,7 +52,7 @@ interface ScoredMatch {
 
 /**
  * Generate matches for an organization.
- * Finds relevant donors, scores them, and generates reasoning.
+ * Finds relevant donors, scores them, and generates data-rich reasoning.
  */
 export async function generateMatches(
   organizationId: string,
@@ -59,7 +65,7 @@ export async function generateMatches(
   });
   if (!org) throw new Error("Organization not found");
 
-  // Get existing matches and swiped donors to exclude
+  // Get existing matches to exclude
   const existingDonorIds = await prisma.match
     .findMany({
       where: { organizationId },
@@ -67,12 +73,11 @@ export async function generateMatches(
     })
     .then((m) => m.map((x) => x.donorId));
 
-  // Find candidates using multiple strategies
+  // Find candidates
   const candidates = await findCandidates(org, existingDonorIds, limit * 3);
 
   // Score each candidate
   const scored: ScoredMatch[] = [];
-
   for (const candidate of candidates) {
     const scoreBreakdown = scoreCandidate(org, candidate);
     const totalScore =
@@ -86,7 +91,7 @@ export async function generateMatches(
       donorId: candidate.donorId,
       score: Math.round(totalScore * 100) / 100,
       scoreBreakdown,
-      reasoning: "", // Generated below
+      reasoning: "",
     });
   }
 
@@ -94,16 +99,28 @@ export async function generateMatches(
   scored.sort((a, b) => b.score - a.score);
   const topMatches = scored.slice(0, limit);
 
-  // Generate reasoning for top matches (batch for efficiency)
-  const candidateMap = new Map(
-    candidates.map((c) => [c.donorId, c])
-  );
+  // Fetch top grants for each top match (for reasoning)
+  const candidateMap = new Map(candidates.map((c) => [c.donorId, c]));
 
+  const donorGrants = await prisma.donorGrant.findMany({
+    where: { donorId: { in: topMatches.map((m) => m.donorId) } },
+    orderBy: { amount: "desc" },
+  });
+
+  const grantsByDonor = new Map<string, typeof donorGrants>();
+  for (const g of donorGrants) {
+    const existing = grantsByDonor.get(g.donorId) || [];
+    existing.push(g);
+    grantsByDonor.set(g.donorId, existing);
+  }
+
+  // Generate reasoning in parallel
   await Promise.all(
     topMatches.map(async (match) => {
       const candidate = candidateMap.get(match.donorId);
+      const grants = grantsByDonor.get(match.donorId) || [];
       if (candidate) {
-        match.reasoning = await generateReasoning(org, candidate, match.scoreBreakdown);
+        match.reasoning = await generateReasoning(org, candidate, grants);
       }
     })
   );
@@ -112,21 +129,19 @@ export async function generateMatches(
 }
 
 /**
- * Find donor candidates using multiple strategies.
+ * Find donor candidates with enriched data.
  */
 async function findCandidates(
   org: { id: string; causes: string[]; targetPopulations: string[]; geographicFocus: string[]; mission: string | null },
   excludeIds: string[],
   limit: number
 ): Promise<MatchCandidate[]> {
-  // Strategy 1: Cause-aligned donors (full-text filter)
   const causeFilter =
     org.causes.length > 0
       ? `AND d."causes" && ARRAY[${org.causes.map((_, i) => `$${i + 1}`).join(",")}]::text[]`
       : "";
 
   const causeValues = org.causes.length > 0 ? org.causes : [];
-
   const paramOffset = causeValues.length;
 
   const excludeFilter =
@@ -149,8 +164,13 @@ async function findCandidates(
       d.causes as "donorCauses",
       d."targetPopulations" as "donorPopulations",
       d."geographicFocus" as "donorGeoFocus",
+      COALESCE(d."activeRegions", '{}') as "donorActiveRegions",
       d.country as "donorCountry",
       d.website as "donorWebsite",
+      COALESCE(d."websiteVerified", false) as "donorWebsiteVerified",
+      d."totalGivingUsd",
+      d."avgGrantSizeUsd",
+      COALESCE(d."grantCount", 0) as "donorGrantCount",
       d."dataQualityScore"
     FROM "Donor" d
     WHERE 1=1
@@ -160,12 +180,9 @@ async function findCandidates(
     LIMIT $${allValues.length}
   `;
 
-  const results = await prisma.$queryRawUnsafe<MatchCandidate[]>(
-    sql,
-    ...allValues
-  );
+  const results = await prisma.$queryRawUnsafe<MatchCandidate[]>(sql, ...allValues);
 
-  // Strategy 2: If we don't have enough from cause filtering, get more
+  // If not enough from cause filtering, get more by data quality
   if (results.length < limit) {
     const existingIds = [...excludeIds, ...results.map((r) => r.donorId)];
     const moreValues = existingIds.length > 0 ? [existingIds, limit - results.length] : [limit - results.length];
@@ -181,8 +198,13 @@ async function findCandidates(
         d.causes as "donorCauses",
         d."targetPopulations" as "donorPopulations",
         d."geographicFocus" as "donorGeoFocus",
+        COALESCE(d."activeRegions", '{}') as "donorActiveRegions",
         d.country as "donorCountry",
         d.website as "donorWebsite",
+        COALESCE(d."websiteVerified", false) as "donorWebsiteVerified",
+        d."totalGivingUsd",
+        d."avgGrantSizeUsd",
+        COALESCE(d."grantCount", 0) as "donorGrantCount",
         d."dataQualityScore"
       FROM "Donor" d
       WHERE 1=1
@@ -191,10 +213,7 @@ async function findCandidates(
       LIMIT ${limitParam}
     `;
 
-    const moreResults = await prisma.$queryRawUnsafe<MatchCandidate[]>(
-      moreSql,
-      ...moreValues
-    );
+    const moreResults = await prisma.$queryRawUnsafe<MatchCandidate[]>(moreSql, ...moreValues);
     results.push(...moreResults);
   }
 
@@ -202,109 +221,160 @@ async function findCandidates(
 }
 
 /**
- * Score a single candidate against the organization.
+ * Score a candidate against the organization.
+ * Now considers activeRegions for geographic overlap.
  */
 function scoreCandidate(
   org: { causes: string[]; targetPopulations: string[]; geographicFocus: string[] },
   candidate: MatchCandidate
 ): ScoredMatch["scoreBreakdown"] {
-  // Cause alignment: Jaccard similarity
-  const causeOverlap = intersectionSize(org.causes, candidate.donorCauses);
-  const causeUnion = unionSize(org.causes, candidate.donorCauses);
-  const causeAlignment = causeUnion > 0 ? causeOverlap / causeUnion : 0;
+  const causeAlignment = jaccardSimilarity(org.causes, candidate.donorCauses);
 
-  // Geographic overlap
-  const geoOverlap = intersectionSize(org.geographicFocus, candidate.donorGeoFocus);
-  const geoUnion = unionSize(org.geographicFocus, candidate.donorGeoFocus);
-  const geographicOverlap = geoUnion > 0 ? geoOverlap / geoUnion : 0;
+  // Geographic: combine geographicFocus + activeRegions
+  const allDonorGeo = [...candidate.donorGeoFocus, ...candidate.donorActiveRegions];
+  const geographicOverlap = jaccardSimilarity(org.geographicFocus, allDonorGeo);
 
-  // Population overlap
-  const popOverlap = intersectionSize(org.targetPopulations, candidate.donorPopulations);
-  const popUnion = unionSize(org.targetPopulations, candidate.donorPopulations);
-  const populationOverlap = popUnion > 0 ? popOverlap / popUnion : 0;
+  const populationOverlap = jaccardSimilarity(org.targetPopulations, candidate.donorPopulations);
 
   return {
     causeAlignment,
     geographicOverlap,
     populationOverlap,
-    semanticSimilarity: 0.5, // Default; upgraded when embeddings are available
+    semanticSimilarity: 0.5,
     dataQuality: candidate.dataQualityScore,
   };
 }
 
 /**
- * Generate human-readable reasoning for why a donor is a good match.
- * This is what the user sees instead of a score.
+ * Generate data-rich reasoning.
+ * Tries Gemini first (with grant data), falls back to OpenAI, then to template.
  */
 async function generateReasoning(
   org: { name: string; causes: string[]; targetPopulations: string[]; geographicFocus: string[]; mission: string | null },
   candidate: MatchCandidate,
-  breakdown: ScoredMatch["scoreBreakdown"]
+  grants: { recipientName: string; amount: number | null; year: number | null }[]
 ): Promise<string> {
+  // Try Gemini first (produces better data-rich reasoning)
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      return await geminiReasoning({
+        orgName: org.name,
+        orgMission: org.mission,
+        orgCauses: org.causes,
+        orgGeoFocus: org.geographicFocus,
+        donorName: candidate.donorName,
+        donorType: candidate.donorType,
+        donorDescription: candidate.donorDescription,
+        donorCauses: candidate.donorCauses,
+        donorGeoFocus: candidate.donorGeoFocus,
+        donorActiveRegions: candidate.donorActiveRegions,
+        topGrants: grants.slice(0, 5),
+        totalGiving: candidate.totalGivingUsd,
+        grantCount: candidate.donorGrantCount,
+      });
+    } catch (err) {
+      console.error("[matching] Gemini reasoning failed, falling back to OpenAI:", err);
+    }
+  }
+
+  // Fallback: OpenAI with enriched prompt
   try {
+    const grantContext = grants.slice(0, 5).map((g) => {
+      const parts = [g.recipientName];
+      if (g.amount) parts.push(`$${Math.round(g.amount / 1000)}K`);
+      if (g.year) parts.push(`(${g.year})`);
+      return parts.join(" — ");
+    }).join("; ");
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content:
-            "You write concise, helpful explanations of why a donor might be a good match for an NGO. Write 2-3 sentences. Be specific about the alignment. Never mention scores or numbers.",
+          content: `You write concise match explanations for an NGO donor matching platform.
+RULES:
+- Write 2-3 sentences
+- Be SPECIFIC: mention grant recipients by name, dollar amounts, regions
+- Never say generic things like "aligns with your mission" without concrete evidence
+- Never mention scores, percentages, or algorithms
+- If the donor gave to similar organizations, name them`,
         },
         {
           role: "user",
-          content: `NGO "${org.name}" focuses on: ${org.causes.join(", ")}. Mission: ${org.mission || "N/A"}. Populations: ${org.targetPopulations.join(", ") || "N/A"}. Geography: ${org.geographicFocus.join(", ") || "N/A"}.
+          content: `NGO "${org.name}": ${org.causes.join(", ")}. Mission: ${org.mission || "N/A"}. Geography: ${org.geographicFocus.join(", ") || "N/A"}.
 
-Donor "${candidate.donorName}" (${candidate.donorType}) focuses on: ${candidate.donorCauses.join(", ") || "general philanthropy"}. Description: ${candidate.donorDescription || "N/A"}. Geography: ${candidate.donorGeoFocus.join(", ") || "N/A"}.
+Donor "${candidate.donorName}" (${candidate.donorType}): ${candidate.donorDescription || "N/A"}. Causes: ${candidate.donorCauses.join(", ") || "N/A"}. Regions: ${[...candidate.donorGeoFocus, ...candidate.donorActiveRegions].join(", ") || "N/A"}.${candidate.totalGivingUsd ? ` Total giving: ~$${Math.round(candidate.totalGivingUsd / 1_000_000 * 10) / 10}M.` : ""}${candidate.donorGrantCount ? ` ${candidate.donorGrantCount} grants on record.` : ""}
+${grantContext ? `Recent grants: ${grantContext}` : ""}
 
-Explain why this donor could be a good match for this NGO.`,
+Explain why this donor is a good match.`,
         },
       ],
-      max_tokens: 150,
-      temperature: 0.7,
+      max_tokens: 200,
+      temperature: 0.5,
     });
 
-    return (
-      response.choices[0]?.message?.content?.trim() ??
-      "This donor's focus areas align with your organization's mission."
-    );
+    return response.choices[0]?.message?.content?.trim() ?? buildFallbackReasoning(org, candidate, grants);
   } catch {
-    // Fallback reasoning when OpenAI is unavailable
-    const sharedCauses = org.causes.filter((c) =>
-      candidate.donorCauses.some(
-        (dc) => dc.toLowerCase() === c.toLowerCase()
-      )
-    );
-
-    if (sharedCauses.length > 0) {
-      return `${candidate.donorName} has supported causes including ${sharedCauses.join(", ")}, which align with your organization's focus areas.`;
-    }
-
-    return `${candidate.donorName} is a ${candidate.donorType.toLowerCase()} that may be relevant to your organization's work.`;
+    return buildFallbackReasoning(org, candidate, grants);
   }
 }
 
-/** Set intersection size (case-insensitive). */
-function intersectionSize(a: string[], b: string[]): number {
-  const setB = new Set(b.map((s) => s.toLowerCase()));
-  return a.filter((x) => setB.has(x.toLowerCase())).length;
+/**
+ * Template-based fallback when all AI providers are unavailable.
+ */
+function buildFallbackReasoning(
+  org: { causes: string[] },
+  candidate: MatchCandidate,
+  grants: { recipientName: string; amount: number | null; year: number | null }[]
+): string {
+  const parts: string[] = [];
+
+  // Shared causes
+  const sharedCauses = org.causes.filter((c) =>
+    candidate.donorCauses.some((dc) => dc.toLowerCase() === c.toLowerCase())
+  );
+  if (sharedCauses.length > 0) {
+    parts.push(`${candidate.donorName} actively funds ${sharedCauses.join(", ")}`);
+  }
+
+  // Grant data
+  if (grants.length > 0) {
+    const topGrant = grants[0];
+    const grantStr = topGrant.amount
+      ? `including a $${Math.round(topGrant.amount / 1000)}K grant to ${topGrant.recipientName}`
+      : `including grants to ${topGrant.recipientName}`;
+    parts.push(grantStr);
+  }
+
+  // Total giving
+  if (candidate.totalGivingUsd && candidate.totalGivingUsd > 0) {
+    parts.push(`with ~$${Math.round(candidate.totalGivingUsd / 1_000_000 * 10) / 10}M in total giving`);
+  }
+
+  if (parts.length > 0) {
+    return parts.join(", ") + ".";
+  }
+
+  return `${candidate.donorName} is a ${candidate.donorType.toLowerCase()} that supports causes relevant to your organization.`;
 }
 
-/** Set union size (case-insensitive). */
-function unionSize(a: string[], b: string[]): number {
-  const all = new Set([
-    ...a.map((s) => s.toLowerCase()),
-    ...b.map((s) => s.toLowerCase()),
-  ]);
-  return all.size;
+/** Jaccard similarity (case-insensitive). */
+function jaccardSimilarity(a: string[], b: string[]): number {
+  if (a.length === 0 && b.length === 0) return 0;
+  const setA = new Set(a.map((s) => s.toLowerCase()));
+  const setB = new Set(b.map((s) => s.toLowerCase()));
+  let intersection = 0;
+  for (const item of setA) {
+    if (setB.has(item)) intersection++;
+  }
+  const union = new Set([...setA, ...setB]).size;
+  return union > 0 ? intersection / union : 0;
 }
 
 /**
  * Store generated matches in the database.
  */
-export async function storeMatches(
-  organizationId: string,
-  matches: ScoredMatch[]
-) {
+export async function storeMatches(organizationId: string, matches: ScoredMatch[]) {
   const data = matches.map((m) => ({
     organizationId,
     donorId: m.donorId,
@@ -314,26 +384,15 @@ export async function storeMatches(
     status: "PENDING" as const,
   }));
 
-  // Use createMany with skipDuplicates to avoid conflicts
-  await prisma.match.createMany({
-    data,
-    skipDuplicates: true,
-  });
+  await prisma.match.createMany({ data, skipDuplicates: true });
 }
 
 /**
  * Get the next batch of matches for swiping.
- * Returns PENDING matches ordered by score.
  */
-export async function getNextMatches(
-  organizationId: string,
-  limit: number = 10
-) {
+export async function getNextMatches(organizationId: string, limit: number = 10) {
   return prisma.match.findMany({
-    where: {
-      organizationId,
-      status: "PENDING",
-    },
+    where: { organizationId, status: "PENDING" },
     include: {
       donor: {
         include: {

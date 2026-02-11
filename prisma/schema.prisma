@@ -135,18 +135,28 @@ model Donor {
   type                 DonorType
   description          String?   @db.Text
   website              String?
+  websiteVerified      Boolean   @default(false)
+  websiteSource        String?
   email                String?
   phone                String?
   socialLinks          Json?
 
+  headquartersCountry  String?
+  headquartersCity     String?
   country              String?
   city                 String?
   location             String?
+  activeRegions        String[]
 
   politicalAffiliation PoliticalAffiliation @default(UNKNOWN)
   causes               String[]
   targetPopulations    String[]
   geographicFocus      String[]
+
+  totalGivingUsd       Float?
+  avgGrantSizeUsd      Float?
+  grantCount           Int       @default(0)
+  givingYearRange      String?
 
   missionEmbedding     Unsupported("vector(1536)")?
 

@@ -1,14 +1,23 @@
 /**
- * Research Orchestrator — Coordinates all research agents.
- * Manages the full pipeline: discover → research → crawl → validate → store.
+ * Research Orchestrator v2 — Coordinates all research agents.
+ * Manages the full pipeline: discover → research → extract → verify → store.
+ *
+ * v2 enhancements:
+ * - Gemini for structured data extraction (richer than OpenAI alone)
+ * - Website verification via multi-strategy agent
+ * - Grant geography analysis → activeRegions
+ * - Computes totalGivingUsd, avgGrantSizeUsd, grantCount, givingYearRange
+ * - Stores headquartersCountry/City separately from activeRegions
  */
 
 import { prisma } from "@/lib/prisma";
 import { generateEmbedding } from "@/lib/openai";
+import { extractDonorProfile, analyzeGrantGeography } from "@/lib/gemini";
 import { discoverDonorsBySearch, searchForDonorInfo } from "./search-agent";
 import { crawlDonorWebsite } from "./crawl-agent";
 import { deepDiscoverDonors, deepResearchDonor, deepEnrichDonor } from "./deep-research-agent";
 import { validateDonorCandidate } from "./validator-agent";
+import { findAndVerifyWebsite } from "./website-verifier";
 import type { DonorCandidate } from "./types";
 
 /**
@@ -80,31 +89,99 @@ export async function runDiscoveryPipeline(params: {
         }
       }
 
-      // Step 4: If they have a website, crawl it
+      // Step 4: Use Gemini to extract structured data from research text
+      if (donorData.description && process.env.GEMINI_API_KEY) {
+        try {
+          const rawText = [
+            donorData.description,
+            donorData.causes?.join(", "),
+            donorData.geographicFocus?.join(", "),
+          ].filter(Boolean).join("\n");
+
+          const geminiProfile = await extractDonorProfile(rawText, name);
+
+          // Merge Gemini-extracted data (fills gaps, doesn't overwrite existing)
+          donorData = {
+            ...donorData,
+            headquartersCountry: donorData.headquartersCountry ?? geminiProfile.headquartersCountry ?? undefined,
+            headquartersCity: donorData.headquartersCity ?? geminiProfile.headquartersCity ?? undefined,
+            activeRegions: mergeArrays(donorData.activeRegions, geminiProfile.activeRegions),
+            causes: mergeArrays(donorData.causes, geminiProfile.causes),
+            targetPopulations: mergeArrays(donorData.targetPopulations, geminiProfile.targetPopulations),
+            geographicFocus: mergeArrays(donorData.geographicFocus, geminiProfile.geographicFocus),
+            totalGivingUsd: donorData.totalGivingUsd ?? geminiProfile.totalGivingUsd ?? undefined,
+            avgGrantSizeUsd: donorData.avgGrantSizeUsd ?? geminiProfile.avgGrantSizeUsd ?? undefined,
+            contactEmail: donorData.contactEmail ?? geminiProfile.email ?? undefined,
+            contactPhone: donorData.contactPhone ?? geminiProfile.phone ?? undefined,
+            website: donorData.website ?? geminiProfile.website ?? undefined,
+            // Merge Gemini grants with existing
+            grants: deduplicateGrants([...(donorData.grants ?? []), ...geminiProfile.grants.map(g => ({
+              recipientName: g.recipientName,
+              amount: g.amount ?? undefined,
+              year: g.year ?? undefined,
+              purpose: g.purpose ?? undefined,
+            }))]),
+          };
+        } catch (err) {
+          console.error(`[orchestrator] Gemini extraction failed for ${name}:`, err);
+        }
+      }
+
+      // Step 5: If they have a website, crawl it
       if (donorData.website) {
         const crawlResult = await crawlDonorWebsite(donorData.website, name);
         if (crawlResult.success && crawlResult.data) {
-          // Merge crawled data (prefer crawled data for contact info, use existing for everything else)
           donorData = {
             ...donorData,
             ...crawlResult.data,
-            // Keep the richer description
             description: donorData.description && donorData.description.length > (crawlResult.data.description?.length ?? 0)
               ? donorData.description
               : crawlResult.data.description ?? donorData.description,
-            // Merge arrays
-            causes: [...new Set([...(donorData.causes ?? []), ...(crawlResult.data.causes ?? [])])],
-            targetPopulations: [...new Set([...(donorData.targetPopulations ?? []), ...(crawlResult.data.targetPopulations ?? [])])],
-            geographicFocus: [...new Set([...(donorData.geographicFocus ?? []), ...(crawlResult.data.geographicFocus ?? [])])],
-            // Merge grants
-            grants: [...(donorData.grants ?? []), ...(crawlResult.data.grants ?? [])],
-            // Merge sources
+            causes: mergeArrays(donorData.causes, crawlResult.data.causes),
+            targetPopulations: mergeArrays(donorData.targetPopulations, crawlResult.data.targetPopulations),
+            geographicFocus: mergeArrays(donorData.geographicFocus, crawlResult.data.geographicFocus),
+            grants: deduplicateGrants([...(donorData.grants ?? []), ...(crawlResult.data.grants ?? [])]),
             dataSources: [...(donorData.dataSources ?? []), ...(crawlResult.data.dataSources ?? [])],
           };
         }
       }
 
-      // Step 5: Validate
+      // Step 6: Verify website
+      try {
+        const verification = await findAndVerifyWebsite(name, {
+          claimedUrl: donorData.website,
+          ein: undefined,
+          irsWebsite: undefined,
+        });
+        donorData.websiteVerified = verification.verified;
+        donorData.websiteSource = verification.source;
+        if (verification.verified && verification.url) {
+          donorData.website = verification.url;
+        }
+      } catch (err) {
+        console.error(`[orchestrator] Website verification failed for ${name}:`, err);
+      }
+
+      // Step 7: Analyze grant geography → activeRegions
+      if ((donorData.grants?.length ?? 0) > 0 && process.env.GEMINI_API_KEY) {
+        try {
+          const grantGeo = await analyzeGrantGeography(
+            name,
+            donorData.grants!.map(g => ({
+              recipientName: g.recipientName,
+              purpose: g.purpose ?? null,
+            }))
+          );
+          donorData.activeRegions = mergeArrays(donorData.activeRegions, grantGeo);
+        } catch (err) {
+          console.error(`[orchestrator] Grant geography analysis failed for ${name}:`, err);
+        }
+      }
+
+      // Step 8: Compute giving statistics
+      computeGivingStats(donorData);
+
+      // Step 9: Validate
       const validation = await validateDonorCandidate(donorData);
       if (!validation.success || !validation.data?.isValid) {
         errors.push(`Validation failed for ${name}: ${validation.error ?? "not verifiable"}`);
@@ -112,7 +189,7 @@ export async function runDiscoveryPipeline(params: {
       }
       validated++;
 
-      // Step 6: Store in database
+      // Step 10: Store in database
       await storeDonor(donorData, validation.data.dataQualityScore);
       stored++;
     } catch (error) {
@@ -127,6 +204,7 @@ export async function runDiscoveryPipeline(params: {
 
 /**
  * Run enrichment for a specific donor (paid feature).
+ * v2: Uses Gemini extraction, website verification, grant geography.
  */
 export async function runEnrichmentPipeline(donorId: string): Promise<{
   success: boolean;
@@ -143,7 +221,7 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
       return { success: false, error: "Donor not found" };
     }
 
-    // Run deep enrichment via Perplexity + web search + crawling in parallel
+    // Run deep enrichment via Perplexity + web search in parallel
     const [enrichResult, searchResult] = await Promise.all([
       deepEnrichDonor(donor.name, {
         website: donor.website ?? undefined,
@@ -178,10 +256,74 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
       })),
     ];
 
+    // Use Gemini to extract structured data from the enrichment report
+    let geminiProfile: Awaited<ReturnType<typeof extractDonorProfile>> | null = null;
+    if (enrichResult.data.enrichedReport && process.env.GEMINI_API_KEY) {
+      try {
+        geminiProfile = await extractDonorProfile(enrichResult.data.enrichedReport, donor.name);
+      } catch (err) {
+        console.error("[orchestrator] Gemini extraction failed during enrichment:", err);
+      }
+    }
+
+    // Verify website
+    let websiteVerified = donor.websiteVerified;
+    let websiteSource = donor.websiteSource;
+    let verifiedUrl = donor.website;
+    try {
+      const verification = await findAndVerifyWebsite(donor.name, {
+        claimedUrl: donor.website,
+        ein: donor.ein,
+        irsWebsite: (donor.irsData as { website?: string })?.website ?? null,
+      });
+      websiteVerified = verification.verified;
+      websiteSource = verification.source;
+      if (verification.verified && verification.url) {
+        verifiedUrl = verification.url;
+      }
+    } catch (err) {
+      console.error("[orchestrator] Website verification failed during enrichment:", err);
+    }
+
+    // Analyze grant geography
+    const allGrants = [
+      ...donor.grants.map(g => ({ recipientName: g.recipientName, purpose: g.purpose })),
+      ...newGrants.map(g => ({ recipientName: g.recipientName, purpose: g.purpose ?? null })),
+    ];
+    let activeRegions = donor.activeRegions;
+    if (allGrants.length > 0 && process.env.GEMINI_API_KEY) {
+      try {
+        const grantGeo = await analyzeGrantGeography(donor.name, allGrants);
+        activeRegions = [...new Set([...activeRegions, ...grantGeo])];
+      } catch (err) {
+        console.error("[orchestrator] Grant geography analysis failed:", err);
+      }
+    }
+
+    // Compute giving stats from all grants
+    const allGrantAmounts = [
+      ...donor.grants.map(g => g.amount).filter((a): a is number => a !== null),
+      ...newGrants.map(g => g.amount).filter((a): a is number | undefined => a != null) as number[],
+    ];
+    const totalGivingUsd = allGrantAmounts.length > 0
+      ? allGrantAmounts.reduce((sum, a) => sum + a, 0)
+      : (geminiProfile?.totalGivingUsd ?? donor.totalGivingUsd);
+    const avgGrantSizeUsd = allGrantAmounts.length > 0
+      ? totalGivingUsd! / allGrantAmounts.length
+      : (geminiProfile?.avgGrantSizeUsd ?? donor.avgGrantSizeUsd);
+    const grantCount = donor.grants.length + newGrants.length;
+
+    const allYears = [
+      ...donor.grants.map(g => g.year).filter((y): y is number => y !== null),
+      ...newGrants.map(g => g.year).filter((y): y is number | undefined => y != null) as number[],
+    ];
+    const givingYearRange = allYears.length > 0
+      ? `${Math.min(...allYears)}-${Math.max(...allYears)}`
+      : donor.givingYearRange;
+
     // Update donor with enriched data
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await prisma.$transaction(async (tx: any) => {
-      // Update donor fields
       await tx.donor.update({
         where: { id: donorId },
         data: {
@@ -189,6 +331,12 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
           email: profile.contactEmail ?? donor.email,
           phone: profile.contactPhone ?? donor.phone,
           socialLinks: (profile.socialLinks ?? donor.socialLinks) as Record<string, string> | undefined,
+          website: verifiedUrl ?? donor.website,
+          websiteVerified,
+          websiteSource,
+          headquartersCountry: geminiProfile?.headquartersCountry ?? donor.headquartersCountry,
+          headquartersCity: geminiProfile?.headquartersCity ?? donor.headquartersCity,
+          activeRegions,
           causes: profile.causes?.length
             ? [...new Set([...donor.causes, ...profile.causes])]
             : donor.causes,
@@ -198,6 +346,10 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
           geographicFocus: profile.geographicFocus?.length
             ? [...new Set([...donor.geographicFocus, ...profile.geographicFocus])]
             : donor.geographicFocus,
+          totalGivingUsd,
+          avgGrantSizeUsd,
+          grantCount,
+          givingYearRange,
           dataSources: [...(donor.dataSources as { url: string; title: string; fetchedAt: string }[]), ...newSources],
           lastResearchedAt: new Date(),
           researchStatus: "COMPLETED",
@@ -268,6 +420,10 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
         newPublicationsAdded: newPublications.length,
         sourcesUsed: newSources.length,
         crawledPages: crawlData ? 1 : 0,
+        websiteVerified,
+        activeRegions,
+        totalGivingUsd,
+        grantCount,
       },
     };
   } catch (error) {
@@ -280,6 +436,7 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
 
 /**
  * Store a validated donor candidate in the database.
+ * v2: Saves all new enrichment fields.
  */
 async function storeDonor(
   candidate: Partial<DonorCandidate>,
@@ -291,15 +448,24 @@ async function storeDonor(
       type: (candidate.type as "FOUNDATION" | "INDIVIDUAL" | "CORPORATE" | "GOVERNMENT" | "OTHER") ?? "FOUNDATION",
       description: candidate.description,
       website: candidate.website,
+      websiteVerified: candidate.websiteVerified ?? false,
+      websiteSource: candidate.websiteSource,
       email: candidate.contactEmail,
       phone: candidate.contactPhone,
       socialLinks: candidate.socialLinks ?? undefined,
-      country: candidate.country,
-      city: candidate.city,
+      country: candidate.headquartersCountry ?? candidate.country,
+      city: candidate.headquartersCity ?? candidate.city,
+      headquartersCountry: candidate.headquartersCountry,
+      headquartersCity: candidate.headquartersCity,
+      activeRegions: candidate.activeRegions ?? [],
       politicalAffiliation: (candidate.politicalAffiliation as "LEFT" | "CENTER_LEFT" | "CENTER" | "CENTER_RIGHT" | "RIGHT" | "NONPARTISAN" | "UNKNOWN") ?? "UNKNOWN",
       causes: candidate.causes ?? [],
       targetPopulations: candidate.targetPopulations ?? [],
       geographicFocus: candidate.geographicFocus ?? [],
+      totalGivingUsd: candidate.totalGivingUsd,
+      avgGrantSizeUsd: candidate.avgGrantSizeUsd,
+      grantCount: candidate.grants?.length ?? 0,
+      givingYearRange: candidate.givingYearRange,
       dataSources: candidate.dataSources ?? [],
       dataQualityScore: qualityScore,
       researchStatus: "COMPLETED",
@@ -350,6 +516,60 @@ async function storeDonor(
 }
 
 /**
+ * Compute giving statistics from grant data.
+ */
+function computeGivingStats(donorData: Partial<DonorCandidate>): void {
+  const grants = donorData.grants ?? [];
+  if (grants.length === 0) return;
+
+  const amounts = grants
+    .map(g => g.amount)
+    .filter((a): a is number => a != null && a > 0);
+
+  if (amounts.length > 0) {
+    donorData.totalGivingUsd = donorData.totalGivingUsd ?? amounts.reduce((s, a) => s + a, 0);
+    donorData.avgGrantSizeUsd = donorData.avgGrantSizeUsd ?? (donorData.totalGivingUsd! / amounts.length);
+  }
+
+  const years = grants
+    .map(g => g.year)
+    .filter((y): y is number => y != null);
+
+  if (years.length > 0) {
+    donorData.givingYearRange = donorData.givingYearRange ?? `${Math.min(...years)}-${Math.max(...years)}`;
+  }
+}
+
+/**
+ * Merge two string arrays, deduplicating case-insensitively.
+ */
+function mergeArrays(a?: string[], b?: string[]): string[] {
+  const combined = [...(a ?? []), ...(b ?? [])];
+  const seen = new Set<string>();
+  return combined.filter(item => {
+    const lower = item.toLowerCase().trim();
+    if (seen.has(lower) || !lower) return false;
+    seen.add(lower);
+    return true;
+  });
+}
+
+/**
+ * Deduplicate grants by recipientName + year.
+ */
+function deduplicateGrants(
+  grants: DonorCandidate["grants"]
+): DonorCandidate["grants"] {
+  const seen = new Set<string>();
+  return grants.filter(g => {
+    const key = `${g.recipientName.toLowerCase()}|${g.year ?? "?"}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
  * Build text for embedding generation from donor data.
  */
 function buildEmbeddingText(donor: {
@@ -358,6 +578,7 @@ function buildEmbeddingText(donor: {
   causes: string[];
   targetPopulations: string[];
   geographicFocus: string[];
+  activeRegions?: string[];
 }): string {
   return [
     donor.name,
@@ -365,6 +586,7 @@ function buildEmbeddingText(donor: {
     donor.causes.length ? `Causes: ${donor.causes.join(", ")}` : null,
     donor.targetPopulations.length ? `Populations: ${donor.targetPopulations.join(", ")}` : null,
     donor.geographicFocus.length ? `Geography: ${donor.geographicFocus.join(", ")}` : null,
+    donor.activeRegions?.length ? `Active regions: ${donor.activeRegions.join(", ")}` : null,
   ]
     .filter(Boolean)
     .join(". ");

@@ -7,8 +7,13 @@ export interface DonorCandidate {
   type: "FOUNDATION" | "INDIVIDUAL" | "CORPORATE" | "GOVERNMENT" | "OTHER";
   description: string;
   website?: string;
+  websiteVerified?: boolean;
+  websiteSource?: string;
   country?: string;
   city?: string;
+  headquartersCountry?: string;
+  headquartersCity?: string;
+  activeRegions?: string[];
   causes: string[];
   targetPopulations: string[];
   geographicFocus: string[];
@@ -16,6 +21,9 @@ export interface DonorCandidate {
   contactEmail?: string;
   contactPhone?: string;
   socialLinks?: Record<string, string>;
+  totalGivingUsd?: number;
+  avgGrantSizeUsd?: number;
+  givingYearRange?: string;
   grants: {
     recipientName: string;
     recipientEin?: string;
