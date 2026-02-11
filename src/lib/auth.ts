@@ -106,6 +106,33 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
+    async signIn({ user, account }) {
+      // For Google OAuth: auto-create user in DB on first login
+      if (account?.provider === "google" && user.email) {
+        try {
+          const existing = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+          if (!existing) {
+            const dbUser = await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name || null,
+              },
+            });
+            console.log("[auth] Created Google user:", dbUser.email);
+            user.id = dbUser.id;
+          } else {
+            console.log("[auth] Google login for existing user:", existing.email);
+            user.id = existing.id;
+          }
+        } catch (err) {
+          console.error("[auth] Error creating Google user:", err);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.userId = user.id;
