@@ -301,6 +301,83 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Publications discovery
+    if (scope === "full" || scope === "publications") {
+      try {
+        const existingPubs = await prisma.donorPublication.findMany({
+          where: { donorId: donor.id },
+          select: { url: true, title: true },
+        });
+        const existingUrls = new Set(existingPubs.map(p => p.url.toLowerCase()));
+        const existingTitles = new Set(existingPubs.map(p => p.title.toLowerCase()));
+
+        // Search for publications via Tavily
+        const searchResult = await searchForDonorInfo(donor.name);
+        if (searchResult.success && searchResult.data?.publications) {
+          const newPubs = searchResult.data.publications.filter(
+            p => !existingUrls.has(p.url.toLowerCase()) && !existingTitles.has(p.title.toLowerCase())
+          );
+          if (newPubs.length > 0) {
+            proposals.push({
+              field: "publications",
+              label: "New Publications",
+              currentValue: `${existingPubs.length} existing publications`,
+              proposedValue: newPubs.map(p => ({
+                title: p.title,
+                url: p.url,
+                type: classifyPublication(p.title, p.url),
+                summary: p.content?.slice(0, 200) ?? null,
+              })),
+              source: "Tavily web search",
+              confidence: 0.7,
+            });
+          }
+        }
+
+        // Also search specifically for recent news
+        const { searchDonorPublications } = await import("@/lib/tavily");
+        const pubResults = await searchDonorPublications(donor.name);
+        const additionalPubs = pubResults.filter(
+          p => !existingUrls.has(p.url.toLowerCase()) &&
+               !existingTitles.has(p.title.toLowerCase()) &&
+               // Don't duplicate what we already found above
+               !proposals.some(pr => pr.field === "publications" &&
+                 Array.isArray(pr.proposedValue) &&
+                 (pr.proposedValue as { url: string }[]).some(v => v.url.toLowerCase() === p.url.toLowerCase()))
+        );
+        if (additionalPubs.length > 0) {
+          const existingProposal = proposals.find(p => p.field === "publications");
+          if (existingProposal && Array.isArray(existingProposal.proposedValue)) {
+            // Merge into existing proposal
+            (existingProposal.proposedValue as unknown[]).push(
+              ...additionalPubs.map(p => ({
+                title: p.title,
+                url: p.url,
+                type: classifyPublication(p.title, p.url),
+                summary: p.content?.slice(0, 200) ?? null,
+              }))
+            );
+          } else {
+            proposals.push({
+              field: "publications",
+              label: "New Publications",
+              currentValue: `${existingPubs.length} existing publications`,
+              proposedValue: additionalPubs.map(p => ({
+                title: p.title,
+                url: p.url,
+                type: classifyPublication(p.title, p.url),
+                summary: p.content?.slice(0, 200) ?? null,
+              })),
+              source: "Tavily publication search",
+              confidence: 0.7,
+            });
+          }
+        }
+      } catch (err) {
+        console.error("[enrich-preview] Publications search error:", err);
+      }
+    }
+
     return NextResponse.json({
       donorId: donor.id,
       donorName: donor.name,
@@ -314,4 +391,19 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function classifyPublication(title: string, url: string): string {
+  const lower = (title + " " + url).toLowerCase();
+  if (lower.includes("press release") || lower.includes("prnewswire") || lower.includes("businesswire") || lower.includes("globenewswire"))
+    return "PRESS_RELEASE";
+  if (lower.includes("podcast") || lower.includes("episode"))
+    return "PODCAST";
+  if (lower.includes("video") || lower.includes("youtube") || lower.includes("vimeo"))
+    return "VIDEO";
+  if (lower.includes("blog") || lower.includes("/blog/"))
+    return "BLOG_POST";
+  if (lower.includes("twitter") || lower.includes("linkedin") || lower.includes("facebook") || lower.includes("instagram"))
+    return "SOCIAL_MEDIA";
+  return "ARTICLE";
 }

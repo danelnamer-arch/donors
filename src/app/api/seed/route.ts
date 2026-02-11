@@ -262,26 +262,88 @@ const testDonors = [
 ];
 
 const testGrants = [
+  // Schusterman (6 grants)
   { donorName: "The Schusterman Family Foundation", recipientName: "Hillel International", amount: 5000000, year: 2023, purpose: "Supporting Jewish campus life and student engagement across 550 campuses" },
   { donorName: "The Schusterman Family Foundation", recipientName: "ROI Community", amount: 2000000, year: 2023, purpose: "Young Jewish innovators network and leadership programs" },
   { donorName: "The Schusterman Family Foundation", recipientName: "Teach For All - Israel", amount: 1500000, year: 2022, purpose: "Teacher training in underserved Israeli communities" },
+  { donorName: "The Schusterman Family Foundation", recipientName: "Repair the World", amount: 1800000, year: 2023, purpose: "Jewish service learning and volunteerism programs" },
+  { donorName: "The Schusterman Family Foundation", recipientName: "BBYO", amount: 3000000, year: 2022, purpose: "Teen leadership and Jewish identity programs in 60+ countries" },
+  { donorName: "The Schusterman Family Foundation", recipientName: "OneTable", amount: 900000, year: 2023, purpose: "Shabbat dinner experiences for young Jewish adults in 200+ cities" },
+  // Jim Joseph (5 grants)
   { donorName: "The Jim Joseph Foundation", recipientName: "PJ Library", amount: 3500000, year: 2023, purpose: "Jewish children's book distribution to 680K families" },
   { donorName: "The Jim Joseph Foundation", recipientName: "Birthright Israel Foundation", amount: 4000000, year: 2022, purpose: "Free educational trips to Israel for young adults" },
   { donorName: "The Jim Joseph Foundation", recipientName: "Foundation for Jewish Camp", amount: 2800000, year: 2023, purpose: "Scholarships and innovation grants for Jewish summer camps" },
+  { donorName: "The Jim Joseph Foundation", recipientName: "Hillel International", amount: 2500000, year: 2023, purpose: "Jewish campus engagement and Hillel programming expansion" },
+  { donorName: "The Jim Joseph Foundation", recipientName: "Moving Traditions", amount: 1200000, year: 2022, purpose: "Jewish teen engagement through gender-based programming" },
+  // UJA-Federation (6 grants)
   { donorName: "UJA-Federation of New York", recipientName: "JASA", amount: 1500000, year: 2023, purpose: "Services for 40,000 aging Jewish community members" },
   { donorName: "UJA-Federation of New York", recipientName: "Met Council on Jewish Poverty", amount: 2500000, year: 2023, purpose: "Anti-poverty programs serving 325,000 New Yorkers" },
   { donorName: "UJA-Federation of New York", recipientName: "Birthright Israel", amount: 3000000, year: 2023, purpose: "Israel experience trips for NYC young adults" },
+  { donorName: "UJA-Federation of New York", recipientName: "HIAS", amount: 1800000, year: 2023, purpose: "Refugee resettlement and immigration legal services" },
+  { donorName: "UJA-Federation of New York", recipientName: "Sephardic Community Alliance", amount: 750000, year: 2022, purpose: "Cultural preservation and community programming" },
+  { donorName: "UJA-Federation of New York", recipientName: "Israel Trauma Coalition", amount: 2000000, year: 2024, purpose: "Mental health support for October 7 survivors and evacuees" },
+  // Leichtag (4 grants)
   { donorName: "The Leichtag Foundation", recipientName: "Leket Israel", amount: 500000, year: 2023, purpose: "Food rescue and agricultural programs in Israel" },
   { donorName: "The Leichtag Foundation", recipientName: "Coastal Roots Farm", amount: 750000, year: 2023, purpose: "Sustainable agriculture and community food programs in San Diego" },
+  { donorName: "The Leichtag Foundation", recipientName: "Jewish National Fund", amount: 400000, year: 2022, purpose: "Environmental and agricultural projects in the Negev" },
+  { donorName: "The Leichtag Foundation", recipientName: "Hazon", amount: 350000, year: 2023, purpose: "Jewish food sustainability and environmental education" },
+  // Singer (4 grants)
   { donorName: "The Paul E. Singer Foundation", recipientName: "Israel Democracy Institute", amount: 1000000, year: 2022, purpose: "Strengthening democratic institutions in Israel" },
   { donorName: "The Paul E. Singer Foundation", recipientName: "AIPAC", amount: 2000000, year: 2023, purpose: "US-Israel policy advocacy" },
+  { donorName: "The Paul E. Singer Foundation", recipientName: "Manhattan Institute", amount: 1500000, year: 2023, purpose: "Public policy research and education reform" },
+  { donorName: "The Paul E. Singer Foundation", recipientName: "Paul Singer Foundation Scholarship Fund", amount: 800000, year: 2022, purpose: "STEM scholarships for underrepresented students" },
+  // Keren Hayesod (5 grants)
   { donorName: "Keren Hayesod", recipientName: "Jewish Agency for Israel", amount: 10000000, year: 2023, purpose: "Immigrant absorption and social welfare programs for 25,000 new immigrants" },
   { donorName: "Keren Hayesod", recipientName: "Youth Futures", amount: 3000000, year: 2023, purpose: "Mentoring at-risk youth in Israeli periphery towns" },
+  { donorName: "Keren Hayesod", recipientName: "Nefesh B'Nefesh", amount: 5000000, year: 2023, purpose: "North American and UK aliyah support and integration services" },
+  { donorName: "Keren Hayesod", recipientName: "World ORT", amount: 2000000, year: 2022, purpose: "Vocational training and STEM education in Israeli periphery" },
+  { donorName: "Keren Hayesod", recipientName: "Ethiopian National Project", amount: 1500000, year: 2023, purpose: "Education and integration programs for Ethiopian-Israeli youth" },
+  // Maimonides (4 grants)
   { donorName: "The Maimonides Fund", recipientName: "MASA Israel Journey", amount: 750000, year: 2023, purpose: "Long-term Israel programs for young adults" },
   { donorName: "The Maimonides Fund", recipientName: "Tikvah Fund", amount: 1200000, year: 2023, purpose: "Jewish intellectual leadership and public policy programs" },
+  { donorName: "The Maimonides Fund", recipientName: "Shalom Hartman Institute", amount: 900000, year: 2022, purpose: "Pluralistic Jewish thought and education leadership" },
+  { donorName: "The Maimonides Fund", recipientName: "Birthright Israel", amount: 2000000, year: 2023, purpose: "Israel education trips with enhanced curriculum" },
+  // Rashi (4 grants)
   { donorName: "The Rashi Foundation", recipientName: "ELEM - Youth in Distress", amount: 400000, year: 2023, purpose: "Support programs for at-risk Israeli youth" },
   { donorName: "The Rashi Foundation", recipientName: "Arava Institute", amount: 600000, year: 2022, purpose: "Environmental education and cross-border cooperation" },
+  { donorName: "The Rashi Foundation", recipientName: "Appleseeds Academy", amount: 800000, year: 2023, purpose: "Digital literacy programs in underserved Israeli communities" },
+  { donorName: "The Rashi Foundation", recipientName: "Tsofen", amount: 500000, year: 2023, purpose: "Integrating Arab citizens into Israel's high-tech sector" },
+  // Russell Berrie (4 grants)
   { donorName: "The Russell Berrie Foundation", recipientName: "Angelica Berrie Center", amount: 500000, year: 2023, purpose: "Interreligious dialogue programs in New Jersey" },
+  { donorName: "The Russell Berrie Foundation", recipientName: "Ramapo College", amount: 750000, year: 2022, purpose: "Interfaith studies program and scholarships" },
+  { donorName: "The Russell Berrie Foundation", recipientName: "Naomi Berrie Diabetes Center", amount: 1200000, year: 2023, purpose: "Type 1 diabetes research at Columbia University" },
+  { donorName: "The Russell Berrie Foundation", recipientName: "Council of Centers on Jewish-Christian Relations", amount: 300000, year: 2023, purpose: "Academic research in Jewish-Christian dialogue" },
+  // Matan (3 grants)
+  { donorName: "Matan - United Way of Israel", recipientName: "JDC Israel", amount: 500000, year: 2023, purpose: "Social services capacity building for Israeli nonprofits" },
+  { donorName: "Matan - United Way of Israel", recipientName: "Midot", amount: 200000, year: 2023, purpose: "Nonprofit effectiveness standards and evaluation" },
+  { donorName: "Matan - United Way of Israel", recipientName: "Ruach Tova", amount: 150000, year: 2022, purpose: "Volunteer management and corporate social responsibility programs" },
+];
+
+const testPublications = [
+  // Schusterman
+  { donorName: "The Schusterman Family Foundation", title: "2024 Annual Impact Report: Investing in Jewish Futures", type: "ARTICLE", url: "https://www.schusterman.org/impact-2024", summary: "Comprehensive review of $250M+ in grants across education, social justice, and Israel programs" },
+  { donorName: "The Schusterman Family Foundation", title: "Schusterman Foundation Announces $50M Initiative for Jewish Youth Leadership", type: "PRESS_RELEASE", url: "https://www.schusterman.org/news/youth-leadership-initiative", summary: "New multi-year initiative to develop next generation of Jewish community leaders" },
+  // Jim Joseph
+  { donorName: "The Jim Joseph Foundation", title: "Reimagining Jewish Education: Lessons from a Decade of Innovation", type: "ARTICLE", url: "https://ejewishphilanthropy.com/jim-joseph-decade-review", summary: "How $180M in grants transformed Jewish education from camps to campuses" },
+  { donorName: "The Jim Joseph Foundation", title: "Foundation Awards $15M for Jewish Summer Camp Expansion", type: "PRESS_RELEASE", url: "https://jimjosephfoundation.org/news/camp-expansion-2024", summary: "Largest single investment in Jewish camping to reach 50,000 additional campers" },
+  // UJA-Federation
+  { donorName: "UJA-Federation of New York", title: "UJA-Federation Raises Record $523M in Annual Campaign", type: "PRESS_RELEASE", url: "https://www.ujafedny.org/news/record-campaign-2024", summary: "Record-breaking campaign supports 100+ agencies serving 4.5M people" },
+  { donorName: "UJA-Federation of New York", title: "Israel Emergency Fund Surpasses $100M After October 7", type: "ARTICLE", url: "https://www.ujafedny.org/news/israel-emergency-fund", summary: "Rapid response fund for trauma support, evacuee housing, and community resilience" },
+  // Keren Hayesod
+  { donorName: "Keren Hayesod", title: "Annual Report 2024: Building Israel's Future Together", type: "ARTICLE", url: "https://www.kh-uia.org.il/annual-report-2024", summary: "Worldwide campaign results: $300M+ raised across 45 countries for Israel programs" },
+  { donorName: "Keren Hayesod", title: "Record Aliyah Numbers: 75,000 New Immigrants in 2024", type: "PRESS_RELEASE", url: "https://www.kh-uia.org.il/news/aliyah-2024", summary: "Keren Hayesod-supported programs helped absorb unprecedented wave of new immigrants" },
+  // Rashi
+  { donorName: "The Rashi Foundation", title: "Closing the Digital Divide: Rashi's Technology Initiative Reaches 100 Communities", type: "ARTICLE", url: "https://www.rfrashi.org/digital-initiative-2024", summary: "Digital literacy programs now active in 100 peripheral Israeli communities" },
+  // Singer
+  { donorName: "The Paul E. Singer Foundation", title: "Singer Foundation Expands Education Reform Portfolio to $30M", type: "PRESS_RELEASE", url: "https://www.singerfdn.org/news/education-expansion", summary: "New grants target STEM education access and school choice programs" },
+  // Leichtag
+  { donorName: "The Leichtag Foundation", title: "From Field to Table: How Leichtag is Reinventing Jewish Agriculture", type: "ARTICLE", url: "https://leichtag.org/blog/jewish-agriculture-2024", summary: "Farm-based education programs connect 15,000 participants to Jewish food traditions" },
+  // Maimonides
+  { donorName: "The Maimonides Fund", title: "Maimonides Fund Launches $10M Jewish Identity Initiative for Gen Z", type: "PRESS_RELEASE", url: "https://www.maimonidesfund.org/news/gen-z-initiative", summary: "New program targets 18-25 year olds through digital media and Israel experiences" },
+  // Russell Berrie
+  { donorName: "The Russell Berrie Foundation", title: "Breakthrough in Diabetes Research Funded by Berrie Foundation", type: "ARTICLE", url: "https://www.russellberriefoundation.org/news/diabetes-breakthrough", summary: "Columbia University team discovers new therapeutic approach for Type 1 diabetes" },
+  // Matan
+  { donorName: "Matan - United Way of Israel", title: "Matan's Good Deeds Day 2024 Engages 1 Million Volunteers Worldwide", type: "PRESS_RELEASE", url: "https://www.matan.org.il/news/good-deeds-day-2024", summary: "Annual volunteer day reaches record participation across 100 countries" },
 ];
 
 export async function POST() {
@@ -348,10 +410,34 @@ export async function POST() {
       grantsCreated++;
     }
 
+    let pubsCreated = 0;
+    for (const pub of testPublications) {
+      const donorId = donorMap.get(pub.donorName);
+      if (!donorId) continue;
+
+      const existing = await prisma.donorPublication.findFirst({
+        where: { donorId, url: pub.url },
+      });
+      if (existing) continue;
+
+      await prisma.donorPublication.create({
+        data: {
+          donorId,
+          title: pub.title,
+          type: pub.type as "ARTICLE" | "PRESS_RELEASE",
+          url: pub.url,
+          summary: pub.summary,
+          publishedAt: new Date("2024-06-01"),
+        },
+      });
+      pubsCreated++;
+    }
+
     return NextResponse.json({
       success: true,
       donors: { created, updated, skipped },
       grants: { created: grantsCreated },
+      publications: { created: pubsCreated },
     });
   } catch (error) {
     console.error("Seed error:", error);

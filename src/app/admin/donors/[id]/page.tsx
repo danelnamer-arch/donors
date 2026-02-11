@@ -46,7 +46,7 @@ interface ProposedChange {
   confidence: number;
 }
 
-type Scope = "full" | "website" | "geography" | "giving" | "description" | "causes";
+type Scope = "full" | "website" | "geography" | "giving" | "description" | "causes" | "publications";
 
 export default function AdminDonorEdit() {
   const params = useParams();
@@ -167,7 +167,11 @@ export default function AdminDonorEdit() {
 
     const data = await res.json();
     if (data.success) {
-      setMessage(`Applied ${data.fieldsUpdated} field updates and ${data.grantsAdded} new grants.`);
+      const parts = [];
+      if (data.fieldsUpdated) parts.push(`${data.fieldsUpdated} fields`);
+      if (data.grantsAdded) parts.push(`${data.grantsAdded} grants`);
+      if (data.pubsAdded) parts.push(`${data.pubsAdded} publications`);
+      setMessage(`Applied: ${parts.join(", ") || "no changes"}.`);
       setProposals([]);
       setAccepted(new Set());
       await loadDonor();
@@ -460,9 +464,18 @@ export default function AdminDonorEdit() {
             </div>
 
             <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-3 font-semibold text-zinc-900 dark:text-zinc-100">
-                Publications ({donor.publications.length})
-              </h2>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  Publications ({donor.publications.length})
+                </h2>
+                <button
+                  onClick={() => handleEnrichPreview("publications")}
+                  disabled={enrichingScope !== null}
+                  className="rounded border border-blue-200 px-2 py-0.5 text-[10px] font-medium text-blue-600 hover:bg-blue-50 disabled:opacity-40"
+                >
+                  {enrichingScope === "publications" ? "Searching..." : "Find Publications"}
+                </button>
+              </div>
               <div className="max-h-64 space-y-2 overflow-y-auto">
                 {donor.publications.length === 0 ? (
                   <p className="text-sm text-zinc-400">No publications found</p>
