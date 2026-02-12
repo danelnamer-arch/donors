@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 
 const CAUSE_OPTIONS = [
@@ -41,7 +44,6 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // Form data
   const [orgName, setOrgName] = useState("");
@@ -77,7 +79,6 @@ export default function OnboardingPage() {
   }
 
   async function handleFinish() {
-    setError("");
     setLoading(true);
 
     try {
@@ -104,14 +105,14 @@ export default function OnboardingPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to save");
+        toast.error(data.error || "Failed to save");
         setLoading(false);
         return;
       }
 
       router.push("/dashboard");
     } catch {
-      setError("Something went wrong");
+      toast.error("Something went wrong");
       setLoading(false);
     }
   }
@@ -127,7 +128,7 @@ export default function OnboardingPage() {
           </div>
           <div className="h-1.5 w-full rounded-full bg-zinc-200 dark:bg-zinc-800">
             <div
-              className="h-1.5 rounded-full bg-black transition-all dark:bg-white"
+              className="h-1.5 rounded-full bg-brand transition-all"
               style={{ width: `${(step / 4) * 100}%` }}
             />
           </div>
@@ -139,7 +140,7 @@ export default function OnboardingPage() {
             {step === 1 && (
               <div className="flex flex-col gap-6">
                 <div>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                     Tell us about your organization
                   </h2>
                   <p className="mt-1 text-sm text-zinc-500">
@@ -153,17 +154,13 @@ export default function OnboardingPage() {
                   onChange={(e) => setOrgName(e.target.value)}
                   required
                 />
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Mission Statement
-                  </label>
-                  <textarea
-                    className="min-h-[100px] w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                    placeholder="What does your organization do? What's your mission?"
-                    value={mission}
-                    onChange={(e) => setMission(e.target.value)}
-                  />
-                </div>
+                <Textarea
+                  label="Mission Statement"
+                  placeholder="What does your organization do? What's your mission?"
+                  value={mission}
+                  onChange={(e) => setMission(e.target.value)}
+                  rows={4}
+                />
                 <Input
                   label="Website (optional)"
                   placeholder="https://your-org.org"
@@ -180,21 +177,13 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Team Size
-                    </label>
-                    <select
-                      className="h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                    <Select
+                      label="Team Size"
                       value={size}
                       onChange={(e) => setSize(e.target.value)}
-                    >
-                      <option value="">Select...</option>
-                      {SIZE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Select..."
+                      options={SIZE_OPTIONS}
+                    />
                   </div>
                 </div>
                 <Button
@@ -211,7 +200,7 @@ export default function OnboardingPage() {
             {step === 2 && (
               <div className="flex flex-col gap-6">
                 <div>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                     What causes do you focus on?
                   </h2>
                   <p className="mt-1 text-sm text-zinc-500">
@@ -230,7 +219,7 @@ export default function OnboardingPage() {
                         onClick={() => toggleItem(causes, setCauses, cause)}
                         className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
                           causes.includes(cause)
-                            ? "bg-black text-white dark:bg-white dark:text-black"
+                            ? "bg-brand text-white"
                             : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
                         }`}
                       >
@@ -253,7 +242,7 @@ export default function OnboardingPage() {
                         }
                         className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
                           populations.includes(pop)
-                            ? "bg-black text-white dark:bg-white dark:text-black"
+                            ? "bg-brand text-white"
                             : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
                         }`}
                       >
@@ -285,7 +274,7 @@ export default function OnboardingPage() {
             {step === 3 && (
               <div className="flex flex-col gap-6">
                 <div>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                     Where do you operate?
                   </h2>
                   <p className="mt-1 text-sm text-zinc-500">
@@ -306,7 +295,7 @@ export default function OnboardingPage() {
                         }
                         className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
                           geography.includes(geo)
-                            ? "bg-black text-white dark:bg-white dark:text-black"
+                            ? "bg-brand text-white"
                             : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
                         }`}
                       >
@@ -338,43 +327,29 @@ export default function OnboardingPage() {
             {step === 4 && (
               <div className="flex flex-col gap-6">
                 <div>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                     Almost done!
                   </h2>
                   <p className="mt-1 text-sm text-zinc-500">
                     This helps us find donors faster. Skip if you&apos;re not sure.
                   </p>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Similar Organizations (optional)
-                  </label>
-                  <textarea
-                    className="min-h-[80px] w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                    placeholder="Names of organizations similar to yours, separated by commas"
-                    value={similarOrgs}
-                    onChange={(e) => setSimilarOrgs(e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400">
-                    We&apos;ll look at their donors to find matches for you
-                  </p>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Existing Donors (optional)
-                  </label>
-                  <textarea
-                    className="min-h-[80px] w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                    placeholder="Names of donors who already support you, separated by commas"
-                    value={existingDonors}
-                    onChange={(e) => setExistingDonors(e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400">
-                    We won&apos;t show you donors you already have
-                  </p>
-                </div>
-
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                <Textarea
+                  label="Similar Organizations (optional)"
+                  placeholder="Names of organizations similar to yours, separated by commas"
+                  hint="We'll look at their donors to find matches for you"
+                  value={similarOrgs}
+                  onChange={(e) => setSimilarOrgs(e.target.value)}
+                  rows={3}
+                />
+                <Textarea
+                  label="Existing Donors (optional)"
+                  placeholder="Names of donors who already support you, separated by commas"
+                  hint="We won't show you donors you already have"
+                  value={existingDonors}
+                  onChange={(e) => setExistingDonors(e.target.value)}
+                  rows={3}
+                />
 
                 <div className="flex gap-3">
                   <Button

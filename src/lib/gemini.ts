@@ -3,6 +3,8 @@
  * Used as an alternative/complement to OpenAI for donor research tasks.
  */
 
+import { formatGrantAmount } from "@/lib/utils/format-amount";
+
 interface GeminiMessage {
   role: "user" | "model";
   parts: { text: string }[];
@@ -89,9 +91,9 @@ Return this exact JSON structure (use null for unknown fields, [] for empty arra
   "causes": ["cause areas they fund"],
   "targetPopulations": ["populations they serve"],
   "geographicFocus": ["geographic areas of focus"],
-  "totalGivingUsd": null or number (total annual/recent giving in USD),
-  "avgGrantSizeUsd": null or number (average grant size in USD),
-  "grants": [{"recipientName": "...", "amount": null or number, "year": null or number, "purpose": "..."}],
+  "totalGivingUsd": null or number in WHOLE US DOLLARS (e.g. 50000000 for $50M, never 50.0),
+  "avgGrantSizeUsd": null or number in WHOLE US DOLLARS (e.g. 250000 for $250K, never 250),
+  "grants": [{"recipientName": "...", "amount": null or number in WHOLE US DOLLARS (e.g. 1500000 for $1.5M, 50000 for $50K — NEVER shorthand), "year": null or number, "purpose": "..."}],
   "keyPeople": [{"name": "...", "role": "..."}],
   "applicationProcess": "how to apply for funding, if mentioned"
 }`;
@@ -174,7 +176,7 @@ export async function generateMatchReasoning(params: {
     .slice(0, 5)
     .map((g) => {
       const parts = [g.recipientName];
-      if (g.amount) parts.push(`$${(g.amount / 1000).toFixed(0)}K`);
+      if (g.amount) parts.push(formatGrantAmount(g.amount));
       if (g.year) parts.push(`(${g.year})`);
       return parts.join(" — ");
     })

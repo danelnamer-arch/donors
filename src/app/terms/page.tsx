@@ -6,6 +6,16 @@ export const metadata = {
 export default function TermsOfUsePage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
+      <a
+        href="/"
+        className="mb-8 inline-flex items-center gap-1 text-sm text-zinc-400 transition-colors hover:text-zinc-600"
+      >
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to home
+      </a>
+
       <h1 className="text-3xl font-bold mb-8">Terms of Use</h1>
       <p className="text-sm text-gray-500 mb-8">Last updated: February 2026</p>
 
@@ -58,7 +68,23 @@ export default function TermsOfUsePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-4">5. Acceptable Use</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-4">5. Refund Policy</h2>
+          <p>
+            If you are not satisfied with the Service, you may request a refund within 14 days of
+            your initial subscription payment. Refunds for renewal payments are available within 7
+            days. Enrichment credits that have already been used are non-refundable. To request a
+            refund, contact us at{" "}
+            <a href="mailto:legal@donormatch.com" className="text-blue-600 hover:underline">
+              legal@donormatch.com
+            </a>. For full details, see our{" "}
+            <a href="/refund" className="text-blue-600 hover:underline">
+              Refund Policy
+            </a>.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mt-8 mb-4">6. Acceptable Use</h2>
           <p>You agree not to:</p>
           <ul className="list-disc pl-6 mt-2 space-y-1">
             <li>Use the Service for any unlawful purpose</li>
@@ -71,7 +97,7 @@ export default function TermsOfUsePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-4">6. Data and Donor Information</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-4">7. Data and Donor Information</h2>
           <p>
             Donor information provided through the Service is gathered from publicly available
             sources including government filings, foundation websites, and public databases. While
@@ -86,7 +112,7 @@ export default function TermsOfUsePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-4">7. Intellectual Property</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-4">8. Intellectual Property</h2>
           <p>
             The Service, including its algorithms, design, and compiled databases, is the
             intellectual property of DonorMatch. Your subscription grants you a limited,
@@ -96,7 +122,7 @@ export default function TermsOfUsePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-4">8. Limitation of Liability</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-4">9. Limitation of Liability</h2>
           <p>
             DonorMatch is provided &quot;as is&quot; without warranty of any kind. We are not responsible
             for the outcome of any fundraising efforts based on information provided through the
@@ -106,7 +132,7 @@ export default function TermsOfUsePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-4">9. Termination</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-4">10. Termination</h2>
           <p>
             We reserve the right to suspend or terminate your account if you violate these Terms.
             Upon termination, your access to the Service will cease and your data may be deleted
@@ -115,7 +141,7 @@ export default function TermsOfUsePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-4">10. Changes to Terms</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-4">11. Changes to Terms</h2>
           <p>
             We may update these Terms from time to time. We will notify you of material changes
             via email or through the Service. Continued use after changes constitutes acceptance.
@@ -123,7 +149,7 @@ export default function TermsOfUsePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-4">11. Contact</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-4">12. Contact</h2>
           <p>
             For questions about these Terms, contact us at{" "}
             <a href="mailto:legal@donormatch.com" className="text-blue-600 hover:underline">
@@ -131,6 +157,12 @@ export default function TermsOfUsePage() {
             </a>.
           </p>
         </section>
+      </div>
+
+      <div className="mt-12 flex gap-6 border-t border-zinc-100 pt-6 text-sm text-zinc-400">
+        <a href="/terms" className="font-medium text-zinc-600">Terms</a>
+        <a href="/privacy" className="transition-colors hover:text-zinc-600">Privacy</a>
+        <a href="/refund" className="transition-colors hover:text-zinc-600">Refund Policy</a>
       </div>
     </main>
   );

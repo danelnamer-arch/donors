@@ -18,6 +18,7 @@ import { crawlDonorWebsite } from "./crawl-agent";
 import { deepDiscoverDonors, deepResearchDonor, deepEnrichDonor } from "./deep-research-agent";
 import { validateDonorCandidate } from "./validator-agent";
 import { findAndVerifyWebsite } from "./website-verifier";
+import { normalizeGrantAmount, normalizeTotalGiving } from "@/lib/utils/normalize-amount";
 import type { DonorCandidate } from "./types";
 
 /**
@@ -109,15 +110,15 @@ export async function runDiscoveryPipeline(params: {
             causes: mergeArrays(donorData.causes, geminiProfile.causes),
             targetPopulations: mergeArrays(donorData.targetPopulations, geminiProfile.targetPopulations),
             geographicFocus: mergeArrays(donorData.geographicFocus, geminiProfile.geographicFocus),
-            totalGivingUsd: donorData.totalGivingUsd ?? geminiProfile.totalGivingUsd ?? undefined,
-            avgGrantSizeUsd: donorData.avgGrantSizeUsd ?? geminiProfile.avgGrantSizeUsd ?? undefined,
+            totalGivingUsd: normalizeTotalGiving(donorData.totalGivingUsd ?? geminiProfile.totalGivingUsd) ?? undefined,
+            avgGrantSizeUsd: normalizeGrantAmount(donorData.avgGrantSizeUsd ?? geminiProfile.avgGrantSizeUsd) ?? undefined,
             contactEmail: donorData.contactEmail ?? geminiProfile.email ?? undefined,
             contactPhone: donorData.contactPhone ?? geminiProfile.phone ?? undefined,
             website: donorData.website ?? geminiProfile.website ?? undefined,
-            // Merge Gemini grants with existing
+            // Merge Gemini grants with existing, normalizing amounts
             grants: deduplicateGrants([...(donorData.grants ?? []), ...geminiProfile.grants.map(g => ({
               recipientName: g.recipientName,
-              amount: g.amount ?? undefined,
+              amount: normalizeGrantAmount(g.amount),
               year: g.year ?? undefined,
               purpose: g.purpose ?? undefined,
             }))]),
@@ -244,9 +245,12 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
       return { success: false, error: enrichResult.error ?? "Enrichment failed" };
     }
 
-    // Merge all data into the donor record
+    // Merge all data into the donor record, normalizing grant amounts
     const profile = enrichResult.data.profile;
-    const newGrants = profile.grants ?? [];
+    const newGrants = (profile.grants ?? []).map(g => ({
+      ...g,
+      amount: normalizeGrantAmount(g.amount),
+    }));
     const newPublications = profile.publications ?? [];
     const newSources = [
       ...(profile.dataSources ?? []),
@@ -307,10 +311,10 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
     ];
     const totalGivingUsd = allGrantAmounts.length > 0
       ? allGrantAmounts.reduce((sum, a) => sum + a, 0)
-      : (geminiProfile?.totalGivingUsd ?? donor.totalGivingUsd);
+      : normalizeTotalGiving(geminiProfile?.totalGivingUsd ?? donor.totalGivingUsd);
     const avgGrantSizeUsd = allGrantAmounts.length > 0
       ? totalGivingUsd! / allGrantAmounts.length
-      : (geminiProfile?.avgGrantSizeUsd ?? donor.avgGrantSizeUsd);
+      : normalizeGrantAmount(geminiProfile?.avgGrantSizeUsd ?? donor.avgGrantSizeUsd);
     const grantCount = donor.grants.length + newGrants.length;
 
     const allYears = [
@@ -523,7 +527,7 @@ function computeGivingStats(donorData: Partial<DonorCandidate>): void {
   if (grants.length === 0) return;
 
   const amounts = grants
-    .map(g => g.amount)
+    .map(g => normalizeGrantAmount(g.amount))
     .filter((a): a is number => a != null && a > 0);
 
   if (amounts.length > 0) {

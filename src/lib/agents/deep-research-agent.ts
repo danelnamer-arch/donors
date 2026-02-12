@@ -164,7 +164,7 @@ Return JSON array:
   "causes": ["string"],
   "targetPopulations": ["string"],
   "geographicFocus": ["string"],
-  "grants": [{"recipientName": "string", "amount": number_or_null, "year": number_or_null, "purpose": "string_or_null"}]
+  "grants": [{"recipientName": "string", "amount": number_in_whole_USD_dollars_or_null (e.g. 5000000 for $5 million, 250000 for $250K — NEVER use shorthand like 5.0 for $5M or 250 for $250K), "year": number_or_null, "purpose": "string_or_null"}]
 }]`,
       },
     ],
@@ -218,7 +218,7 @@ Return JSON:
   "contactEmail": "string or null",
   "contactPhone": "string or null",
   "socialLinks": {"linkedin": "url", "twitter": "url"},
-  "grants": [{"recipientName": "string", "amount": number_or_null, "year": number_or_null, "purpose": "string_or_null"}],
+  "grants": [{"recipientName": "string", "amount": number_in_whole_USD_dollars_or_null (e.g. 5000000 for $5 million, 250000 for $250K — NEVER use shorthand like 5.0 for $5M or 250 for $250K), "year": number_or_null, "purpose": "string_or_null"}],
   "publications": [{"title": "string", "type": "ARTICLE" | "PODCAST" | "SOCIAL_MEDIA" | "PRESS_RELEASE" | "BLOG_POST" | "VIDEO" | "OTHER", "url": "string", "summary": "string"}]
 }`,
       },
