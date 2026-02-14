@@ -4,59 +4,77 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+import { AnimatePresence, motion } from "framer-motion";
+import { StepIndicator } from "./_components/step-indicator";
+import { StepSources } from "./_components/step-sources";
+import { StepReview, type ReviewFormState } from "./_components/step-review";
+import type { SourceChip } from "./_components/link-chip";
 
-const CAUSE_OPTIONS = [
-  "Education", "Health", "Environment", "Human Rights",
-  "Poverty Alleviation", "Arts & Culture", "Youth Development",
-  "Community Development", "Animal Welfare", "Disaster Relief",
-  "Mental Health", "Women's Rights", "Technology",
-  "Democracy", "Peace", "Immigration", "Housing",
-  "Food Security", "Disability Rights",
-];
+// ─── Types ───────────────────────────────────────────
+interface ExtractedProfile {
+  name: string | null;
+  mission: string | null;
+  website: string | null;
+  country: string | null;
+  size: string | null;
+  annualBudgetRange: string | null;
+  israeliRegistrationNumber: string | null;
+  politicalStance: string | null;
+  causes: string[];
+  targetPopulations: string[];
+  geographicFocus: string[];
+  similarOrgNames: string[];
+  existingDonorNames: string[];
+}
 
-const POPULATION_OPTIONS = [
-  "Children", "Youth", "Elderly", "Women", "Refugees",
-  "Low-income families", "Minorities", "People with disabilities",
-  "Veterans", "Students", "Immigrants", "LGBTQ+",
-  "General public",
-];
+// ─── Animation variants ──────────────────────────────
+const slideVariants = {
+  enter: { opacity: 0, y: 20 },
+  center: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
 
-const GEOGRAPHY_OPTIONS = [
-  "Israel", "United States", "Europe", "Global",
-  "Middle East", "Africa", "Asia", "Latin America",
-];
-
-const SIZE_OPTIONS = [
-  { value: "SOLO", label: "Just me" },
-  { value: "SMALL", label: "2-10 people" },
-  { value: "MEDIUM", label: "11-50 people" },
-  { value: "LARGE", label: "51-200 people" },
-  { value: "ENTERPRISE", label: "200+ people" },
-];
-
+// ═══════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════
 export default function OnboardingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
 
-  // Form data
-  const [orgName, setOrgName] = useState("");
-  const [mission, setMission] = useState("");
-  const [website, setWebsite] = useState("");
-  const [country, setCountry] = useState("");
-  const [size, setSize] = useState("");
-  const [causes, setCauses] = useState<string[]>([]);
-  const [populations, setPopulations] = useState<string[]>([]);
-  const [geography, setGeography] = useState<string[]>([]);
-  const [similarOrgs, setSimilarOrgs] = useState("");
-  const [existingDonors, setExistingDonors] = useState("");
+  // Wizard step
+  const [step, setStep] = useState<1 | 2>(1);
 
+  // Source state
+  const [sources, setSources] = useState<SourceChip[]>([]);
+
+  // Extraction state
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [progressIdx, setProgressIdx] = useState(0);
+  const [hasExtracted, setHasExtracted] = useState(false);
+  const [rawProfileText, setRawProfileText] = useState<string | null>(null);
+
+  // AI-extracted field tracking
+  const [aiFields, setAiFields] = useState<Set<string>>(new Set());
+
+  // Review form state
+  const [form, setForm] = useState<ReviewFormState>({
+    orgName: "",
+    mission: "",
+    website: "",
+    country: "",
+    size: "",
+    budget: "",
+    israeliRegNumber: "",
+    politicalStance: "",
+    causes: [],
+    populations: [],
+    geography: [],
+    similarOrgs: "",
+    existingDonors: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  // Auth guard
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -64,315 +82,274 @@ export default function OnboardingPage() {
       </div>
     );
   }
-
   if (status === "unauthenticated") {
     router.push("/login");
     return null;
   }
 
-  function toggleItem(list: string[], setList: (v: string[]) => void, item: string) {
-    setList(
-      list.includes(item)
-        ? list.filter((i) => i !== item)
-        : [...list, item]
-    );
+  // ─── Source management ─────────────────────────────
+  function addSources(newSources: Omit<SourceChip, "id">[]) {
+    setSources((prev) => [
+      ...prev,
+      ...newSources.map((s) => ({
+        ...s,
+        id: Math.random().toString(36).slice(2),
+      })),
+    ]);
   }
 
-  async function handleFinish() {
-    setLoading(true);
+  function removeSource(id: string) {
+    setSources((prev) => prev.filter((s) => s.id !== id));
+  }
+
+  // ─── Form change handler ──────────────────────────
+  function handleFormChange<K extends keyof ReviewFormState>(
+    field: K,
+    value: ReviewFormState[K]
+  ) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  // ─── Apply extraction results to form ──────────────
+  function applyExtraction(
+    profile: ExtractedProfile,
+    merge: boolean = false
+  ) {
+    const newAiFields = new Set(aiFields);
+
+    setForm((prev) => {
+      const next = { ...prev };
+
+      // For "merge" mode (re-extract): only fill empty fields & append arrays
+      // For initial extract: overwrite everything
+      if (!merge || !next.orgName) {
+        if (profile.name) { next.orgName = profile.name; newAiFields.add("orgName"); }
+      }
+      if (!merge || !next.mission) {
+        if (profile.mission) { next.mission = profile.mission; newAiFields.add("mission"); }
+      }
+      if (!merge || !next.website) {
+        if (profile.website) { next.website = profile.website; newAiFields.add("website"); }
+      }
+      if (!merge || !next.country) {
+        if (profile.country) { next.country = profile.country; newAiFields.add("country"); }
+      }
+      if (!merge || !next.size) {
+        if (profile.size) { next.size = profile.size; newAiFields.add("size"); }
+      }
+      if (!merge || !next.budget) {
+        if (profile.annualBudgetRange) { next.budget = profile.annualBudgetRange; newAiFields.add("budget"); }
+      }
+      if (!merge || !next.israeliRegNumber) {
+        if (profile.israeliRegistrationNumber) { next.israeliRegNumber = profile.israeliRegistrationNumber; newAiFields.add("israeliRegNumber"); }
+      }
+      if (!merge || !next.politicalStance) {
+        if (profile.politicalStance) { next.politicalStance = profile.politicalStance; newAiFields.add("politicalStance"); }
+      }
+
+      // Arrays: always merge (deduplicate)
+      if (profile.causes.length > 0) {
+        next.causes = [...new Set([...next.causes, ...profile.causes])];
+        newAiFields.add("causes");
+      }
+      if (profile.targetPopulations.length > 0) {
+        next.populations = [...new Set([...next.populations, ...profile.targetPopulations])];
+        newAiFields.add("populations");
+      }
+      if (profile.geographicFocus.length > 0) {
+        next.geography = [...new Set([...next.geography, ...profile.geographicFocus])];
+        newAiFields.add("geography");
+      }
+      if (profile.similarOrgNames.length > 0) {
+        const existing = next.similarOrgs ? next.similarOrgs.split(",").map((s) => s.trim()).filter(Boolean) : [];
+        const merged = [...new Set([...existing, ...profile.similarOrgNames])];
+        next.similarOrgs = merged.join(", ");
+        newAiFields.add("similarOrgs");
+      }
+      if (profile.existingDonorNames.length > 0) {
+        const existing = next.existingDonors ? next.existingDonors.split(",").map((s) => s.trim()).filter(Boolean) : [];
+        const merged = [...new Set([...existing, ...profile.existingDonorNames])];
+        next.existingDonors = merged.join(", ");
+        newAiFields.add("existingDonors");
+      }
+
+      return next;
+    });
+
+    setAiFields(newAiFields);
+  }
+
+  // ─── Extract ───────────────────────────────────────
+  async function handleExtract(merge: boolean = false) {
+    if (sources.length === 0) return;
+
+    setIsExtracting(true);
+    setProgressIdx(0);
+
+    const interval = setInterval(() => {
+      setProgressIdx((prev) => (prev < 6 ? prev + 1 : prev));
+    }, 2500);
+
+    try {
+      const res = await fetch("/api/onboarding/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sources: sources.map((s) => ({
+            type: s.type,
+            value: s.value,
+            fileBase64: s.fileBase64,
+            fileMimeType: s.fileMimeType,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Extraction failed. You can fill in manually.");
+        if (!merge) setStep(2);
+        return;
+      }
+
+      applyExtraction(data.profile, merge);
+      setRawProfileText(data.rawProfileText || null);
+      setHasExtracted(true);
+
+      if (data.errors?.length) {
+        toast.warning(
+          `Extracted with ${data.errors.length} source error(s). Review below.`
+        );
+      }
+
+      if (!merge) setStep(2);
+    } catch {
+      toast.error("Extraction failed. You can fill in manually.");
+      if (!merge) setStep(2);
+    } finally {
+      clearInterval(interval);
+      setIsExtracting(false);
+    }
+  }
+
+  // ─── Submit ────────────────────────────────────────
+  async function handleSubmit() {
+    if (!form.orgName.trim()) {
+      toast.error("Organization name is required");
+      return;
+    }
+    if (form.causes.length === 0) {
+      toast.error("Select at least one cause area");
+      return;
+    }
+    if (form.geography.length === 0) {
+      toast.error("Select at least one geographic focus");
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const res = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          orgName,
-          mission,
-          website: website || undefined,
-          country: country || undefined,
-          size: size || undefined,
-          causes,
-          targetPopulations: populations,
-          geographicFocus: geography,
-          similarOrgNames: similarOrgs
-            ? similarOrgs.split(",").map((s) => s.trim()).filter(Boolean)
+          orgName: form.orgName,
+          mission: form.mission || undefined,
+          website: form.website || undefined,
+          country: form.country || undefined,
+          size: form.size || undefined,
+          annualBudgetRange: form.budget || undefined,
+          israeliRegistrationNumber: form.israeliRegNumber || undefined,
+          politicalStance: form.politicalStance || undefined,
+          causes: form.causes,
+          targetPopulations: form.populations,
+          geographicFocus: form.geography,
+          similarOrgNames: form.similarOrgs
+            ? form.similarOrgs.split(",").map((s) => s.trim()).filter(Boolean)
             : [],
-          existingDonorNames: existingDonors
-            ? existingDonors.split(",").map((s) => s.trim()).filter(Boolean)
+          existingDonorNames: form.existingDonors
+            ? form.existingDonors.split(",").map((s) => s.trim()).filter(Boolean)
             : [],
+          rawProfileText,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
         toast.error(data.error || "Failed to save");
-        setLoading(false);
+        setSubmitting(false);
         return;
       }
 
       router.push("/dashboard");
     } catch {
       toast.error("Something went wrong");
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
+  // ═══════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-black">
-      <div className="w-full max-w-lg">
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="mb-2 flex justify-between text-xs text-zinc-400">
-            <span>Step {step} of 4</span>
-            <span>{Math.round((step / 4) * 100)}%</span>
-          </div>
-          <div className="h-1.5 w-full rounded-full bg-zinc-200 dark:bg-zinc-800">
-            <div
-              className="h-1.5 rounded-full bg-brand transition-all"
-              style={{ width: `${(step / 4) * 100}%` }}
-            />
-          </div>
-        </div>
+      <div className="w-full max-w-xl">
+        {/* Step indicator */}
+        <StepIndicator currentStep={step} />
 
-        <Card>
-          <CardContent className="py-8">
-            {/* Step 1: Organization Basics */}
-            {step === 1 && (
-              <div className="flex flex-col gap-6">
-                <div>
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                    Tell us about your organization
-                  </h2>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    We&apos;ll use this to find the best donor matches for you.
-                  </p>
-                </div>
-                <Input
-                  label="Organization Name"
-                  placeholder="e.g. Leket Israel"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                  required
-                />
-                <Textarea
-                  label="Mission Statement"
-                  placeholder="What does your organization do? What's your mission?"
-                  value={mission}
-                  onChange={(e) => setMission(e.target.value)}
-                  rows={4}
-                />
-                <Input
-                  label="Website (optional)"
-                  placeholder="https://your-org.org"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                />
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <Input
-                      label="Country"
-                      placeholder="e.g. Israel"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Select
-                      label="Team Size"
-                      value={size}
-                      onChange={(e) => setSize(e.target.value)}
-                      placeholder="Select..."
-                      options={SIZE_OPTIONS}
-                    />
-                  </div>
-                </div>
-                <Button
-                  onClick={() => setStep(2)}
-                  disabled={!orgName}
-                  className="w-full"
-                >
-                  Continue
-                </Button>
-              </div>
-            )}
+        {/* Wizard steps */}
+        <AnimatePresence mode="wait">
+          {step === 1 && (
+            <motion.div
+              key="step-sources"
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3 }}
+            >
+              <StepSources
+                sources={sources}
+                onAddSources={addSources}
+                onRemoveSource={removeSource}
+                onContinue={() => handleExtract(false)}
+                onSkip={() => setStep(2)}
+                isExtracting={isExtracting}
+                progressIdx={progressIdx}
+              />
+            </motion.div>
+          )}
 
-            {/* Step 2: Causes & Populations */}
-            {step === 2 && (
-              <div className="flex flex-col gap-6">
-                <div>
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                    What causes do you focus on?
-                  </h2>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    Select all that apply. This helps match you with the right donors.
-                  </p>
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Cause Areas
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {CAUSE_OPTIONS.map((cause) => (
-                      <button
-                        key={cause}
-                        type="button"
-                        onClick={() => toggleItem(causes, setCauses, cause)}
-                        className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                          causes.includes(cause)
-                            ? "bg-brand text-white"
-                            : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
-                        }`}
-                      >
-                        {cause}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Target Populations
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {POPULATION_OPTIONS.map((pop) => (
-                      <button
-                        key={pop}
-                        type="button"
-                        onClick={() =>
-                          toggleItem(populations, setPopulations, pop)
-                        }
-                        className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                          populations.includes(pop)
-                            ? "bg-brand text-white"
-                            : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
-                        }`}
-                      >
-                        {pop}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep(1)}
-                    className="flex-1"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    onClick={() => setStep(3)}
-                    disabled={causes.length === 0}
-                    className="flex-1"
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </div>
-            )}
+          {step === 2 && (
+            <motion.div
+              key="step-review"
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3 }}
+            >
+              <StepReview
+                form={form}
+                onFormChange={handleFormChange}
+                aiFields={aiFields}
+                onBack={() => setStep(1)}
+                onSubmit={handleSubmit}
+                submitting={submitting}
+                sources={sources}
+                onAddSources={addSources}
+                onRemoveSource={removeSource}
+                onReExtract={() => handleExtract(true)}
+                isExtracting={isExtracting}
+                hasExtracted={hasExtracted}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            {/* Step 3: Geographic Focus */}
-            {step === 3 && (
-              <div className="flex flex-col gap-6">
-                <div>
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                    Where do you operate?
-                  </h2>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    Where does your organization have impact?
-                  </p>
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Geographic Focus
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {GEOGRAPHY_OPTIONS.map((geo) => (
-                      <button
-                        key={geo}
-                        type="button"
-                        onClick={() =>
-                          toggleItem(geography, setGeography, geo)
-                        }
-                        className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                          geography.includes(geo)
-                            ? "bg-brand text-white"
-                            : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
-                        }`}
-                      >
-                        {geo}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep(2)}
-                    className="flex-1"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    onClick={() => setStep(4)}
-                    disabled={geography.length === 0}
-                    className="flex-1"
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: Similar Orgs & Existing Donors */}
-            {step === 4 && (
-              <div className="flex flex-col gap-6">
-                <div>
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                    Almost done!
-                  </h2>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    This helps us find donors faster. Skip if you&apos;re not sure.
-                  </p>
-                </div>
-                <Textarea
-                  label="Similar Organizations (optional)"
-                  placeholder="Names of organizations similar to yours, separated by commas"
-                  hint="We'll look at their donors to find matches for you"
-                  value={similarOrgs}
-                  onChange={(e) => setSimilarOrgs(e.target.value)}
-                  rows={3}
-                />
-                <Textarea
-                  label="Existing Donors (optional)"
-                  placeholder="Names of donors who already support you, separated by commas"
-                  hint="We won't show you donors you already have"
-                  value={existingDonors}
-                  onChange={(e) => setExistingDonors(e.target.value)}
-                  rows={3}
-                />
-
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep(3)}
-                    className="flex-1"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    onClick={handleFinish}
-                    loading={loading}
-                    className="flex-1"
-                  >
-                    Start Finding Donors
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {session?.user?.name && (
+        {/* Footer */}
+        {session?.user?.email && (
           <p className="mt-4 text-center text-xs text-zinc-400">
             Signed in as {session.user.email}
           </p>

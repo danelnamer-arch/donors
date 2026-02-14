@@ -88,12 +88,19 @@ model Organization {
   size                 OrgSize?
   annualBudgetRange    String?
   politicalAffiliation PoliticalAffiliation @default(UNKNOWN)
+  politicalStance      String?  @db.Text  // Inferred ideological positioning from mission, activities, and public statements
+  politicalEmbedding   Unsupported("vector(1536)")?
+
+  israeliRegistrationNumber  String?   // Mispar Amuta e.g. "580123456"
+  guidestarIsraelUrl         String?   // Full GuideStar Israel profile URL
 
   causes              String[]
   targetPopulations   String[]
   geographicFocus     String[]
   existingDonorNames  String[]
   similarOrgNames     String[]
+
+  rawProfileText      String?  @db.Text  // Full extracted text from onboarding sources — used for richer embeddings + reasoning
 
   missionEmbedding    Unsupported("vector(1536)")?
 
@@ -149,6 +156,8 @@ model Donor {
   activeRegions        String[]
 
   politicalAffiliation PoliticalAffiliation @default(UNKNOWN)
+  politicalStance      String?   @db.Text  // Free-text ideological profile (e.g. "national security hawk, Greater Israel, pro-settlement, hawkish on Iran")
+  politicalEmbedding   Unsupported("vector(1536)")?
   causes               String[]
   targetPopulations    String[]
   geographicFocus      String[]
@@ -160,12 +169,15 @@ model Donor {
 
   missionEmbedding     Unsupported("vector(1536)")?
 
+  donorConfidence      DonorConfidence @default(CONFIRMED)
+
   dataQualityScore     Float     @default(0)
   dataSources          Json[]
   lastResearchedAt     DateTime?
   researchStatus       ResearchStatus @default(PENDING)
 
   ein                  String?   @unique
+  israeliRegistrationNumber  String?   @unique  // Mispar Amuta for Israeli foundations
   irsData              Json?
 
   createdAt            DateTime  @default(now())
@@ -181,6 +193,7 @@ model Donor {
   @@index([country])
   @@index([causes])
   @@index([researchStatus])
+  @@index([donorConfidence])
 }
 
 enum DonorType {
@@ -189,6 +202,12 @@ enum DonorType {
   CORPORATE
   GOVERNMENT
   OTHER
+}
+
+enum DonorConfidence {
+  CONFIRMED    // Evidence of specific donations found
+  LIKELY       // Strong signals (named buildings, media mentions of philanthropy)
+  SUSPECTED    // Wealthy individual with philanthropic signals but no concrete proof
 }
 
 enum ResearchStatus {
@@ -205,6 +224,7 @@ model DonorGrant {
   donor           Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
   recipientName   String
   recipientEin    String?
+  recipientIsraeliRegNumber  String?   // Mispar Amuta of Israeli grant recipient
   amount          Float?
   currency        String   @default("USD")
   year            Int?
@@ -292,9 +312,10 @@ model PipelineEntry {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
-  notes        Note[]
-  activityLogs ActivityLog[]
-  reminders    Reminder[]
+  notes           Note[]
+  activityLogs    ActivityLog[]
+  reminders       Reminder[]
+  outreachDrafts  OutreachDraft[]
 
   @@unique([organizationId, donorId])
   @@index([organizationId, stage])
@@ -425,6 +446,55 @@ enum SubStatus {
   PAST_DUE
   CANCELLED
   PAUSED
+}
+
+// ============================================================
+// EMAIL & PASSWORD RESET
+// ============================================================
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  email     String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+model EmailLog {
+  id             String   @id @default(cuid())
+  to             String
+  subject        String
+  template       String   // "welcome" | "password-reset" | "weekly-digest" | "funded-congrats"
+  status         String   @default("sent")
+  resendId       String?
+  organizationId String?
+  userId         String?
+  error          String?
+  createdAt      DateTime @default(now())
+
+  @@index([to])
+  @@index([template])
+}
+
+// ============================================================
+// OUTREACH DRAFTS
+// ============================================================
+
+model OutreachDraft {
+  id              String        @id @default(cuid())
+  pipelineEntryId String
+  pipelineEntry   PipelineEntry @relation(fields: [pipelineEntryId], references: [id], onDelete: Cascade)
+  templateType    String        // "introduction" | "follow_up" | "grant_inquiry" | "thank_you" | "loi"
+  subject         String
+  body            String        @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([pipelineEntryId])
 }
 
 // ============================================================

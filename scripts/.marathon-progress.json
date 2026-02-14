@@ -1,0 +1,45 @@
+{
+  "runId": "df5bd8e8-bf1f-4dd7-a81f-d52505d42a31",
+  "status": "running",
+  "phase": {
+    "current": 5,
+    "total": 5,
+    "name": "Enrichment Pass (Low-Quality Donors)"
+  },
+  "target": {
+    "current": 300,
+    "total": 300,
+    "label": "Polybio Research Foundation"
+  },
+  "stats": {
+    "totalStored": 0,
+    "totalDiscovered": 0,
+    "totalErrors": 173,
+    "totalSkippedDuplicates": 0,
+    "dbDonorCount": 0,
+    "elapsedMs": 72088249,
+    "estimatedRemainingMs": 0
+  },
+  "recentActivity": [
+    "[2026-02-14T05:37:35.384Z] \n[Enrich 291/300] Agronomic Science Foundation Inc (score: 0.30)",
+    "[2026-02-14T05:37:50.318Z]   ✓ Enriched: Agronomic Science Foundation Inc",
+    "[2026-02-14T05:38:05.320Z] \n[Enrich 292/300] Gorgas Science Foundation Inc (score: 0.30)",
+    "[2026-02-14T05:38:41.851Z]   ✓ Enriched: Gorgas Science Foundation Inc",
+    "[2026-02-14T05:38:56.853Z] \n[Enrich 293/300] Locus Science Fiction Foundation (score: 0.30)",
+    "[2026-02-14T05:39:33.920Z]   ✓ Enriched: Locus Science Fiction Foundation",
+    "[2026-02-14T05:39:48.921Z] \n[Enrich 294/300] Poulsbo Marine Science Foundation (score: 0.30)",
+    "[2026-02-14T05:40:07.871Z]   ✓ Enriched: Poulsbo Marine Science Foundation",
+    "[2026-02-14T05:40:22.874Z] \n[Enrich 295/300] Foundation For Translational Science (score: 0.30)",
+    "[2026-02-14T05:40:42.228Z]   ✓ Enriched: Foundation For Translational Science",
+    "[2026-02-14T05:40:57.265Z] \n[Enrich 296/300] Kern County Science Foundation (score: 0.30)",
+    "[2026-02-14T05:41:17.952Z]   ✓ Enriched: Kern County Science Foundation",
+    "[2026-02-14T05:41:32.956Z] \n[Enrich 297/300] Sharp Science Students Foundation (score: 0.30)",
+    "[2026-02-14T05:41:46.766Z]   ✓ Enriched: Sharp Science Students Foundation",
+    "[2026-02-14T05:42:01.769Z] \n[Enrich 298/300] Michigan Mortuary Science Foundation (score: 0.30)",
+    "[2026-02-14T05:42:19.185Z]   ✓ Enriched: Michigan Mortuary Science Foundation",
+    "[2026-02-14T05:42:34.188Z] \n[Enrich 299/300] Retirement Research Foundation (score: 0.30)",
+    "[2026-02-14T05:43:08.225Z]   ✓ Enriched: Retirement Research Foundation",
+    "[2026-02-14T05:43:23.228Z] \n[Enrich 300/300] Polybio Research Foundation (score: 0.30)",
+    "[2026-02-14T05:48:26.478Z]   ✓ Enriched: Polybio Research Foundation"
+  ]
+}

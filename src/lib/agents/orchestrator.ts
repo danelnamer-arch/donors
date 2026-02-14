@@ -19,6 +19,9 @@ import { deepDiscoverDonors, deepResearchDonor, deepEnrichDonor } from "./deep-r
 import { validateDonorCandidate } from "./validator-agent";
 import { findAndVerifyWebsite } from "./website-verifier";
 import { normalizeGrantAmount, normalizeTotalGiving } from "@/lib/utils/normalize-amount";
+import { validateDonorCreate, validateGrant } from "@/lib/validation/validate-and-normalize";
+import { computeQualityScore } from "@/lib/validation/compute-quality-score";
+import { normalizeCauses } from "@/lib/utils/normalize-causes";
 import type { DonorCandidate } from "./types";
 
 /**
@@ -29,6 +32,10 @@ export async function runDiscoveryPipeline(params: {
   cause: string;
   targetPopulation?: string;
   region?: string;
+  /** Hint for discovery to focus on individual donors vs foundations */
+  donorTypeHint?: "INDIVIDUAL" | "FOUNDATION";
+  /** Optional pre-check: skip candidate if this returns true (for marathon dedup) */
+  shouldSkip?: (name: string) => boolean;
 }): Promise<{
   discovered: number;
   validated: number;
@@ -43,7 +50,12 @@ export async function runDiscoveryPipeline(params: {
   // Step 1: Discover donors via Tavily search + Perplexity deep research
   const [searchResult, deepResult] = await Promise.all([
     discoverDonorsBySearch(params),
-    deepDiscoverDonors(params),
+    deepDiscoverDonors({
+      cause: params.cause,
+      targetPopulation: params.targetPopulation,
+      region: params.region,
+      donorTypeHint: params.donorTypeHint,
+    }),
   ]);
 
   // Collect all candidate names from both sources
@@ -73,6 +85,9 @@ export async function runDiscoveryPipeline(params: {
 
   for (const name of candidateNames) {
     try {
+      // Fast pre-check via marathon dedup (avoids DB query if already known)
+      if (params.shouldSkip?.(name)) continue;
+
       // Skip if already in database
       const existing = await prisma.donor.findFirst({
         where: { name: { equals: name, mode: "insensitive" } },
@@ -342,7 +357,7 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
           headquartersCity: geminiProfile?.headquartersCity ?? donor.headquartersCity,
           activeRegions,
           causes: profile.causes?.length
-            ? [...new Set([...donor.causes, ...profile.causes])]
+            ? normalizeCauses([...new Set([...donor.causes, ...profile.causes])])
             : donor.causes,
           targetPopulations: profile.targetPopulations?.length
             ? [...new Set([...donor.targetPopulations, ...profile.targetPopulations])]
@@ -357,17 +372,42 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
           dataSources: [...(donor.dataSources as { url: string; title: string; fetchedAt: string }[]), ...newSources],
           lastResearchedAt: new Date(),
           researchStatus: "COMPLETED",
-          dataQualityScore: Math.min(1, donor.dataQualityScore + 0.3),
+          // Recompute quality score deterministically from enriched state
+          dataQualityScore: computeQualityScore({
+            name: donor.name,
+            description: profile.description ?? donor.description,
+            website: verifiedUrl ?? donor.website,
+            websiteVerified,
+            causes: profile.causes?.length
+              ? normalizeCauses([...new Set([...donor.causes, ...profile.causes])])
+              : donor.causes,
+            targetPopulations: profile.targetPopulations?.length
+              ? [...new Set([...donor.targetPopulations, ...profile.targetPopulations])]
+              : donor.targetPopulations,
+            geographicFocus: profile.geographicFocus?.length
+              ? [...new Set([...donor.geographicFocus, ...profile.geographicFocus])]
+              : donor.geographicFocus,
+            activeRegions,
+            headquartersCountry: geminiProfile?.headquartersCountry ?? donor.headquartersCountry,
+            headquartersCity: geminiProfile?.headquartersCity ?? donor.headquartersCity,
+            totalGivingUsd: totalGivingUsd ?? undefined,
+            avgGrantSizeUsd: avgGrantSizeUsd ?? undefined,
+            email: profile.contactEmail ?? donor.email,
+            phone: profile.contactPhone ?? donor.phone,
+            grantCount,
+            dataSources: [...(donor.dataSources as unknown[]), ...newSources],
+          }).total,
         },
       });
 
-      // Add new grants (deduplicate by recipient + year)
+      // Add new grants (deduplicate by recipient + year, skip entries with null recipient)
       for (const grant of newGrants) {
+        if (!grant.recipientName) continue;
         const exists = await tx.donorGrant.findFirst({
           where: {
             donorId,
             recipientName: grant.recipientName,
-            year: grant.year,
+            year: grant.year ?? undefined,
           },
         });
         if (!exists) {
@@ -384,8 +424,9 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
         }
       }
 
-      // Add new publications (deduplicate by URL)
+      // Add new publications (deduplicate by URL, skip entries with null URL)
       for (const pub of newPublications) {
+        if (!pub.url) continue;
         const exists = await tx.donorPublication.findFirst({
           where: { donorId, url: pub.url },
         });
@@ -393,7 +434,7 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
           await tx.donorPublication.create({
             data: {
               donorId,
-              title: pub.title,
+              title: pub.title || "Untitled",
               type: pub.type as "ARTICLE" | "SOCIAL_MEDIA" | "PODCAST" | "PRESS_RELEASE" | "BLOG_POST" | "VIDEO" | "OTHER",
               url: pub.url,
               summary: pub.summary,
@@ -414,6 +455,20 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
         JSON.stringify(embedding),
         donorId
       );
+
+      // Update political embedding if political stance is available
+      if (enrichedDonor.politicalStance) {
+        try {
+          const polEmb = await generateEmbedding(enrichedDonor.politicalStance);
+          await prisma.$executeRawUnsafe(
+            `UPDATE "Donor" SET "politicalEmbedding" = $1::vector WHERE id = $2`,
+            JSON.stringify(polEmb),
+            donorId
+          );
+        } catch (err) {
+          console.warn("[orchestrator] Failed to update political embedding on enrichment:", err);
+        }
+      }
     }
 
     return {
@@ -440,29 +495,32 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
 
 /**
  * Store a validated donor candidate in the database.
- * v2: Saves all new enrichment fields.
+ * v3: Validates through Zod schemas, computes quality score deterministically,
+ *     normalizes causes, and validates grants before writing.
  */
 async function storeDonor(
   candidate: Partial<DonorCandidate>,
-  qualityScore: number
+  aiQualityScore: number
 ): Promise<string> {
-  const donor = await prisma.donor.create({
-    data: {
-      name: candidate.name!,
-      type: (candidate.type as "FOUNDATION" | "INDIVIDUAL" | "CORPORATE" | "GOVERNMENT" | "OTHER") ?? "FOUNDATION",
+  // Validate and normalize through Zod + quality scoring
+  const validation = validateDonorCreate(
+    {
+      name: candidate.name,
+      type: candidate.type ?? "FOUNDATION",
       description: candidate.description,
       website: candidate.website,
       websiteVerified: candidate.websiteVerified ?? false,
       websiteSource: candidate.websiteSource,
       email: candidate.contactEmail,
       phone: candidate.contactPhone,
-      socialLinks: candidate.socialLinks ?? undefined,
+      socialLinks: candidate.socialLinks,
       country: candidate.headquartersCountry ?? candidate.country,
       city: candidate.headquartersCity ?? candidate.city,
       headquartersCountry: candidate.headquartersCountry,
       headquartersCity: candidate.headquartersCity,
       activeRegions: candidate.activeRegions ?? [],
-      politicalAffiliation: (candidate.politicalAffiliation as "LEFT" | "CENTER_LEFT" | "CENTER" | "CENTER_RIGHT" | "RIGHT" | "NONPARTISAN" | "UNKNOWN") ?? "UNKNOWN",
+      politicalAffiliation: candidate.politicalAffiliation ?? "UNKNOWN",
+      politicalStance: candidate.politicalStance,
       causes: candidate.causes ?? [],
       targetPopulations: candidate.targetPopulations ?? [],
       geographicFocus: candidate.geographicFocus ?? [],
@@ -470,40 +528,63 @@ async function storeDonor(
       avgGrantSizeUsd: candidate.avgGrantSizeUsd,
       grantCount: candidate.grants?.length ?? 0,
       givingYearRange: candidate.givingYearRange,
+      donorConfidence: candidate.donorConfidence ?? "CONFIRMED",
       dataSources: candidate.dataSources ?? [],
-      dataQualityScore: qualityScore,
       researchStatus: "COMPLETED",
-      lastResearchedAt: new Date(),
     },
+    { aiQualityScore }
+  );
+
+  if (!validation.success) {
+    throw new Error(
+      `Donor validation failed: ${validation.errors?.map((e) => `${e.path}: ${e.message}`).join(", ")}`
+    );
+  }
+
+  const data = validation.data;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const donor = await prisma.donor.create({
+    data: {
+      ...data,
+      lastResearchedAt: new Date(),
+    } as any,
   });
 
-  // Store grants
-  if (candidate.grants?.length) {
+  // Validate and store grants (skip invalid ones)
+  const validGrants = (candidate.grants ?? [])
+    .map((g) => validateGrant(g))
+    .filter((r) => r.success)
+    .map((r) => r.data!);
+
+  if (validGrants.length > 0) {
     await prisma.donorGrant.createMany({
-      data: candidate.grants.map((g) => ({
+      data: validGrants.map((g) => ({
         donorId: donor.id,
         recipientName: g.recipientName,
-        recipientEin: g.recipientEin,
-        amount: g.amount,
-        currency: g.currency ?? "USD",
-        year: g.year,
-        purpose: g.purpose,
-        sourceUrl: g.sourceUrl,
+        recipientEin: g.recipientEin ?? undefined,
+        amount: g.amount ?? undefined,
+        currency: g.currency,
+        year: g.year ?? undefined,
+        purpose: g.purpose ?? undefined,
+        sourceUrl: g.sourceUrl ?? undefined,
       })),
     });
   }
 
-  // Store publications
+  // Store publications (basic validation)
   if (candidate.publications?.length) {
     await prisma.donorPublication.createMany({
-      data: candidate.publications.map((p) => ({
-        donorId: donor.id,
-        title: p.title,
-        type: p.type as "ARTICLE" | "SOCIAL_MEDIA" | "PODCAST" | "PRESS_RELEASE" | "BLOG_POST" | "VIDEO" | "OTHER",
-        url: p.url,
-        summary: p.summary,
-        publishedAt: p.publishedAt ? new Date(p.publishedAt) : null,
-      })),
+      data: candidate.publications
+        .filter((p) => p.title && p.url)
+        .map((p) => ({
+          donorId: donor.id,
+          title: p.title,
+          type: p.type as "ARTICLE" | "SOCIAL_MEDIA" | "PODCAST" | "PRESS_RELEASE" | "BLOG_POST" | "VIDEO" | "OTHER",
+          url: p.url,
+          summary: p.summary,
+          publishedAt: p.publishedAt ? new Date(p.publishedAt) : null,
+        })),
     });
   }
 
@@ -515,6 +596,20 @@ async function storeDonor(
     JSON.stringify(embedding),
     donor.id
   );
+
+  // Generate political embedding if political stance is available
+  if (donor.politicalStance) {
+    try {
+      const polEmb = await generateEmbedding(donor.politicalStance);
+      await prisma.$executeRawUnsafe(
+        `UPDATE "Donor" SET "politicalEmbedding" = $1::vector WHERE id = $2`,
+        JSON.stringify(polEmb),
+        donor.id
+      );
+    } catch (err) {
+      console.warn("[orchestrator] Failed to generate political embedding:", err);
+    }
+  }
 
   return donor.id;
 }
@@ -566,6 +661,7 @@ function deduplicateGrants(
 ): DonorCandidate["grants"] {
   const seen = new Set<string>();
   return grants.filter(g => {
+    if (!g.recipientName) return false;
     const key = `${g.recipientName.toLowerCase()}|${g.year ?? "?"}`;
     if (seen.has(key)) return false;
     seen.add(key);

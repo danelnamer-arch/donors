@@ -18,6 +18,8 @@ export interface DonorCandidate {
   targetPopulations: string[];
   geographicFocus: string[];
   politicalAffiliation?: string;
+  politicalStance?: string;
+  israeliRegistrationNumber?: string;
   contactEmail?: string;
   contactPhone?: string;
   socialLinks?: Record<string, string>;
@@ -27,6 +29,7 @@ export interface DonorCandidate {
   grants: {
     recipientName: string;
     recipientEin?: string;
+    recipientIsraeliRegNumber?: string;
     amount?: number;
     currency?: string;
     year?: number;
@@ -45,6 +48,7 @@ export interface DonorCandidate {
     title: string;
     fetchedAt: string;
   }[];
+  donorConfidence?: "CONFIRMED" | "LIKELY" | "SUSPECTED";
   dataQualityScore: number; // 0-1
 }
 

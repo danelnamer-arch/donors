@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
+import { sendEmail } from "@/lib/email/send";
+import { welcomeEmail } from "@/lib/email/templates";
 
 /**
  * POST /api/auth/signup
@@ -44,6 +46,16 @@ export async function POST(request: NextRequest) {
         passwordHash,
       },
     });
+
+    // Fire-and-forget welcome email
+    const { subject, html } = welcomeEmail(user.name || "there");
+    sendEmail({
+      to: user.email,
+      subject,
+      html,
+      template: "welcome",
+      userId: user.id,
+    }).catch(() => {}); // never block signup
 
     return NextResponse.json(
       { id: user.id, email: user.email, name: user.name },

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { normalizeCauses } from "@/lib/utils/normalize-causes";
+import { computeQualityScore } from "@/lib/validation/compute-quality-score";
 
 const testDonors = [
   {
@@ -354,6 +356,33 @@ export async function POST() {
     const donorMap = new Map<string, string>();
 
     for (const donor of testDonors) {
+      // Normalize causes and compute quality score
+      const normalizedCauses = normalizeCauses(donor.causes);
+      const computedScore = computeQualityScore({
+        name: donor.name,
+        description: donor.description,
+        website: donor.website,
+        websiteVerified: donor.websiteVerified,
+        causes: normalizedCauses,
+        targetPopulations: donor.targetPopulations,
+        geographicFocus: donor.geographicFocus,
+        activeRegions: donor.activeRegions,
+        headquartersCountry: donor.headquartersCountry,
+        headquartersCity: donor.headquartersCity,
+        totalGivingUsd: donor.totalGivingUsd,
+        avgGrantSizeUsd: donor.avgGrantSizeUsd,
+        email: undefined,
+        phone: undefined,
+        grantCount: donor.grantCount,
+        dataSources: donor.dataSources as unknown[],
+      }).total;
+
+      const donorWithNormalized = {
+        ...donor,
+        causes: normalizedCauses,
+        dataQualityScore: computedScore,
+      };
+
       const existing = donor.ein
         ? await prisma.donor.findFirst({ where: { OR: [{ ein: donor.ein }, { name: donor.name }] } })
         : await prisma.donor.findFirst({ where: { name: donor.name } });
@@ -372,8 +401,9 @@ export async function POST() {
             avgGrantSizeUsd: donor.avgGrantSizeUsd,
             grantCount: donor.grantCount,
             givingYearRange: donor.givingYearRange,
-            dataQualityScore: donor.dataQualityScore,
+            dataQualityScore: computedScore,
             description: donor.description,
+            causes: normalizedCauses,
           },
         });
         donorMap.set(donor.name, existing.id);
@@ -381,7 +411,7 @@ export async function POST() {
         continue;
       }
 
-      const result = await prisma.donor.create({ data: donor });
+      const result = await prisma.donor.create({ data: donorWithNormalized });
       donorMap.set(donor.name, result.id);
       created++;
     }

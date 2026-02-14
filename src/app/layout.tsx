@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DonorMatch — Find the Right Donors for Your NGO",
+  title: "Funderra — Find the Right Donors for Your NGO",
   description:
     "Discover, match, and manage donor relationships. AI-powered donor discovery for nonprofits.",
 };

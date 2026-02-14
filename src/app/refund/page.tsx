@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Refund Policy - DonorMatch",
-  description: "DonorMatch refund and cancellation policy",
+  title: "Refund Policy - Funderra",
+  description: "Funderra refund and cancellation policy",
 };
 
 export default function RefundPolicyPage() {
@@ -23,7 +23,7 @@ export default function RefundPolicyPage() {
         <section>
           <h2 className="text-xl font-semibold mt-8 mb-4">1. Overview</h2>
           <p>
-            DonorMatch (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) wants you to be satisfied
+            Funderra (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) wants you to be satisfied
             with our service. If you are not happy with your subscription, we offer refunds under the
             conditions described below.
           </p>
@@ -65,8 +65,8 @@ export default function RefundPolicyPage() {
           <h2 className="text-xl font-semibold mt-8 mb-4">4. How to Request a Refund</h2>
           <p>
             To request a refund, contact us at{" "}
-            <a href="mailto:legal@donormatch.com" className="text-blue-600 hover:underline">
-              legal@donormatch.com
+            <a href="mailto:legal@funderra.app" className="text-blue-600 hover:underline">
+              legal@funderra.app
             </a>{" "}
             with:
           </p>
@@ -108,14 +108,14 @@ export default function RefundPolicyPage() {
           <h2 className="text-xl font-semibold mt-8 mb-4">7. Contact</h2>
           <p>
             For billing questions or refund requests, contact us at{" "}
-            <a href="mailto:legal@donormatch.com" className="text-blue-600 hover:underline">
-              legal@donormatch.com
+            <a href="mailto:legal@funderra.app" className="text-blue-600 hover:underline">
+              legal@funderra.app
             </a>.
           </p>
           <p>
             For general support, reach us at{" "}
-            <a href="mailto:support@donormatch.com" className="text-blue-600 hover:underline">
-              support@donormatch.com
+            <a href="mailto:support@funderra.app" className="text-blue-600 hover:underline">
+              support@funderra.app
             </a>.
           </p>
         </section>

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validateDonorUpdate, validateGrant, validatePublication } from "@/lib/validation/validate-and-normalize";
+import { computeQualityScore } from "@/lib/validation/compute-quality-score";
 
 /**
  * POST /api/admin/apply-changes
  * Apply human-approved changes to a donor.
+ * All values validated through Zod schemas before writing.
  *
  * Body: { donorId: string, changes: { field: string, value: unknown }[] }
  */
@@ -19,44 +22,52 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Donor not found" }, { status: 404 });
   }
 
-  // Separate regular field updates from grant additions
+  // Separate regular field updates from grant/publication additions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fieldUpdates: Record<string, any> = {};
-  const newGrants: { recipientName: string; amount: number | null; year: number | null; purpose: string | null }[] = [];
-  const newPubs: { title: string; url: string; type: string; summary: string | null }[] = [];
-
-  const allowedFields = new Set([
-    "name", "type", "description", "website", "websiteVerified", "websiteSource",
-    "email", "phone", "country", "city", "headquartersCountry", "headquartersCity",
-    "activeRegions", "location", "causes", "targetPopulations", "geographicFocus",
-    "totalGivingUsd", "avgGrantSizeUsd", "grantCount", "givingYearRange",
-    "dataQualityScore", "researchStatus",
-  ]);
+  const rawGrants: unknown[] = [];
+  const rawPubs: unknown[] = [];
 
   for (const change of changes) {
     if (change.field === "grants" && Array.isArray(change.value)) {
-      newGrants.push(...change.value);
+      rawGrants.push(...change.value);
     } else if (change.field === "publications" && Array.isArray(change.value)) {
-      newPubs.push(...change.value);
-    } else if (allowedFields.has(change.field)) {
+      rawPubs.push(...change.value);
+    } else {
       fieldUpdates[change.field] = change.value;
     }
   }
 
   let fieldsUpdated = 0;
   let grantsAdded = 0;
+  let grantsSkipped = 0;
 
-  // Apply field updates
+  // Validate and apply field updates
   if (Object.keys(fieldUpdates).length > 0) {
+    const validation = validateDonorUpdate(fieldUpdates);
+    if (!validation.success || !validation.data) {
+      return NextResponse.json(
+        { error: "Validation failed", details: validation.errors },
+        { status: 400 }
+      );
+    }
+    const validatedData = validation.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await prisma.donor.update({
       where: { id: donorId },
-      data: fieldUpdates,
+      data: validatedData as any,
     });
-    fieldsUpdated = Object.keys(fieldUpdates).length;
+    fieldsUpdated = Object.keys(validatedData).length;
   }
 
-  // Add new grants
-  for (const grant of newGrants) {
+  // Validate and add new grants (skip invalid ones)
+  for (const rawGrant of rawGrants) {
+    const grantValidation = validateGrant(rawGrant);
+    if (!grantValidation.success || !grantValidation.data) {
+      grantsSkipped++;
+      continue;
+    }
+    const grant = grantValidation.data;
     const exists = await prisma.donorGrant.findFirst({
       where: {
         donorId,
@@ -69,19 +80,26 @@ export async function POST(req: NextRequest) {
         data: {
           donorId,
           recipientName: grant.recipientName,
-          amount: grant.amount,
-          year: grant.year,
-          purpose: grant.purpose,
-          currency: "USD",
+          amount: grant.amount ?? null,
+          year: grant.year ?? null,
+          purpose: grant.purpose ?? null,
+          currency: grant.currency,
         },
       });
       grantsAdded++;
     }
   }
 
-  // Add new publications
+  // Validate and add new publications (skip invalid ones)
   let pubsAdded = 0;
-  for (const pub of newPubs) {
+  let pubsSkipped = 0;
+  for (const rawPub of rawPubs) {
+    const pubValidation = validatePublication(rawPub);
+    if (!pubValidation.success || !pubValidation.data) {
+      pubsSkipped++;
+      continue;
+    }
+    const pub = pubValidation.data;
     const exists = await prisma.donorPublication.findFirst({
       where: { donorId, url: pub.url },
     });
@@ -90,13 +108,44 @@ export async function POST(req: NextRequest) {
         data: {
           donorId,
           title: pub.title,
-          type: pub.type as "ARTICLE" | "SOCIAL_MEDIA" | "PODCAST" | "PRESS_RELEASE" | "BLOG_POST" | "VIDEO" | "OTHER",
+          type: pub.type,
           url: pub.url,
-          summary: pub.summary,
+          summary: pub.summary ?? null,
         },
       });
       pubsAdded++;
     }
+  }
+
+  // Recompute quality score after all changes
+  const updatedDonor = await prisma.donor.findUnique({
+    where: { id: donorId },
+    include: { grants: { select: { id: true } } },
+  });
+  if (updatedDonor) {
+    const newScore = computeQualityScore({
+      name: updatedDonor.name,
+      description: updatedDonor.description,
+      website: updatedDonor.website,
+      websiteVerified: updatedDonor.websiteVerified,
+      causes: updatedDonor.causes,
+      targetPopulations: updatedDonor.targetPopulations,
+      geographicFocus: updatedDonor.geographicFocus,
+      activeRegions: updatedDonor.activeRegions,
+      headquartersCountry: updatedDonor.headquartersCountry,
+      headquartersCity: updatedDonor.headquartersCity,
+      totalGivingUsd: updatedDonor.totalGivingUsd,
+      avgGrantSizeUsd: updatedDonor.avgGrantSizeUsd,
+      email: updatedDonor.email,
+      phone: updatedDonor.phone,
+      grantCount: updatedDonor.grants.length,
+      dataSources: (updatedDonor.dataSources ?? []) as unknown[],
+    }).total;
+
+    await prisma.donor.update({
+      where: { id: donorId },
+      data: { dataQualityScore: newScore },
+    });
   }
 
   return NextResponse.json({
@@ -104,6 +153,8 @@ export async function POST(req: NextRequest) {
     donorId,
     fieldsUpdated,
     grantsAdded,
+    grantsSkipped,
     pubsAdded,
+    pubsSkipped,
   });
 }

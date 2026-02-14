@@ -37,9 +37,12 @@ export async function validateDonorCandidate(
       };
     }
 
-    // Search for the donor to cross-reference
+    // Search for the donor to cross-reference (adapt keywords for individual vs foundation)
+    const typeKeywords = candidate.type === "INDIVIDUAL"
+      ? "philanthropist donor personal giving wealthy"
+      : "foundation donor philanthropy";
     const searchResults = await searchDonors(
-      `"${candidate.name}" foundation donor philanthropy`,
+      `"${candidate.name}" ${typeKeywords}`,
       { maxResults: 5 }
     );
 
@@ -112,16 +115,26 @@ Return JSON:
     temperature: 0,
   });
 
-  const result = JSON.parse(
-    response.choices[0].message.content ?? "{}"
-  );
+  let result: Record<string, unknown>;
+  try {
+    result = JSON.parse(response.choices[0].message.content ?? "{}");
+  } catch {
+    console.error("[validator-agent] Failed to parse validation JSON response");
+    result = {
+      isValid: false,
+      confidence: 0,
+      dataQualityScore: 0,
+      validatedFields: [],
+      warnings: ["Failed to parse AI validation response"],
+    };
+  }
 
   return {
-    isValid: result.isValid ?? false,
-    confidence: result.confidence ?? 0,
-    validatedFields: result.validatedFields ?? [],
-    dataQualityScore: result.dataQualityScore ?? 0,
-    warnings: result.warnings ?? [],
+    isValid: result.isValid === true,
+    confidence: Math.min(1, Math.max(0, Number(result.confidence) || 0)),
+    validatedFields: Array.isArray(result.validatedFields) ? result.validatedFields : [],
+    dataQualityScore: Math.min(1, Math.max(0, Number(result.dataQualityScore) || 0)),
+    warnings: Array.isArray(result.warnings) ? result.warnings : [],
   };
 }
 
@@ -130,10 +143,12 @@ Return JSON:
  * Faster than full validation, used for bulk filtering.
  */
 export async function quickValidateDonorName(
-  name: string
+  name: string,
+  donorType?: string
 ): Promise<{ exists: boolean; url?: string }> {
   try {
-    const results = await searchDonors(`"${name}" foundation`, {
+    const keyword = donorType === "INDIVIDUAL" ? "philanthropist" : "foundation";
+    const results = await searchDonors(`"${name}" ${keyword}`, {
       maxResults: 3,
     });
 

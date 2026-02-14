@@ -25,8 +25,39 @@ import { prisma } from "@/lib/prisma";
 import { generateMatchReasoning as geminiReasoning } from "@/lib/gemini";
 import { generateEmbedding } from "@/lib/openai";
 import { formatGrantAmount } from "@/lib/utils/format-amount";
+import { normalizeCause } from "@/lib/utils/normalize-causes";
 import { getSwipeFeedbackSignals, calculateFeedbackBoost, type SwipeFeedbackSignals } from "@/lib/matching/feedback";
 import OpenAI from "openai";
+
+// ==========================================
+// GEOGRAPHIC SYNONYMS
+// ==========================================
+
+/**
+ * Geographic synonym groups — terms within a group are considered equivalent.
+ * Used by fuzzyJaccardSimilarity to improve geographic matching.
+ */
+const GEOGRAPHIC_SYNONYM_GROUPS: string[][] = [
+  ["israel", "middle east", "levant"],
+  ["global", "worldwide", "international"],
+  ["united states", "usa", "us", "america", "north america"],
+  ["united kingdom", "uk", "britain", "england"],
+  ["europe", "european union", "eu"],
+];
+
+/**
+ * Check if two geographic terms are synonyms.
+ */
+function areGeoSynonyms(a: string, b: string): boolean {
+  const la = a.toLowerCase().trim();
+  const lb = b.toLowerCase().trim();
+  for (const group of GEOGRAPHIC_SYNONYM_GROUPS) {
+    const aInGroup = group.some((term) => la.includes(term) || term.includes(la));
+    const bInGroup = group.some((term) => lb.includes(term) || term.includes(lb));
+    if (aInGroup && bInGroup) return true;
+  }
+  return false;
+}
 
 const openai = new OpenAI();
 
@@ -42,12 +73,14 @@ interface MatchCandidate {
   donorCountry: string | null;
   donorWebsite: string | null;
   donorWebsiteVerified: boolean;
+  donorPoliticalStance: string | null;
   totalGivingUsd: number | null;
   avgGrantSizeUsd: number | null;
   donorGrantCount: number;
   dataQualityScore: number;
   vectorScore: number;
   latestGrantYear: number | null;
+  grantRecipientNames: string[];
 }
 
 interface ScoredMatch {
@@ -58,7 +91,9 @@ interface ScoredMatch {
     geographicOverlap: number;
     populationOverlap: number;
     semanticSimilarity: number;
+    politicalAlignment: number;
     grantSizeAlignment: number;
+    grantRecipientSimilarity: number;
     recencyBonus: number;
     feedbackBoost: number;
     dataQuality: number;
@@ -67,27 +102,31 @@ interface ScoredMatch {
 }
 
 // --- Scoring weights ---
-// When user has swipe history, feedback gets 10% and dataQuality drops to 5%
+// When user has swipe history, feedback gets 10% and dataQuality drops
 const WEIGHTS = {
-  semanticSimilarity: 0.25,
-  causeAlignment: 0.20,
-  geographicOverlap: 0.15,
+  semanticSimilarity: 0.22,
+  causeAlignment: 0.18,
+  geographicOverlap: 0.13,
+  politicalAlignment: 0.10,
   recencyBonus: 0.10,
   grantSizeAlignment: 0.10,
-  populationOverlap: 0.10,
-  feedbackBoost: 0.05,
-  dataQuality: 0.05,
+  populationOverlap: 0.07,
+  grantRecipientSimilarity: 0.05,
+  feedbackBoost: 0.02,
+  dataQuality: 0.03,
 };
 
 const WEIGHTS_WITH_FEEDBACK = {
-  semanticSimilarity: 0.25,
-  causeAlignment: 0.15,
-  geographicOverlap: 0.15,
+  semanticSimilarity: 0.22,
+  causeAlignment: 0.13,
+  geographicOverlap: 0.13,
+  politicalAlignment: 0.10,
   recencyBonus: 0.10,
   grantSizeAlignment: 0.10,
-  populationOverlap: 0.05,
+  populationOverlap: 0.04,
+  grantRecipientSimilarity: 0.05,
   feedbackBoost: 0.10,
-  dataQuality: 0.10,
+  dataQuality: 0.03,
 };
 
 /**
@@ -128,20 +167,34 @@ export async function generateMatches(
   // Find candidates using cause filtering + vector similarity
   const candidates = await findCandidates(org, allExcludeIds, limit * 3, orgEmbeddingStr);
 
+  // Fetch or generate org political embedding for ideological alignment scoring
+  const orgPoliticalEmbeddingStr = await getOrgPoliticalEmbedding({
+    id: org.id,
+    politicalStance: org.politicalStance,
+  });
+
+  // Bulk pre-fetch political similarity for all candidates (single SQL query)
+  const politicalSimilarityMap = await bulkPoliticalSimilarity(
+    orgPoliticalEmbeddingStr,
+    candidates.map((c) => c.donorId)
+  );
+
   // Use feedback-aware weights if we have enough swipe data
   const w = feedbackSignals.hasEnoughData ? WEIGHTS_WITH_FEEDBACK : WEIGHTS;
 
   // Score each candidate
   const scored: ScoredMatch[] = [];
   for (const candidate of candidates) {
-    const scoreBreakdown = scoreCandidate(org, candidate, orgBudget, feedbackSignals);
+    const scoreBreakdown = scoreCandidate(org, candidate, orgBudget, feedbackSignals, politicalSimilarityMap);
     const totalScore =
       scoreBreakdown.semanticSimilarity * w.semanticSimilarity +
       scoreBreakdown.causeAlignment * w.causeAlignment +
       scoreBreakdown.geographicOverlap * w.geographicOverlap +
+      scoreBreakdown.politicalAlignment * w.politicalAlignment +
       scoreBreakdown.recencyBonus * w.recencyBonus +
       scoreBreakdown.grantSizeAlignment * w.grantSizeAlignment +
       scoreBreakdown.populationOverlap * w.populationOverlap +
+      scoreBreakdown.grantRecipientSimilarity * w.grantRecipientSimilarity +
       scoreBreakdown.feedbackBoost * w.feedbackBoost +
       scoreBreakdown.dataQuality * w.dataQuality;
 
@@ -178,7 +231,7 @@ export async function generateMatches(
       const candidate = candidateMap.get(match.donorId);
       const grants = grantsByDonor.get(match.donorId) || [];
       if (candidate) {
-        match.reasoning = await generateReasoning(org, candidate, grants);
+        match.reasoning = await generateReasoning(org, candidate, grants, match.scoreBreakdown);
       }
     })
   );
@@ -205,11 +258,13 @@ const CANDIDATE_SELECT = `
   d.country as "donorCountry",
   d.website as "donorWebsite",
   COALESCE(d."websiteVerified", false) as "donorWebsiteVerified",
+  d."politicalStance" as "donorPoliticalStance",
   d."totalGivingUsd",
   d."avgGrantSizeUsd",
   COALESCE(d."grantCount", 0) as "donorGrantCount",
   d."dataQualityScore",
-  (SELECT MAX(year) FROM "DonorGrant" WHERE "donorId" = d.id) as "latestGrantYear"
+  (SELECT MAX(year) FROM "DonorGrant" WHERE "donorId" = d.id) as "latestGrantYear",
+  COALESCE((SELECT array_agg(DISTINCT sub."recipientName") FROM (SELECT "recipientName" FROM "DonorGrant" WHERE "donorId" = d.id AND "recipientName" IS NOT NULL LIMIT 50) sub), '{}') as "grantRecipientNames"
 `;
 
 /**
@@ -358,25 +413,54 @@ async function findFallbackCandidates(
  * Uses fuzzy matching, vector similarity, grant-size alignment, and recency.
  */
 function scoreCandidate(
-  org: { causes: string[]; targetPopulations: string[]; geographicFocus: string[]; annualBudgetRange: string | null },
+  org: { causes: string[]; targetPopulations: string[]; geographicFocus: string[]; annualBudgetRange: string | null; similarOrgNames: string[] },
   candidate: MatchCandidate,
   orgBudget: number | null,
-  feedbackSignals: SwipeFeedbackSignals
+  feedbackSignals: SwipeFeedbackSignals,
+  politicalSimilarityMap: Map<string, number> = new Map()
 ): ScoredMatch["scoreBreakdown"] {
-  const causeAlignment = fuzzyJaccardSimilarity(org.causes, candidate.donorCauses);
+  // Cause alignment with canonical synonym matching
+  const causeAlignment = fuzzyJaccardSimilarity(org.causes, candidate.donorCauses, "cause");
 
-  // Geographic: combine geographicFocus + activeRegions
+  // Geographic: combine geographicFocus + activeRegions, use geo synonym matching
   const allDonorGeo = [...candidate.donorGeoFocus, ...candidate.donorActiveRegions];
-  const geographicOverlap = fuzzyJaccardSimilarity(org.geographicFocus, allDonorGeo);
+  let geographicOverlap = fuzzyJaccardSimilarity(org.geographicFocus, allDonorGeo, "geo");
+
+  // Israel boost: if org targets Israel and donor has any Israel/Middle East/Global connection,
+  // ensure a minimum floor so Israeli-focused donors aren't penalized by sparse geo data
+  const orgTargetsIsrael = org.geographicFocus.some((g) => /israel/i.test(g));
+  if (orgTargetsIsrael && geographicOverlap < 0.3) {
+    const donorGeoStr = allDonorGeo.join(" ").toLowerCase();
+    const donorDescStr = (candidate.donorDescription || "").toLowerCase();
+    const hasIsraelConnection =
+      /israel|middle east|jerusalem|tel.?aviv|negev|galilee|jewish|zion/i.test(donorGeoStr) ||
+      /israel|middle east|jerusalem|jewish|zion/i.test(donorDescStr);
+    if (hasIsraelConnection) {
+      geographicOverlap = Math.max(geographicOverlap, 0.3);
+    }
+  }
 
   const populationOverlap = fuzzyJaccardSimilarity(org.targetPopulations, candidate.donorPopulations);
+
+  // Grant recipient similarity: does this donor fund orgs similar to ours?
+  const grantRecipientSimilarity = grantRecipientSimilarityScore(
+    org.similarOrgNames,
+    candidate.grantRecipientNames
+  );
+
+  // Political alignment: use pre-fetched similarity, default to 0.5 (neutral) if missing
+  const politicalAlignment = candidate.donorPoliticalStance
+    ? (politicalSimilarityMap.get(candidate.donorId) ?? 0.5)
+    : 0.5;
 
   return {
     causeAlignment,
     geographicOverlap,
     populationOverlap,
     semanticSimilarity: candidate.vectorScore,
+    politicalAlignment,
     grantSizeAlignment: grantSizeAlignmentScore(orgBudget, candidate.avgGrantSizeUsd),
+    grantRecipientSimilarity,
     recencyBonus: recencyScore(candidate.latestGrantYear),
     feedbackBoost: calculateFeedbackBoost(candidate, feedbackSignals),
     dataQuality: candidate.dataQualityScore,
@@ -411,6 +495,40 @@ function recencyScore(latestGrantYear: number | null): number {
 }
 
 /**
+ * Grant recipient similarity: does this donor fund organizations similar to ours?
+ * Compares donor's grant recipients against org.similarOrgNames using fuzzy matching.
+ * Even a single match is a strong signal — this is the "social proof" factor.
+ */
+function grantRecipientSimilarityScore(similarOrgNames: string[], grantRecipients: string[]): number {
+  if (!similarOrgNames.length || !grantRecipients.length) return 0;
+
+  // Check if any grant recipient fuzzy-matches a similar org name
+  const similarLower = similarOrgNames.map((s) => s.toLowerCase().trim());
+  const recipientLower = grantRecipients.map((r) => r.toLowerCase().trim());
+
+  let matchCount = 0;
+  for (const similar of similarLower) {
+    for (const recipient of recipientLower) {
+      if (
+        similar === recipient ||
+        recipient.includes(similar) ||
+        similar.includes(recipient) ||
+        levenshteinRatio(similar, recipient) > 0.75
+      ) {
+        matchCount++;
+        break; // Count each similar org at most once
+      }
+    }
+  }
+
+  if (matchCount === 0) return 0;
+  // Even 1 match is very strong; scale: 1 match = 0.7, 2 = 0.85, 3+ = 1.0
+  if (matchCount === 1) return 0.7;
+  if (matchCount === 2) return 0.85;
+  return 1.0;
+}
+
+/**
  * Parse annual budget range string to a numeric midpoint.
  * e.g. "$1M-$5M" → 3000000, "Under $100K" → 50000
  */
@@ -418,32 +536,42 @@ function parseAnnualBudget(range: string | null): number | null {
   if (!range) return null;
   const lower = range.toLowerCase().replace(/,/g, "");
 
+  // Detect Israeli Shekel amounts (₪, NIS, ILS) and convert to USD
+  // Approximate rate: 1 USD ≈ 3.6 ILS
+  const ILS_TO_USD = 1 / 3.6;
+  const isILS = /[₪]|nis|ils/.test(lower);
+  const conversionFactor = isILS ? ILS_TO_USD : 1;
+
+  // Strip shekel symbol for parsing
+  const cleaned = lower.replace(/[₪]/g, "").trim();
+
   // Match patterns like "$1M-$5M", "$100K-$500K"
-  const rangeMatch = lower.match(/\$?([\d.]+)\s*(k|m|b)?\s*[-–to]+\s*\$?([\d.]+)\s*(k|m|b)?/);
+  const rangeMatch = cleaned.match(/\$?([\d.]+)\s*(k|m|b)?\s*[-–to]+\s*\$?([\d.]+)\s*(k|m|b)?/);
   if (rangeMatch) {
     const low = parseAmountStr(rangeMatch[1], rangeMatch[2]);
     const high = parseAmountStr(rangeMatch[3], rangeMatch[4]);
-    if (low !== null && high !== null) return (low + high) / 2;
+    if (low !== null && high !== null) return ((low + high) / 2) * conversionFactor;
   }
 
   // Match patterns like "Under $100K", "Less than $1M"
-  const underMatch = lower.match(/(?:under|less than|<)\s*\$?([\d.]+)\s*(k|m|b)?/);
+  const underMatch = cleaned.match(/(?:under|less than|<)\s*\$?([\d.]+)\s*(k|m|b)?/);
   if (underMatch) {
     const val = parseAmountStr(underMatch[1], underMatch[2]);
-    if (val !== null) return val / 2;
+    if (val !== null) return (val / 2) * conversionFactor;
   }
 
   // Match patterns like "Over $5M", "More than $10M"
-  const overMatch = lower.match(/(?:over|more than|>)\s*\$?([\d.]+)\s*(k|m|b)?/);
+  const overMatch = cleaned.match(/(?:over|more than|>)\s*\$?([\d.]+)\s*(k|m|b)?/);
   if (overMatch) {
     const val = parseAmountStr(overMatch[1], overMatch[2]);
-    if (val !== null) return val * 1.5;
+    if (val !== null) return val * 1.5 * conversionFactor;
   }
 
   // Try a plain number
-  const plainMatch = lower.match(/\$?([\d.]+)\s*(k|m|b)?/);
+  const plainMatch = cleaned.match(/\$?([\d.]+)\s*(k|m|b)?/);
   if (plainMatch) {
-    return parseAmountStr(plainMatch[1], plainMatch[2]);
+    const val = parseAmountStr(plainMatch[1], plainMatch[2]);
+    if (val !== null) return val * conversionFactor;
   }
 
   return null;
@@ -466,9 +594,11 @@ function parseAmountStr(numStr: string, suffix?: string): number | null {
 
 /**
  * Fuzzy Jaccard similarity.
- * Matches items using: exact match, substring containment, or Levenshtein > 80%.
+ * Matches items using: canonical cause synonym, exact match, substring, or Levenshtein > 80%.
+ *
+ * When `mode` is "geo", geographic synonym groups are used instead of cause normalization.
  */
-function fuzzyJaccardSimilarity(a: string[], b: string[]): number {
+function fuzzyJaccardSimilarity(a: string[], b: string[], mode: "cause" | "geo" | "default" = "default"): number {
   if (a.length === 0 && b.length === 0) return 0;
   if (a.length === 0 || b.length === 0) return 0;
 
@@ -478,15 +608,35 @@ function fuzzyJaccardSimilarity(a: string[], b: string[]): number {
   let matches = 0;
   const matchedB = new Set<number>();
 
-  for (const itemA of itemsA) {
+  for (let i = 0; i < itemsA.length; i++) {
+    const itemA = itemsA[i];
     for (let j = 0; j < itemsB.length; j++) {
       if (matchedB.has(j)) continue;
-      if (
-        itemA === itemsB[j] ||                          // Exact match
-        itemA.includes(itemsB[j]) ||                     // A contains B
-        itemsB[j].includes(itemA) ||                     // B contains A
-        levenshteinRatio(itemA, itemsB[j]) > 0.8         // 80% similar
-      ) {
+
+      let isMatch = false;
+
+      // 1. Exact match
+      if (itemA === itemsB[j]) {
+        isMatch = true;
+      }
+      // 2. Canonical cause synonym (e.g. "Children" ↔ "Youth Development")
+      else if (mode === "cause" && normalizeCause(a[i]) === normalizeCause(b[j])) {
+        isMatch = true;
+      }
+      // 2b. Geographic synonym (e.g. "Israel" ↔ "Middle East")
+      else if (mode === "geo" && areGeoSynonyms(a[i], b[j])) {
+        isMatch = true;
+      }
+      // 3. Substring containment
+      else if (itemA.includes(itemsB[j]) || itemsB[j].includes(itemA)) {
+        isMatch = true;
+      }
+      // 4. Levenshtein > 80% similar
+      else if (levenshteinRatio(itemA, itemsB[j]) > 0.8) {
+        isMatch = true;
+      }
+
+      if (isMatch) {
         matches++;
         matchedB.add(j);
         break;
@@ -533,7 +683,7 @@ function levenshteinRatio(a: string, b: string): number {
  * Get the org's embedding, generating and storing it if missing.
  */
 async function getOrgEmbedding(
-  org: { id: string; mission: string | null; causes: string[]; geographicFocus: string[] }
+  org: { id: string; mission: string | null; causes: string[]; geographicFocus: string[]; rawProfileText?: string | null }
 ): Promise<string | null> {
   // Check for existing embedding
   const existing = await prisma.$queryRawUnsafe<{ emb: string }[]>(
@@ -546,11 +696,15 @@ async function getOrgEmbedding(
   }
 
   // Generate embedding from org profile
-  const embeddingText = [
-    org.mission,
-    org.causes.length ? `Causes: ${org.causes.join(", ")}` : null,
-    org.geographicFocus.length ? `Geographic focus: ${org.geographicFocus.join(", ")}` : null,
-  ].filter(Boolean).join(". ");
+  // When rawProfileText is available, use it for a much richer embedding
+  // that captures programs, operational language, and nuanced details
+  const embeddingText = org.rawProfileText
+    ? org.rawProfileText.slice(0, 8000)
+    : [
+        org.mission,
+        org.causes.length ? `Causes: ${org.causes.join(", ")}` : null,
+        org.geographicFocus.length ? `Geographic focus: ${org.geographicFocus.join(", ")}` : null,
+      ].filter(Boolean).join(". ");
 
   if (!embeddingText) return null;
 
@@ -572,6 +726,79 @@ async function getOrgEmbedding(
   }
 }
 
+/**
+ * Get the org's political embedding, generating and storing it if missing.
+ */
+async function getOrgPoliticalEmbedding(
+  org: { id: string; politicalStance: string | null }
+): Promise<string | null> {
+  // Check for existing embedding
+  const existing = await prisma.$queryRawUnsafe<{ emb: string }[]>(
+    `SELECT "politicalEmbedding"::text as emb FROM "Organization" WHERE id = $1 AND "politicalEmbedding" IS NOT NULL`,
+    org.id
+  );
+
+  if (existing.length > 0 && existing[0].emb) {
+    return existing[0].emb;
+  }
+
+  if (!org.politicalStance) return null;
+
+  try {
+    const embedding = await generateEmbedding(org.politicalStance);
+    const embStr = JSON.stringify(embedding);
+
+    await prisma.$executeRawUnsafe(
+      `UPDATE "Organization" SET "politicalEmbedding" = $1::vector WHERE id = $2`,
+      embStr,
+      org.id
+    );
+
+    return embStr;
+  } catch (err) {
+    console.error("[matching] Failed to generate org political embedding:", err);
+    return null;
+  }
+}
+
+/**
+ * Bulk pre-fetch political alignment scores for a set of candidates.
+ * Returns a Map of donorId → cosine similarity score.
+ * Donors without political embeddings are not included (they'll default to 0.5 neutral).
+ */
+async function bulkPoliticalSimilarity(
+  orgPoliticalEmbeddingStr: string | null,
+  candidateIds: string[]
+): Promise<Map<string, number>> {
+  const result = new Map<string, number>();
+  if (!orgPoliticalEmbeddingStr || candidateIds.length === 0) return result;
+
+  try {
+    const rows = await prisma.$queryRawUnsafe<{ id: string; sim: number }[]>(
+      `SELECT id, 1 - ("politicalEmbedding" <=> $1::vector) as sim
+       FROM "Donor"
+       WHERE id = ANY($2::text[]) AND "politicalEmbedding" IS NOT NULL`,
+      orgPoliticalEmbeddingStr,
+      candidateIds
+    );
+
+    for (const row of rows) {
+      // Map cosine similarity to a score:
+      // High (>=0.8) → 1.0, Moderate (0.5-0.8) → 0.8-1.0, Low (<0.5) → 0.2-0.5
+      const sim = row.sim;
+      let score: number;
+      if (sim >= 0.8) score = 1.0;
+      else if (sim >= 0.5) score = Math.min(1.0, 0.3 + sim);
+      else score = Math.max(0.2, sim);
+      result.set(row.id, score);
+    }
+  } catch (err) {
+    console.error("[matching] Failed to bulk fetch political similarity:", err);
+  }
+
+  return result;
+}
+
 // ==========================================
 // REASONING GENERATION
 // ==========================================
@@ -581,9 +808,10 @@ async function getOrgEmbedding(
  * Tries Gemini first (with grant data), falls back to OpenAI, then to template.
  */
 async function generateReasoning(
-  org: { name: string; causes: string[]; targetPopulations: string[]; geographicFocus: string[]; mission: string | null },
+  org: { name: string; causes: string[]; targetPopulations: string[]; geographicFocus: string[]; mission: string | null; rawProfileText?: string | null; politicalStance?: string | null },
   candidate: MatchCandidate,
-  grants: { recipientName: string; amount: number | null; year: number | null }[]
+  grants: { recipientName: string; amount: number | null; year: number | null }[],
+  scoreBreakdown?: ScoredMatch["scoreBreakdown"]
 ): Promise<string> {
   // Try Gemini first (produces better data-rich reasoning)
   if (process.env.GEMINI_API_KEY) {
@@ -593,12 +821,15 @@ async function generateReasoning(
         orgMission: org.mission,
         orgCauses: org.causes,
         orgGeoFocus: org.geographicFocus,
+        orgRawProfileText: org.rawProfileText,
+        orgPoliticalStance: org.politicalStance,
         donorName: candidate.donorName,
         donorType: candidate.donorType,
         donorDescription: candidate.donorDescription,
         donorCauses: candidate.donorCauses,
         donorGeoFocus: candidate.donorGeoFocus,
         donorActiveRegions: candidate.donorActiveRegions,
+        donorPoliticalStance: candidate.donorPoliticalStance,
         topGrants: grants.slice(0, 5),
         totalGiving: candidate.totalGivingUsd,
         grantCount: candidate.donorGrantCount,
@@ -621,6 +852,20 @@ async function generateReasoning(
       ? ` Total giving: ~${formatGrantAmount(candidate.totalGivingUsd)}.`
       : "";
 
+    // Build score context for the prompt
+    const strongSignals: string[] = [];
+    if (scoreBreakdown) {
+      if (scoreBreakdown.causeAlignment >= 0.6) strongSignals.push("strong cause alignment");
+      if (scoreBreakdown.geographicOverlap >= 0.5) strongSignals.push("strong geographic overlap");
+      if (scoreBreakdown.grantSizeAlignment >= 0.8) strongSignals.push("good grant size fit");
+      if (scoreBreakdown.semanticSimilarity >= 0.7) strongSignals.push("high mission similarity");
+      if (scoreBreakdown.populationOverlap >= 0.5) strongSignals.push("overlapping target populations");
+      if (scoreBreakdown.politicalAlignment >= 0.7) strongSignals.push("shared ideological values");
+    }
+    const signalHint = strongSignals.length > 0
+      ? `\nStrongest match signals: ${strongSignals.join(", ")}. Focus your reasoning on these areas.`
+      : "";
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -632,14 +877,22 @@ RULES:
 - Be SPECIFIC: mention grant recipients by name, dollar amounts, regions
 - Never say generic things like "aligns with your mission" without concrete evidence
 - Never mention scores, percentages, or algorithms
-- If the donor gave to similar organizations, name them`,
+- If the donor gave to similar organizations, name them
+
+ISRAEL-SPECIFIC RULES (apply when relevant):
+- Many nonprofits in this platform operate in Israel. If the NGO operates in Israel, highlight the donor's Israel connections.
+- Look for signals: grants to Israeli organizations, "Jewish" or "Israel" in donor description, Middle East geographic focus.
+- Distinguish between Israel-focused donors (e.g., Jewish federations, Israel-specific funds) and general international donors who also give to Israel.
+- If the donor has funded organizations in Israel, mention those recipients specifically.
+- "Jewish community" donors often fund Israeli causes — note this connection when relevant.
+- If a detailed org profile is provided, reference their specific programs and activities in your reasoning rather than just restating cause labels.`,
         },
         {
           role: "user",
-          content: `NGO "${org.name}": ${org.causes.join(", ")}. Mission: ${org.mission || "N/A"}. Geography: ${org.geographicFocus.join(", ") || "N/A"}.
+          content: `NGO "${org.name}": ${org.causes.join(", ")}. Mission: ${org.mission || "N/A"}. Geography: ${org.geographicFocus.join(", ") || "N/A"}.${org.rawProfileText ? `\n\nDetailed org profile:\n${org.rawProfileText.slice(0, 2000)}` : ""}
 
 Donor "${candidate.donorName}" (${candidate.donorType}): ${candidate.donorDescription || "N/A"}. Causes: ${candidate.donorCauses.join(", ") || "N/A"}. Regions: ${[...candidate.donorGeoFocus, ...candidate.donorActiveRegions].join(", ") || "N/A"}.${totalGivingStr}${candidate.donorGrantCount ? ` ${candidate.donorGrantCount} grants on record.` : ""}
-${grantContext ? `Recent grants: ${grantContext}` : ""}
+${grantContext ? `Recent grants: ${grantContext}` : ""}${signalHint}
 
 Explain why this donor is a good match.`,
         },

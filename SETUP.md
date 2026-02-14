@@ -1,6 +1,6 @@
-# DonorMatch — Setup Guide (Non-Technical)
+# Funderra — Setup Guide (Non-Technical)
 
-This guide walks you through getting DonorMatch running on your computer from scratch.
+This guide walks you through getting Funderra running on your computer from scratch.
 
 ---
 
@@ -25,7 +25,7 @@ You need three things installed on your computer. If you already have any of the
 
 1. Go to https://neon.tech (free tier available)
 2. Sign up and create a new project
-3. Name it "donormatch"
+3. Name it "funderra"
 4. Choose the closest region to you
 5. Copy the connection string — it looks like:
    ```
@@ -41,19 +41,19 @@ You need three things installed on your computer. If you already have any of the
 ```bash
 brew install postgresql@16
 brew services start postgresql@16
-createdb donormatch
-psql donormatch -c "CREATE EXTENSION IF NOT EXISTS vector;"
+createdb funderra
+psql funderra -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
-Your connection string will be: `postgresql://localhost:5432/donormatch`
+Your connection string will be: `postgresql://localhost:5432/funderra`
 
 **Option 2: Local install (Windows)**
 
 1. Go to https://www.postgresql.org/download/windows/
 2. Download and run the installer
 3. Remember the password you set during install
-4. Open pgAdmin (installed with PostgreSQL), create a database called `donormatch`
+4. Open pgAdmin (installed with PostgreSQL), create a database called `funderra`
 5. Run this SQL query in pgAdmin: `CREATE EXTENSION IF NOT EXISTS vector;`
-6. Your connection string will be: `postgresql://postgres:YOUR_PASSWORD@localhost:5432/donormatch`
+6. Your connection string will be: `postgresql://postgres:YOUR_PASSWORD@localhost:5432/funderra`
 
 ### C) Redis (for background jobs) — OPTIONAL for now
 
@@ -75,7 +75,7 @@ You need accounts with these services. All have free tiers.
 2. Sign up / log in
 3. Go to https://platform.openai.com/api-keys
 4. Click "Create new secret key"
-5. Name it "DonorMatch"
+5. Name it "Funderra"
 6. Copy the key (starts with `sk-`)
 7. **Cost:** ~$5-20/month depending on usage
 
@@ -121,7 +121,7 @@ You need accounts with these services. All have free tiers.
 
    ```
    # Paste your database connection string here
-   DATABASE_URL="postgresql://username:password@host:5432/donormatch?sslmode=require"
+   DATABASE_URL="postgresql://username:password@host:5432/funderra?sslmode=require"
 
    # Leave as-is if you skipped Redis
    REDIS_URL="redis://localhost:6379"
@@ -176,7 +176,7 @@ You should see:
 - Local: http://localhost:3000
 ```
 
-Open **http://localhost:3000** in your browser. You should see the DonorMatch landing page.
+Open **http://localhost:3000** in your browser. You should see the Funderra landing page.
 
 ---
 

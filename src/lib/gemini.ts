@@ -20,7 +20,7 @@ interface GeminiResponse {
 
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
-async function callGemini(
+export async function callGemini(
   messages: GeminiMessage[],
   options?: { model?: string; temperature?: number; maxTokens?: number }
 ): Promise<string> {
@@ -28,29 +28,44 @@ async function callGemini(
   if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
 
   const model = options?.model ?? "gemini-2.0-flash";
+  const maxRetries = 6;
 
-  const response = await fetch(
-    `${GEMINI_BASE}/models/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: messages,
-        generationConfig: {
-          temperature: options?.temperature ?? 0.2,
-          maxOutputTokens: options?.maxTokens ?? 4096,
-        },
-      }),
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const response = await fetch(
+      `${GEMINI_BASE}/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: messages,
+          generationConfig: {
+            temperature: options?.temperature ?? 0.2,
+            maxOutputTokens: options?.maxTokens ?? 4096,
+          },
+        }),
+      }
+    );
+
+    if (response.ok) {
+      const data: GeminiResponse = await response.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     }
-  );
 
-  if (!response.ok) {
+    // Retry on 429 (rate limit) and 503 (overloaded) with exponential backoff
+    if ((response.status === 429 || response.status === 503) && attempt < maxRetries) {
+      // Base delay: 2s, 4s, 8s, 16s, 32s, 60s — with jitter
+      const baseDelay = Math.min(2000 * Math.pow(2, attempt), 60000);
+      const delay = baseDelay + Math.random() * 2000;
+      console.warn(`[gemini] Rate limited (${response.status}), retrying in ${Math.round(delay / 1000)}s (attempt ${attempt + 1}/${maxRetries})`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      continue;
+    }
+
     const error = await response.text();
     throw new Error(`Gemini API error (${response.status}): ${error}`);
   }
 
-  const data: GeminiResponse = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  throw new Error("Gemini API: max retries exceeded");
 }
 
 /**
@@ -162,12 +177,15 @@ export async function generateMatchReasoning(params: {
   orgMission: string | null;
   orgCauses: string[];
   orgGeoFocus: string[];
+  orgRawProfileText?: string | null;
+  orgPoliticalStance?: string | null;
   donorName: string;
   donorType: string;
   donorDescription: string | null;
   donorCauses: string[];
   donorGeoFocus: string[];
   donorActiveRegions: string[];
+  donorPoliticalStance?: string | null;
   topGrants: { recipientName: string; amount: number | null; year: number | null }[];
   totalGiving: number | null;
   grantCount: number;
@@ -187,13 +205,13 @@ export async function generateMatchReasoning(params: {
 NGO profile:
 - Mission: ${params.orgMission || "N/A"}
 - Causes: ${params.orgCauses.join(", ")}
-- Geographic focus: ${params.orgGeoFocus.join(", ")}
+- Geographic focus: ${params.orgGeoFocus.join(", ")}${params.orgPoliticalStance ? `\n- Values/ideological orientation: ${params.orgPoliticalStance}` : ""}${params.orgRawProfileText ? `\n\nDetailed org profile (use to reference specific programs):\n${params.orgRawProfileText.slice(0, 2000)}` : ""}
 
 Donor profile:
 - Type: ${params.donorType}
 - Description: ${params.donorDescription || "N/A"}
 - Causes: ${params.donorCauses.join(", ")}
-- Geographic reach: ${[...params.donorGeoFocus, ...params.donorActiveRegions].join(", ") || "N/A"}
+- Geographic reach: ${[...params.donorGeoFocus, ...params.donorActiveRegions].join(", ") || "N/A"}${params.donorPoliticalStance ? `\n- Values/ideological orientation: ${params.donorPoliticalStance}` : ""}
 - Total giving: ${params.totalGiving ? `$${(params.totalGiving / 1_000_000).toFixed(1)}M` : "N/A"}
 - Grant count: ${params.grantCount}
 ${grantDetails ? `\nRecent grants:\n${grantDetails}` : ""}
@@ -203,7 +221,13 @@ RULES:
 - Never say "aligns well" or "shares your mission" without specifics
 - If they gave to similar organizations, name them
 - Never mention match scores or percentages
-- Keep it to 2-3 sentences max`;
+- Keep it to 2-3 sentences max
+- If the donor operates in Israel or funds Israeli organizations, highlight that connection explicitly
+- If the donor has funded organizations similar to the NGO in Israel, name those Israeli recipients
+- For Israeli NGOs, emphasize any Israel-specific grant history, programs, or regional presence
+- If a detailed org profile is provided, reference the org's specific programs and activities rather than generic cause labels
+- If both the org and donor have values/ideological orientations, mention specific shared values or ideological connections. Frame it as "shared commitment to X" or "aligned on Y" — never use the word "political" directly. Be specific about the connection (e.g. "Both prioritize Israel's security agenda" rather than "Both are right-wing").
+- If ideological stances conflict or are very different, do NOT mention ideology at all.`;
 
   const result = await callGemini(
     [{ role: "user", parts: [{ text: prompt }] }],

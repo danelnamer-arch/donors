@@ -18,9 +18,23 @@ interface DonorPublication {
   publishedAt: Date | null;
 }
 
+interface ScoreBreakdown {
+  causeAlignment: number;
+  geographicOverlap: number;
+  populationOverlap: number;
+  semanticSimilarity: number;
+  politicalAlignment?: number;
+  grantSizeAlignment: number;
+  grantRecipientSimilarity: number;
+  recencyBonus: number;
+  feedbackBoost: number;
+  dataQuality: number;
+}
+
 interface MatchData {
   id: string;
   reasoning: string;
+  scoreBreakdown?: ScoreBreakdown | null;
   donor: {
     id: string;
     name: string;
@@ -42,8 +56,38 @@ interface SwipeCardProps {
   disabled?: boolean;
 }
 
+/**
+ * Get the top scoring signals to display as strength bars.
+ * Returns up to 4 signals, sorted by value, with human labels and colors.
+ */
+function getTopSignals(breakdown: ScoreBreakdown): { label: string; value: number; color: string }[] {
+  const signals: { label: string; value: number; color: string; key: string }[] = [
+    { label: "Cause Alignment", value: breakdown.causeAlignment, color: "bg-emerald-500", key: "cause" },
+    { label: "Geographic Overlap", value: breakdown.geographicOverlap, color: "bg-blue-500", key: "geo" },
+    { label: "Mission Similarity", value: breakdown.semanticSimilarity, color: "bg-violet-500", key: "semantic" },
+    { label: "Grant Size Fit", value: breakdown.grantSizeAlignment, color: "bg-amber-500", key: "grant" },
+    { label: "Population Match", value: breakdown.populationOverlap, color: "bg-teal-500", key: "pop" },
+    { label: "Funds Similar Orgs", value: breakdown.grantRecipientSimilarity, color: "bg-rose-500", key: "recipient" },
+    { label: "Recent Activity", value: breakdown.recencyBonus, color: "bg-cyan-500", key: "recency" },
+    { label: "Values Alignment", value: breakdown.politicalAlignment ?? 0, color: "bg-purple-500", key: "political" },
+  ];
+
+  return signals
+    .filter((s) => s.value > 0.1) // Only show meaningful signals
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 4);
+}
+
+function strengthLabel(value: number): string {
+  if (value >= 0.8) return "Strong";
+  if (value >= 0.5) return "Good";
+  if (value >= 0.3) return "Moderate";
+  return "Weak";
+}
+
 export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [showStrength, setShowStrength] = useState(false);
   const [exiting, setExiting] = useState<"left" | "right" | null>(null);
 
   const x = useMotionValue(0);
@@ -90,7 +134,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
             ? { duration: 0.25, ease: "easeOut" }
             : { type: "spring", stiffness: 300, damping: 25 }
         }
-        className="relative w-full max-w-lg cursor-grab overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 active:cursor-grabbing dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-none"
+        className="relative w-full max-w-lg cursor-grab overflow-hidden rounded-2xl border border-zinc-300 bg-white shadow-lg shadow-zinc-200/60 active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-950 dark:shadow-zinc-900/50"
       >
         {/* Drag overlays */}
         <motion.div
@@ -160,6 +204,44 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
               {match.reasoning}
             </p>
           </div>
+
+          {/* Match Strength Breakdown */}
+          {match.scoreBreakdown && (
+            <div className="mt-3">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowStrength(!showStrength); }}
+                className="flex w-full items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+              >
+                <svg
+                  className={`h-3.5 w-3.5 transition-transform ${showStrength ? "rotate-90" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                Match Strength
+              </button>
+              {showStrength && (
+                <div className="mt-2 space-y-2 rounded-lg border border-zinc-100 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/50">
+                  {getTopSignals(match.scoreBreakdown).map((signal) => (
+                    <div key={signal.label} className="flex items-center gap-3">
+                      <span className="w-32 shrink-0 text-xs text-zinc-500">{signal.label}</span>
+                      <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                        <div
+                          className={`absolute inset-y-0 left-0 rounded-full ${signal.color} transition-all`}
+                          style={{ width: `${Math.round(signal.value * 100)}%` }}
+                        />
+                      </div>
+                      <span className="w-16 shrink-0 text-right text-xs font-medium text-zinc-500">
+                        {strengthLabel(signal.value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -192,7 +274,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
             </div>
           )}
 
-          {donor.description && (
+          {donor.description ? (
             <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
               {donor.description.length > 200 && !expanded
                 ? `${donor.description.slice(0, 200)}...`
@@ -206,6 +288,14 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
                 </button>
               )}
             </p>
+          ) : (
+            donor.causes.length === 0 && donor.grants.length === 0 && (
+              <div className="rounded-lg border border-dashed border-zinc-200 bg-zinc-50 px-4 py-3 text-center dark:border-zinc-700 dark:bg-zinc-900">
+                <p className="text-sm text-zinc-400">
+                  Limited data available for this donor. Swipe right to save and we&apos;ll enrich the profile.
+                </p>
+              </div>
+            )
           )}
         </div>
 

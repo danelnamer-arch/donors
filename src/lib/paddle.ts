@@ -3,8 +3,8 @@
  * Handles subscriptions, checkout sessions, and usage tracking.
  *
  * Paddle products/prices to create in Paddle dashboard:
- *   - Product: "DonorMatch Starter" → Price: $29/mo
- *   - Product: "DonorMatch Pro"     → Price: $79/mo
+ *   - Product: "Funderra Starter" → Price: $29/mo
+ *   - Product: "Funderra Pro"     → Price: $79/mo
  *   - Product: "Enrichment Credit"  → Price: $3 one-time
  */
 

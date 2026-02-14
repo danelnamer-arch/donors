@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validateDonorUpdate } from "@/lib/validation/validate-and-normalize";
 
 /**
  * GET /api/admin/donors/[id] — Full donor details for admin editing.
@@ -27,6 +28,7 @@ export async function GET(
 
 /**
  * PATCH /api/admin/donors/[id] — Update donor fields.
+ * Validates all values through Zod schemas before writing.
  */
 export async function PATCH(
   req: NextRequest,
@@ -35,26 +37,20 @@ export async function PATCH(
   const { id } = await params;
   const data = await req.json();
 
-  // Only allow updating safe fields
-  const allowedFields = [
-    "name", "type", "description", "website", "websiteVerified", "websiteSource",
-    "email", "phone", "country", "city", "headquartersCountry", "headquartersCity",
-    "activeRegions", "location", "politicalAffiliation", "causes", "targetPopulations",
-    "geographicFocus", "totalGivingUsd", "avgGrantSizeUsd", "grantCount",
-    "givingYearRange", "dataQualityScore", "researchStatus", "ein",
-  ];
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateData: any = {};
-  for (const key of allowedFields) {
-    if (key in data) {
-      updateData[key] = data[key];
-    }
+  // Validate through Zod — enforces types, bounds, enums.
+  // Strips unknown fields. Normalizes causes if present.
+  const validation = validateDonorUpdate(data);
+  if (!validation.success) {
+    return NextResponse.json(
+      { error: "Validation failed", details: validation.errors },
+      { status: 400 }
+    );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const donor = await prisma.donor.update({
     where: { id },
-    data: updateData,
+    data: validation.data as any,
   });
 
   return NextResponse.json(donor);

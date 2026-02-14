@@ -1,0 +1,45 @@
+{
+  "runId": "e70d04b5-f895-46e2-a331-3c87d8780346",
+  "status": "running",
+  "phase": {
+    "current": 6,
+    "total": 2,
+    "name": "Israeli Foundation Expansion"
+  },
+  "target": {
+    "current": 29,
+    "total": 36,
+    "label": "Yossi Vardi philanthropy"
+  },
+  "stats": {
+    "totalStored": 35,
+    "totalDiscovered": 437,
+    "totalErrors": 209,
+    "totalSkippedDuplicates": 0,
+    "dbDonorCount": 0,
+    "elapsedMs": 66235837,
+    "estimatedRemainingMs": 98211758.31034482
+  },
+  "recentActivity": [
+    "[2026-02-14T05:59:04.866Z] \n[Direct 23/36] ALYN Hospital Foundation",
+    "[2026-02-14T05:59:05.403Z]   Researching: ALYN Hospital Foundation",
+    "[2026-02-14T05:59:41.194Z]   Error: Storage failed for ALYN Hospital Foundation: Error: Donor validation failed: socialLinks.linkedin: Invalid input: expected string, received null, socialLinks.twitter: Invalid input: expected string, received null",
+    "[2026-02-14T05:59:51.195Z] \n[Direct 24/36] The Israel Center for Excellence through Education ICE",
+    "[2026-02-14T05:59:51.195Z]   SKIP (dedup): The Israel Center for Excellence through Education ICE — Name containment: \"The Israel Center for Excellence through Education ICE\" ≈ \"Education Foundation\"",
+    "[2026-02-14T06:00:01.198Z] \n[Direct 25/36] Yuri Milner philanthropy",
+    "[2026-02-14T06:00:01.715Z]   Researching: Yuri Milner philanthropy",
+    "[2026-02-14T06:01:15.198Z]   Error: Storage failed for Yuri Milner philanthropy: Error: Donor validation failed: socialLinks.linkedin: Invalid input: expected string, received null, socialLinks.twitter: Invalid input: expected string, received null",
+    "[2026-02-14T06:01:25.199Z] \n[Direct 26/36] Shari Arison philanthropy Israel",
+    "[2026-02-14T06:01:25.946Z]   Researching: Shari Arison philanthropy Israel",
+    "[2026-02-14T06:02:03.228Z]   Error: Storage failed for Shari Arison philanthropy Israel: Error: Donor validation failed: socialLinks.linkedin: Invalid input: expected string, received null, socialLinks.twitter: Invalid input: expected string, received null",
+    "[2026-02-14T06:02:13.233Z] \n[Direct 27/36] Teddy Sagi philanthropy",
+    "[2026-02-14T06:02:13.758Z]   Researching: Teddy Sagi philanthropy",
+    "[2026-02-14T06:02:59.136Z]   Error: Storage failed for Teddy Sagi philanthropy: Error: Donor validation failed: socialLinks.linkedin: Invalid input: expected string, received null, socialLinks.twitter: Invalid input: expected string, received null",
+    "[2026-02-14T06:03:09.136Z] \n[Direct 28/36] Gil Shwed philanthropy Check Point",
+    "[2026-02-14T06:03:09.674Z]   Researching: Gil Shwed philanthropy Check Point",
+    "[2026-02-14T06:03:41.819Z]   Error: Storage failed for Gil Shwed philanthropy Check Point: Error: Donor validation failed: email: Invalid email format, socialLinks.linkedin: Invalid input: expected string, received null, socialLinks.twitter: Invalid input: expected string, received null",
+    "[2026-02-14T06:03:51.821Z] \n[Direct 29/36] Yossi Vardi philanthropy",
+    "[2026-02-14T06:03:52.328Z]   Researching: Yossi Vardi philanthropy",
+    "[2026-02-14T06:04:27.069Z]   Error: Storage failed for Yossi Vardi philanthropy: Error: Donor validation failed: socialLinks.linkedin: Invalid input: expected string, received null, socialLinks.twitter: Invalid input: expected string, received null"
+  ]
+}

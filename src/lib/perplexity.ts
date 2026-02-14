@@ -87,7 +87,10 @@ export async function researchDonor(donorName: string): Promise<DeepResearchResu
 5. Key people (executive director, board members if notable)
 6. Contact information (website, email if public)
 7. Political or ideological affiliation if discernible
-8. Any relevant publications, interviews, or public statements`,
+8. Political and ideological stance in detail: specific causes championed, controversial positions taken, policy advocacy, religious/secular orientation. For Israeli-connected donors: stance on settlements, peace process, security, religious-secular issues, economic policy.
+9. Any relevant publications, interviews, or public statements
+
+Also check these Israeli sources for additional data: guidestar.org.il, data.gov.il, calcalist.co.il, globes.co.il, themarker.com. Search in both English and Hebrew transliteration of the name. Look for news articles mentioning this donor's charitable activities or donations in Israel.`,
     },
   ];
 
@@ -103,19 +106,32 @@ export async function discoverDonors(params: {
   cause: string;
   targetPopulation?: string;
   region?: string;
+  donorTypeHint?: "INDIVIDUAL" | "FOUNDATION";
 }): Promise<DeepResearchResult> {
-  const { cause, targetPopulation, region } = params;
+  const { cause, targetPopulation, region, donorTypeHint } = params;
 
-  let query = `List foundations, donors, and grant-makers that fund ${cause}`;
+  const entityLabel = donorTypeHint === "INDIVIDUAL"
+    ? "wealthy individuals, personal philanthropists, and private donors who fund"
+    : "foundations, donors, and grant-makers that fund";
+
+  let query = `List ${entityLabel} ${cause}`;
   if (targetPopulation) query += ` focused on ${targetPopulation}`;
   if (region) query += ` in ${region}`;
   query += `. For each, provide: name, description, website, typical grant size, and recent notable grants. Focus on active donors from the last 3 years.`;
 
+  // Add Israeli source hints when region includes Israel
+  if (region && /israel/i.test(region)) {
+    query += ` Include data from guidestar.org.il, Rasham Ha'amutot (Israeli registrar of associations), Israeli news sources (Calcalist, Globes, TheMarker), and Maala CSR rankings. Search for articles that mention donations, fundraising events, or philanthropic activities related to Israeli organizations.`;
+  }
+
+  const systemPrompt = donorTypeHint === "INDIVIDUAL"
+    ? "You are a philanthropy research assistant specializing in individual donors and wealthy philanthropists. List real, verifiable individuals who give philanthropically. Include their business background, source of wealth, and specific donations. Only include people you are confident exist."
+    : "You are a philanthropy research assistant. List real, verifiable donors and foundations. Only include organizations you are confident exist. Provide specific, factual details.";
+
   const messages: PerplexityMessage[] = [
     {
       role: "system",
-      content:
-        "You are a philanthropy research assistant. List real, verifiable donors and foundations. Only include organizations you are confident exist. Provide specific, factual details.",
+      content: systemPrompt,
     },
     { role: "user", content: query },
   ];

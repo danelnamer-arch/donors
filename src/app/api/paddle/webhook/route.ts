@@ -4,7 +4,7 @@
  *
  * Set this URL in your Paddle dashboard:
  *   Sandbox: https://your-app.vercel.app/api/paddle/webhook
- *   Production: https://donormatch.com/api/paddle/webhook
+ *   Production: https://funderra.app/api/paddle/webhook
  */
 
 import { NextRequest, NextResponse } from "next/server";

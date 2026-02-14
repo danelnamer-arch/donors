@@ -1,0 +1,3673 @@
+{
+  "runId": "df5bd8e8-bf1f-4dd7-a81f-d52505d42a31",
+  "startedAt": "2026-02-13T09:46:58.232Z",
+  "lastUpdatedAt": "2026-02-14T05:48:26.981Z",
+  "currentPhase": 5,
+  "currentTargetIndex": 299,
+  "targetsCompleted": [
+    {
+      "phase": 5,
+      "targetIndex": 0,
+      "label": "Southern Tier Wounded Warrior",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27481
+    },
+    {
+      "phase": 5,
+      "targetIndex": 1,
+      "label": "Christian Advancement Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18705
+    },
+    {
+      "phase": 5,
+      "targetIndex": 2,
+      "label": "Dominican Foundation Of Parents Of Special Needs Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25957
+    },
+    {
+      "phase": 5,
+      "targetIndex": 3,
+      "label": "San Jose Medical Research Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25363
+    },
+    {
+      "phase": 5,
+      "targetIndex": 4,
+      "label": "Christian Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 34326
+    },
+    {
+      "phase": 5,
+      "targetIndex": 5,
+      "label": "Pottstown Jewish Federation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22905
+    },
+    {
+      "phase": 5,
+      "targetIndex": 6,
+      "label": "Environmental Conservation Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17752
+    },
+    {
+      "phase": 5,
+      "targetIndex": 7,
+      "label": "Illinois Education Association Nea Education Grant Trust",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30274
+    },
+    {
+      "phase": 5,
+      "targetIndex": 8,
+      "label": "Veterans Services Enterprise Corporation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18028
+    },
+    {
+      "phase": 5,
+      "targetIndex": 9,
+      "label": "Lotus Humanitarian Aid Foundation Co Richard Gariepy",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17092
+    },
+    {
+      "phase": 5,
+      "targetIndex": 10,
+      "label": "Chabad Of Reseda",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 102584
+    },
+    {
+      "phase": 5,
+      "targetIndex": 11,
+      "label": "H E L P Usa Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30911
+    },
+    {
+      "phase": 5,
+      "targetIndex": 12,
+      "label": "Greater Literacy Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22850
+    },
+    {
+      "phase": 5,
+      "targetIndex": 13,
+      "label": "Childrens Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33431
+    },
+    {
+      "phase": 5,
+      "targetIndex": 14,
+      "label": "Nebraska 4 H Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26884
+    },
+    {
+      "phase": 5,
+      "targetIndex": 15,
+      "label": "Congregation Shir Hadash",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21535
+    },
+    {
+      "phase": 5,
+      "targetIndex": 16,
+      "label": "Gloucester Museum Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27720
+    },
+    {
+      "phase": 5,
+      "targetIndex": 17,
+      "label": "Veteran Resource Services",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 149622
+    },
+    {
+      "phase": 5,
+      "targetIndex": 18,
+      "label": "Hebrew Women Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17699
+    },
+    {
+      "phase": 5,
+      "targetIndex": 19,
+      "label": "Federation Of Jewish Charities",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 31290
+    },
+    {
+      "phase": 5,
+      "targetIndex": 20,
+      "label": "Chabad House Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21863
+    },
+    {
+      "phase": 5,
+      "targetIndex": 21,
+      "label": "Grand Global Health Care Campaign",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17031
+    },
+    {
+      "phase": 5,
+      "targetIndex": 22,
+      "label": "Boys & Girls Clubs Of Miami Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 40768
+    },
+    {
+      "phase": 5,
+      "targetIndex": 23,
+      "label": "Chabad Lubavitch Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30349
+    },
+    {
+      "phase": 5,
+      "targetIndex": 24,
+      "label": "Fitts Museum Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19062
+    },
+    {
+      "phase": 5,
+      "targetIndex": 25,
+      "label": "Ethnic Arts Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23453
+    },
+    {
+      "phase": 5,
+      "targetIndex": 26,
+      "label": "University Development Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23610
+    },
+    {
+      "phase": 5,
+      "targetIndex": 27,
+      "label": "Original University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 36674
+    },
+    {
+      "phase": 5,
+      "targetIndex": 28,
+      "label": "Housing Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 37321
+    },
+    {
+      "phase": 5,
+      "targetIndex": 29,
+      "label": "Maryland 4 H Club Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 63319
+    },
+    {
+      "phase": 5,
+      "targetIndex": 30,
+      "label": "Wounded Warrior Adventures",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22553
+    },
+    {
+      "phase": 5,
+      "targetIndex": 31,
+      "label": "Montana Wildlife Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20249
+    },
+    {
+      "phase": 5,
+      "targetIndex": 32,
+      "label": "Cottonwood Arts Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 29738
+    },
+    {
+      "phase": 5,
+      "targetIndex": 33,
+      "label": "India Cultural Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18760
+    },
+    {
+      "phase": 5,
+      "targetIndex": 34,
+      "label": "The Childrens Charity",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20308
+    },
+    {
+      "phase": 5,
+      "targetIndex": 35,
+      "label": "Medical Research Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 3778447
+    },
+    {
+      "phase": 5,
+      "targetIndex": 36,
+      "label": "Abii Youth Development Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 13669
+    },
+    {
+      "phase": 5,
+      "targetIndex": 37,
+      "label": "Brissette Medical Research Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 692418
+    },
+    {
+      "phase": 5,
+      "targetIndex": 38,
+      "label": "Colusa Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24589
+    },
+    {
+      "phase": 5,
+      "targetIndex": 39,
+      "label": "Global Deaf Aid Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23174
+    },
+    {
+      "phase": 5,
+      "targetIndex": 40,
+      "label": "Brooks Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23449
+    },
+    {
+      "phase": 5,
+      "targetIndex": 41,
+      "label": "Starfish Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35795
+    },
+    {
+      "phase": 5,
+      "targetIndex": 42,
+      "label": "Martial Arts Education Fund Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33655
+    },
+    {
+      "phase": 5,
+      "targetIndex": 43,
+      "label": "Chabad Center",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 29740
+    },
+    {
+      "phase": 5,
+      "targetIndex": 44,
+      "label": "Michelle Hadassah Reed Ministries",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20557
+    },
+    {
+      "phase": 5,
+      "targetIndex": 45,
+      "label": "Tr Jewish Family Service Inc Uw",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 16812
+    },
+    {
+      "phase": 5,
+      "targetIndex": 46,
+      "label": "Brit Hadasha Synagogue",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26573
+    },
+    {
+      "phase": 5,
+      "targetIndex": 47,
+      "label": "Neighborhood Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 42970
+    },
+    {
+      "phase": 5,
+      "targetIndex": 48,
+      "label": "American Agri Women Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35302
+    },
+    {
+      "phase": 5,
+      "targetIndex": 49,
+      "label": "Love Of Literacy Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24053
+    },
+    {
+      "phase": 5,
+      "targetIndex": 50,
+      "label": "Veterans Burial Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22872
+    },
+    {
+      "phase": 5,
+      "targetIndex": 51,
+      "label": "Civic Foundation Of North Carolina",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24727
+    },
+    {
+      "phase": 5,
+      "targetIndex": 52,
+      "label": "Utah Food Bank Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24549
+    },
+    {
+      "phase": 5,
+      "targetIndex": 53,
+      "label": "Longs Peak Science Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18557
+    },
+    {
+      "phase": 5,
+      "targetIndex": 54,
+      "label": "Roseman University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22921
+    },
+    {
+      "phase": 5,
+      "targetIndex": 55,
+      "label": "Mt Lebanon Nature Conservancy",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28826
+    },
+    {
+      "phase": 5,
+      "targetIndex": 56,
+      "label": "Seattle University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19462
+    },
+    {
+      "phase": 5,
+      "targetIndex": 57,
+      "label": "Electra Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19025
+    },
+    {
+      "phase": 5,
+      "targetIndex": 58,
+      "label": "Childrens Wildlife Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19351
+    },
+    {
+      "phase": 5,
+      "targetIndex": 59,
+      "label": "Colossal Science Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18393
+    },
+    {
+      "phase": 5,
+      "targetIndex": 60,
+      "label": "Phoenix Veterans Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 29195
+    },
+    {
+      "phase": 5,
+      "targetIndex": 61,
+      "label": "Special Needs Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24150
+    },
+    {
+      "phase": 5,
+      "targetIndex": 62,
+      "label": "Colorado 4 H Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23829
+    },
+    {
+      "phase": 5,
+      "targetIndex": 63,
+      "label": "Civic Theatre Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22372
+    },
+    {
+      "phase": 5,
+      "targetIndex": 64,
+      "label": "Civic Shield Safe Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20074
+    },
+    {
+      "phase": 5,
+      "targetIndex": 65,
+      "label": "Veterans Essential Services",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17797
+    },
+    {
+      "phase": 5,
+      "targetIndex": 66,
+      "label": "Brain Science Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 32039
+    },
+    {
+      "phase": 5,
+      "targetIndex": 67,
+      "label": "Hadassah Super South Area",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 167901
+    },
+    {
+      "phase": 5,
+      "targetIndex": 68,
+      "label": "Carl I Bourhenne Medical Research Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21125
+    },
+    {
+      "phase": 5,
+      "targetIndex": 69,
+      "label": "Realtor Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 37657
+    },
+    {
+      "phase": 5,
+      "targetIndex": 70,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 38871
+    },
+    {
+      "phase": 5,
+      "targetIndex": 71,
+      "label": "West Coast Medical Research Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 16042
+    },
+    {
+      "phase": 5,
+      "targetIndex": 71,
+      "label": "Bellevue Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 174772
+    },
+    {
+      "phase": 5,
+      "targetIndex": 72,
+      "label": "Northwest Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19744
+    },
+    {
+      "phase": 5,
+      "targetIndex": 73,
+      "label": "Onalaska Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 39939
+    },
+    {
+      "phase": 5,
+      "targetIndex": 74,
+      "label": "Harney Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25701
+    },
+    {
+      "phase": 5,
+      "targetIndex": 75,
+      "label": "Memorial Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24598
+    },
+    {
+      "phase": 5,
+      "targetIndex": 76,
+      "label": "Suriname Conservation Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 32059
+    },
+    {
+      "phase": 5,
+      "targetIndex": 77,
+      "label": "Community Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 158303
+    },
+    {
+      "phase": 5,
+      "targetIndex": 78,
+      "label": "Trumbower Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 39641
+    },
+    {
+      "phase": 5,
+      "targetIndex": 79,
+      "label": "Hefflefinger Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 40253
+    },
+    {
+      "phase": 5,
+      "targetIndex": 80,
+      "label": "Grape Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 78754
+    },
+    {
+      "phase": 5,
+      "targetIndex": 81,
+      "label": "Public Health Fund Of The Chamber Of Commerce Of Hawaii",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 56914
+    },
+    {
+      "phase": 5,
+      "targetIndex": 82,
+      "label": "Delaware County Medical Society Public Health Fund Inc 17608",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28448
+    },
+    {
+      "phase": 5,
+      "targetIndex": 83,
+      "label": "Springman Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 16601
+    },
+    {
+      "phase": 5,
+      "targetIndex": 84,
+      "label": "Tehachapi Hospital Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 39614
+    },
+    {
+      "phase": 5,
+      "targetIndex": 85,
+      "label": "Physicians Medical Education And Public Health Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25717
+    },
+    {
+      "phase": 5,
+      "targetIndex": 86,
+      "label": "Newhouse Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 2007950
+    },
+    {
+      "phase": 5,
+      "targetIndex": 87,
+      "label": "Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 47275
+    },
+    {
+      "phase": 5,
+      "targetIndex": 88,
+      "label": "Additon Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28115
+    },
+    {
+      "phase": 5,
+      "targetIndex": 89,
+      "label": "Literacy Worldwide Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 36809
+    },
+    {
+      "phase": 5,
+      "targetIndex": 90,
+      "label": "Florida Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 38349
+    },
+    {
+      "phase": 5,
+      "targetIndex": 91,
+      "label": "Pennsylvania Federation Of Teachers Public Sector Health & Welfare Fun",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35970
+    },
+    {
+      "phase": 5,
+      "targetIndex": 92,
+      "label": "Coalition Of Public Safety Employees Health Trust Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24408
+    },
+    {
+      "phase": 5,
+      "targetIndex": 93,
+      "label": "Champaign County Extension Educatio Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 50655
+    },
+    {
+      "phase": 5,
+      "targetIndex": 94,
+      "label": "Wisconsin Environmental Education Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21397
+    },
+    {
+      "phase": 5,
+      "targetIndex": 95,
+      "label": "Minerva Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33530
+    },
+    {
+      "phase": 5,
+      "targetIndex": 96,
+      "label": "Hiawatha Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35034
+    },
+    {
+      "phase": 5,
+      "targetIndex": 97,
+      "label": "Code Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 31920
+    },
+    {
+      "phase": 5,
+      "targetIndex": 98,
+      "label": "Davis Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22553
+    },
+    {
+      "phase": 5,
+      "targetIndex": 99,
+      "label": "Camping & Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 61208
+    },
+    {
+      "phase": 5,
+      "targetIndex": 100,
+      "label": "Rural Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28128
+    },
+    {
+      "phase": 5,
+      "targetIndex": 101,
+      "label": "Page Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27686
+    },
+    {
+      "phase": 5,
+      "targetIndex": 102,
+      "label": "I O O F Grand Lodge Educational Fund Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 38361
+    },
+    {
+      "phase": 5,
+      "targetIndex": 103,
+      "label": "Ase Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22367
+    },
+    {
+      "phase": 5,
+      "targetIndex": 104,
+      "label": "National Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22260
+    },
+    {
+      "phase": 5,
+      "targetIndex": 105,
+      "label": "Plummer Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25228
+    },
+    {
+      "phase": 5,
+      "targetIndex": 106,
+      "label": "Namahana Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 117693
+    },
+    {
+      "phase": 5,
+      "targetIndex": 107,
+      "label": "Lutheran Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 68029
+    },
+    {
+      "phase": 5,
+      "targetIndex": 108,
+      "label": "Cache Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 41134
+    },
+    {
+      "phase": 5,
+      "targetIndex": 109,
+      "label": "Chester Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 39511
+    },
+    {
+      "phase": 5,
+      "targetIndex": 110,
+      "label": "Brookfield Arts Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33142
+    },
+    {
+      "phase": 5,
+      "targetIndex": 111,
+      "label": "Alameda Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33613
+    },
+    {
+      "phase": 5,
+      "targetIndex": 112,
+      "label": "Washington Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17870
+    },
+    {
+      "phase": 5,
+      "targetIndex": 113,
+      "label": "Brakeman Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 15939
+    },
+    {
+      "phase": 5,
+      "targetIndex": 114,
+      "label": "Bexley Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22565
+    },
+    {
+      "phase": 5,
+      "targetIndex": 115,
+      "label": "Roy Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20042
+    },
+    {
+      "phase": 5,
+      "targetIndex": 116,
+      "label": "Api Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 62519
+    },
+    {
+      "phase": 5,
+      "targetIndex": 117,
+      "label": "Harris Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20622
+    },
+    {
+      "phase": 5,
+      "targetIndex": 118,
+      "label": "Peterman Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27809
+    },
+    {
+      "phase": 5,
+      "targetIndex": 119,
+      "label": "Criswell Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22369
+    },
+    {
+      "phase": 5,
+      "targetIndex": 120,
+      "label": "Denoon Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 40199
+    },
+    {
+      "phase": 5,
+      "targetIndex": 121,
+      "label": "Walters Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23828
+    },
+    {
+      "phase": 5,
+      "targetIndex": 122,
+      "label": "Elburn Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26522
+    },
+    {
+      "phase": 5,
+      "targetIndex": 123,
+      "label": "Woolsey Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24581
+    },
+    {
+      "phase": 5,
+      "targetIndex": 124,
+      "label": "Grant Wood Education Association",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33463
+    },
+    {
+      "phase": 5,
+      "targetIndex": 125,
+      "label": "Margaret Mcnamara Education Grants",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28649
+    },
+    {
+      "phase": 5,
+      "targetIndex": 126,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 41748
+    },
+    {
+      "phase": 5,
+      "targetIndex": 127,
+      "label": "Biomedical Research Foundation Medical Research 151",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 97381
+    },
+    {
+      "phase": 5,
+      "targetIndex": 128,
+      "label": "Grand Rapids Education Association",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30516
+    },
+    {
+      "phase": 5,
+      "targetIndex": 129,
+      "label": "Space Grant Education And Enterprise Institute",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 95146
+    },
+    {
+      "phase": 5,
+      "targetIndex": 130,
+      "label": "Grand Forks Foundation For Education Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 61563
+    },
+    {
+      "phase": 5,
+      "targetIndex": 131,
+      "label": "Grand Rapids Medical Education Partners Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 51326
+    },
+    {
+      "phase": 5,
+      "targetIndex": 132,
+      "label": "The Recruitment Grant Foundation In Education Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20984
+    },
+    {
+      "phase": 5,
+      "targetIndex": 133,
+      "label": "Grand Blanc Educational Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 64025
+    },
+    {
+      "phase": 5,
+      "targetIndex": 134,
+      "label": "Goldman Environmental Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 34083
+    },
+    {
+      "phase": 5,
+      "targetIndex": 135,
+      "label": "The Grand Coulee Dam Unit Of The Washington Education Association",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 49187
+    },
+    {
+      "phase": 5,
+      "targetIndex": 136,
+      "label": "Knights Templar Educational Foundat Ion Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 59095
+    },
+    {
+      "phase": 5,
+      "targetIndex": 137,
+      "label": "Alliance Of Bikers Aimed Toward Education Grand Canyon Chapter",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23110
+    },
+    {
+      "phase": 5,
+      "targetIndex": 138,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27249
+    },
+    {
+      "phase": 5,
+      "targetIndex": 139,
+      "label": "Education Minnesota Grand Rapids Bigfork Local 1314",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26732
+    },
+    {
+      "phase": 5,
+      "targetIndex": 140,
+      "label": "Knights Templar Educational Foundation Of The Grand Emcampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 39091
+    },
+    {
+      "phase": 5,
+      "targetIndex": 141,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 69982
+    },
+    {
+      "phase": 5,
+      "targetIndex": 142,
+      "label": "Knights Templar Educational Foundation Of The Grand Emcampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 39397
+    },
+    {
+      "phase": 5,
+      "targetIndex": 143,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 46999
+    },
+    {
+      "phase": 5,
+      "targetIndex": 144,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23983
+    },
+    {
+      "phase": 5,
+      "targetIndex": 145,
+      "label": "University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20365
+    },
+    {
+      "phase": 5,
+      "targetIndex": 146,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 162038
+    },
+    {
+      "phase": 5,
+      "targetIndex": 147,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35004
+    },
+    {
+      "phase": 5,
+      "targetIndex": 148,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25229
+    },
+    {
+      "phase": 5,
+      "targetIndex": 149,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35380
+    },
+    {
+      "phase": 5,
+      "targetIndex": 150,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26440
+    },
+    {
+      "phase": 5,
+      "targetIndex": 151,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18010
+    },
+    {
+      "phase": 5,
+      "targetIndex": 152,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 78022
+    },
+    {
+      "phase": 5,
+      "targetIndex": 153,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 32253
+    },
+    {
+      "phase": 5,
+      "targetIndex": 154,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 29142
+    },
+    {
+      "phase": 5,
+      "targetIndex": 155,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26054
+    },
+    {
+      "phase": 5,
+      "targetIndex": 156,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28053
+    },
+    {
+      "phase": 5,
+      "targetIndex": 157,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18205
+    },
+    {
+      "phase": 5,
+      "targetIndex": 158,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19842
+    },
+    {
+      "phase": 5,
+      "targetIndex": 159,
+      "label": "Knights Templar Educational Foundation Of The Grand Emcampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26144
+    },
+    {
+      "phase": 5,
+      "targetIndex": 160,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26713
+    },
+    {
+      "phase": 5,
+      "targetIndex": 161,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 46886
+    },
+    {
+      "phase": 5,
+      "targetIndex": 162,
+      "label": "Bishops University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 45788
+    },
+    {
+      "phase": 5,
+      "targetIndex": 163,
+      "label": "Concordia University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27521
+    },
+    {
+      "phase": 5,
+      "targetIndex": 164,
+      "label": "Midwestern University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 46343
+    },
+    {
+      "phase": 5,
+      "targetIndex": 165,
+      "label": "University Scholarship Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 58187
+    },
+    {
+      "phase": 5,
+      "targetIndex": 166,
+      "label": "The University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19952
+    },
+    {
+      "phase": 5,
+      "targetIndex": 167,
+      "label": "Bellevue University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18480
+    },
+    {
+      "phase": 5,
+      "targetIndex": 168,
+      "label": "University Baptist Foundation Illinois State University",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25707
+    },
+    {
+      "phase": 5,
+      "targetIndex": 169,
+      "label": "Family University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22561
+    },
+    {
+      "phase": 5,
+      "targetIndex": 170,
+      "label": "Legal Environmental Assistance Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 32773
+    },
+    {
+      "phase": 5,
+      "targetIndex": 171,
+      "label": "Quest University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 31214
+    },
+    {
+      "phase": 5,
+      "targetIndex": 172,
+      "label": "Burman Univerity Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27354
+    },
+    {
+      "phase": 5,
+      "targetIndex": 173,
+      "label": "Iberoamericana University Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 44535
+    },
+    {
+      "phase": 5,
+      "targetIndex": 174,
+      "label": "Environmental Heart Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20000
+    },
+    {
+      "phase": 5,
+      "targetIndex": 175,
+      "label": "Environmental Foundation Of Jamaica",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 29658
+    },
+    {
+      "phase": 5,
+      "targetIndex": 176,
+      "label": "Delta Environmental & Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 43130
+    },
+    {
+      "phase": 5,
+      "targetIndex": 177,
+      "label": "Lanterman Historical Museum Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 29623
+    },
+    {
+      "phase": 5,
+      "targetIndex": 178,
+      "label": "Mcclelland Literacy Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 16991
+    },
+    {
+      "phase": 5,
+      "targetIndex": 179,
+      "label": "California Environmental Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26591
+    },
+    {
+      "phase": 5,
+      "targetIndex": 180,
+      "label": "Sumter County Museum Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24569
+    },
+    {
+      "phase": 5,
+      "targetIndex": 181,
+      "label": "Candle Environmental Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24443
+    },
+    {
+      "phase": 5,
+      "targetIndex": 182,
+      "label": "Lawndale Environmental Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28686
+    },
+    {
+      "phase": 5,
+      "targetIndex": 183,
+      "label": "The Environmental Education Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20467
+    },
+    {
+      "phase": 5,
+      "targetIndex": 184,
+      "label": "Chancellor International Wildlife Fund Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21673
+    },
+    {
+      "phase": 5,
+      "targetIndex": 185,
+      "label": "Louise Arnold Maddux Environmental Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 64683
+    },
+    {
+      "phase": 5,
+      "targetIndex": 186,
+      "label": "The Green Pond Environmental Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17443
+    },
+    {
+      "phase": 5,
+      "targetIndex": 187,
+      "label": "Historical Glass Museum Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28361
+    },
+    {
+      "phase": 5,
+      "targetIndex": 188,
+      "label": "Human Environmental Sciences Foundation Incorporated",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30430
+    },
+    {
+      "phase": 5,
+      "targetIndex": 189,
+      "label": "Jake Czekaj Memorial Environmental Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35335
+    },
+    {
+      "phase": 5,
+      "targetIndex": 190,
+      "label": "Trinity Health Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33636
+    },
+    {
+      "phase": 5,
+      "targetIndex": 191,
+      "label": "Palouse Performing Arts Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20683
+    },
+    {
+      "phase": 5,
+      "targetIndex": 192,
+      "label": "Community Medicine Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18743
+    },
+    {
+      "phase": 5,
+      "targetIndex": 193,
+      "label": "Planned Parenthood Affiliates Of California Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24019
+    },
+    {
+      "phase": 5,
+      "targetIndex": 193,
+      "label": "Springfield Boys & Girls Club Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 29650
+    },
+    {
+      "phase": 5,
+      "targetIndex": 194,
+      "label": "Boys & Girls Club Of Fallbrook Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 37119
+    },
+    {
+      "phase": 5,
+      "targetIndex": 195,
+      "label": "The Binghamton Boys And Girls Club Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 103558
+    },
+    {
+      "phase": 5,
+      "targetIndex": 196,
+      "label": "San Leandro Boys And Girls Club Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33036
+    },
+    {
+      "phase": 5,
+      "targetIndex": 197,
+      "label": "Boys And Girls Clubs Of Greater Houston Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 65213
+    },
+    {
+      "phase": 5,
+      "targetIndex": 198,
+      "label": "Los Angeles Boys And Girls Club Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24106
+    },
+    {
+      "phase": 5,
+      "targetIndex": 199,
+      "label": "Acadianas Boys And Girls Clubs Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 42775
+    },
+    {
+      "phase": 5,
+      "targetIndex": 200,
+      "label": "Boys & Girls Clubs Of Greater Anchorage Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 40842
+    },
+    {
+      "phase": 5,
+      "targetIndex": 200,
+      "label": "Rhode Island Public Employees Health Services Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28937
+    },
+    {
+      "phase": 5,
+      "targetIndex": 201,
+      "label": "Edwards Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 44761
+    },
+    {
+      "phase": 5,
+      "targetIndex": 202,
+      "label": "Thompson Scholarship Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 36211
+    },
+    {
+      "phase": 5,
+      "targetIndex": 203,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35277
+    },
+    {
+      "phase": 5,
+      "targetIndex": 204,
+      "label": "Knights Templar Educational Foundation Of The Grand Encampment",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35422
+    },
+    {
+      "phase": 5,
+      "targetIndex": 205,
+      "label": "Environmental Awareness Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24611
+    },
+    {
+      "phase": 5,
+      "targetIndex": 206,
+      "label": "Adamant Community Cultural Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25779
+    },
+    {
+      "phase": 5,
+      "targetIndex": 207,
+      "label": "Oregon Agricultural Education Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23164
+    },
+    {
+      "phase": 5,
+      "targetIndex": 208,
+      "label": "Eastham Conservation Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27852
+    },
+    {
+      "phase": 5,
+      "targetIndex": 209,
+      "label": "Willie O Burr Tr Fbo Larrabee Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 41874
+    },
+    {
+      "phase": 5,
+      "targetIndex": 210,
+      "label": "Armenian Cultural Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 44003
+    },
+    {
+      "phase": 5,
+      "targetIndex": 211,
+      "label": "Childrens Charity Fund Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20483
+    },
+    {
+      "phase": 5,
+      "targetIndex": 212,
+      "label": "Boys And Girls Clubs Of Porter County Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 40372
+    },
+    {
+      "phase": 5,
+      "targetIndex": 213,
+      "label": "Boys And Girls Clubs Of East County Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26923
+    },
+    {
+      "phase": 5,
+      "targetIndex": 214,
+      "label": "40 & 8 Charles W Ardery Memorial Child Welfare Trust Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30451
+    },
+    {
+      "phase": 5,
+      "targetIndex": 215,
+      "label": "Boys And Girls Club Of Benton County",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25095
+    },
+    {
+      "phase": 5,
+      "targetIndex": 216,
+      "label": "Lodi Boys & Girls Club B & L Katzakian Charitable Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18324
+    },
+    {
+      "phase": 5,
+      "targetIndex": 217,
+      "label": "Boys And Girls Clubs Of South Puget Sound",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24948
+    },
+    {
+      "phase": 5,
+      "targetIndex": 218,
+      "label": "Harold Schwartz Memorial Child Welfare Fund",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30586
+    },
+    {
+      "phase": 5,
+      "targetIndex": 219,
+      "label": "Fairbury Civic Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28634
+    },
+    {
+      "phase": 5,
+      "targetIndex": 220,
+      "label": "Civic Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24099
+    },
+    {
+      "phase": 5,
+      "targetIndex": 221,
+      "label": "Beautiful Minds Youth Mentoring Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30190
+    },
+    {
+      "phase": 5,
+      "targetIndex": 222,
+      "label": "Mercer County Civic Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 45306
+    },
+    {
+      "phase": 5,
+      "targetIndex": 223,
+      "label": "Civis Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 56817
+    },
+    {
+      "phase": 5,
+      "targetIndex": 224,
+      "label": "San Marcos Civic Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26088
+    },
+    {
+      "phase": 5,
+      "targetIndex": 225,
+      "label": "It Takes A Village Youth Mentoring Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23008
+    },
+    {
+      "phase": 5,
+      "targetIndex": 226,
+      "label": "Felton Mentoring And Scholarship Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 34404
+    },
+    {
+      "phase": 5,
+      "targetIndex": 227,
+      "label": "Women Empowering Women Foundation Of Dallas",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18792
+    },
+    {
+      "phase": 5,
+      "targetIndex": 228,
+      "label": "Empowered Women Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18067
+    },
+    {
+      "phase": 5,
+      "targetIndex": 229,
+      "label": "Chicago Foundation For Women",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 42079
+    },
+    {
+      "phase": 5,
+      "targetIndex": 230,
+      "label": "Affordable Housing Preservation Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 33853
+    },
+    {
+      "phase": 5,
+      "targetIndex": 231,
+      "label": "Oregon Women Lawyers Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 41514
+    },
+    {
+      "phase": 5,
+      "targetIndex": 232,
+      "label": "Dublin Chamber Civic Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24897
+    },
+    {
+      "phase": 5,
+      "targetIndex": 233,
+      "label": "Porterville Civic Development Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20277
+    },
+    {
+      "phase": 5,
+      "targetIndex": 234,
+      "label": "Wildcat Women Scholarship Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25009
+    },
+    {
+      "phase": 5,
+      "targetIndex": 235,
+      "label": "Borrego Springs Civic Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 41327
+    },
+    {
+      "phase": 5,
+      "targetIndex": 236,
+      "label": "Womens Empowerment Domestic Abuse Rescue Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27237
+    },
+    {
+      "phase": 5,
+      "targetIndex": 237,
+      "label": "Hillel Foundation At The University Of Arizona",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26369
+    },
+    {
+      "phase": 5,
+      "targetIndex": 238,
+      "label": "Enterprise Development International Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22575
+    },
+    {
+      "phase": 5,
+      "targetIndex": 238,
+      "label": "National Veterans Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28575
+    },
+    {
+      "phase": 5,
+      "targetIndex": 239,
+      "label": "Veterans Recognition Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 34832
+    },
+    {
+      "phase": 5,
+      "targetIndex": 240,
+      "label": "Michigan Veterans Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 50739
+    },
+    {
+      "phase": 5,
+      "targetIndex": 241,
+      "label": "Structure For Wounded Warriors",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21215
+    },
+    {
+      "phase": 5,
+      "targetIndex": 242,
+      "label": "Wounded Warrior Family Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24797
+    },
+    {
+      "phase": 5,
+      "targetIndex": 243,
+      "label": "Heartbeat Serving Wounded Warriors",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21398
+    },
+    {
+      "phase": 5,
+      "targetIndex": 244,
+      "label": "Foundation For Humanitarian As Education And Medical Aid Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24402
+    },
+    {
+      "phase": 5,
+      "targetIndex": 245,
+      "label": "Nineline Veterans Services",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25116
+    },
+    {
+      "phase": 5,
+      "targetIndex": 246,
+      "label": "United Veterans Services",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20737
+    },
+    {
+      "phase": 5,
+      "targetIndex": 247,
+      "label": "Veteran Service Dogs Organization",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24180
+    },
+    {
+      "phase": 5,
+      "targetIndex": 248,
+      "label": "Veterans Legal Services Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22967
+    },
+    {
+      "phase": 5,
+      "targetIndex": 249,
+      "label": "Veterans Educational Services Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20596
+    },
+    {
+      "phase": 5,
+      "targetIndex": 250,
+      "label": "Washington Foundation For Criminal Justice",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 32056
+    },
+    {
+      "phase": 5,
+      "targetIndex": 251,
+      "label": "California Attorneys For Criminal Justice Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25038
+    },
+    {
+      "phase": 5,
+      "targetIndex": 252,
+      "label": "American Inns Of Court Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26361
+    },
+    {
+      "phase": 5,
+      "targetIndex": 253,
+      "label": "American Foundation For Affordable Housing Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 25925
+    },
+    {
+      "phase": 5,
+      "targetIndex": 254,
+      "label": "California Foundation On Aging",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24510
+    },
+    {
+      "phase": 5,
+      "targetIndex": 255,
+      "label": "Seward Aging Services Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20534
+    },
+    {
+      "phase": 5,
+      "targetIndex": 256,
+      "label": "Wca Area Agency On Aging Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20841
+    },
+    {
+      "phase": 5,
+      "targetIndex": 257,
+      "label": "Minnesota Leadership On Aging Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30322
+    },
+    {
+      "phase": 5,
+      "targetIndex": 258,
+      "label": "Marshall County Foundation For Aging Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19772
+    },
+    {
+      "phase": 5,
+      "targetIndex": 259,
+      "label": "Christian Family Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 43832
+    },
+    {
+      "phase": 5,
+      "targetIndex": 260,
+      "label": "Christian Life Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21788
+    },
+    {
+      "phase": 5,
+      "targetIndex": 261,
+      "label": "International Foundation For Biomedical Aging Research",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 26151
+    },
+    {
+      "phase": 5,
+      "targetIndex": 262,
+      "label": "Athens Limestone Foundation For Aging Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24430
+    },
+    {
+      "phase": 5,
+      "targetIndex": 263,
+      "label": "Escambia County Council On Aging Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24761
+    },
+    {
+      "phase": 5,
+      "targetIndex": 264,
+      "label": "Affordable Housing Management Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 43675
+    },
+    {
+      "phase": 5,
+      "targetIndex": 265,
+      "label": "Union Snyder Area Agency On Aging Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27650
+    },
+    {
+      "phase": 5,
+      "targetIndex": 265,
+      "label": "Affordable Housing Preservation Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21082
+    },
+    {
+      "phase": 5,
+      "targetIndex": 266,
+      "label": "National Affordable Housing Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17998
+    },
+    {
+      "phase": 5,
+      "targetIndex": 267,
+      "label": "Alliance Housing Development Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 15473
+    },
+    {
+      "phase": 5,
+      "targetIndex": 268,
+      "label": "Tillman County Food Bank Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21798
+    },
+    {
+      "phase": 5,
+      "targetIndex": 269,
+      "label": "Orangevale Community Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20558
+    },
+    {
+      "phase": 5,
+      "targetIndex": 270,
+      "label": "All Faiths Food Bank Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 27283
+    },
+    {
+      "phase": 5,
+      "targetIndex": 271,
+      "label": "Childrens Hunger Relief Fund Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20662
+    },
+    {
+      "phase": 5,
+      "targetIndex": 272,
+      "label": "The Pincus Fund For Hunger Relief",
+      "result": {
+        "discovered": 0,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 72300
+    },
+    {
+      "phase": 5,
+      "targetIndex": 273,
+      "label": "Agricultural Relations Council Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 21722
+    },
+    {
+      "phase": 5,
+      "targetIndex": 274,
+      "label": "Agricultural Research Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 22849
+    },
+    {
+      "phase": 5,
+      "targetIndex": 275,
+      "label": "Kern Agricultural Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19147
+    },
+    {
+      "phase": 5,
+      "targetIndex": 276,
+      "label": "Oregon Agriculture Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17765
+    },
+    {
+      "phase": 5,
+      "targetIndex": 277,
+      "label": "Agricultural Leadership Of Tomorrow Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28373
+    },
+    {
+      "phase": 5,
+      "targetIndex": 278,
+      "label": "Agricultural Leadership Foundation Of Hawaii",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24278
+    },
+    {
+      "phase": 5,
+      "targetIndex": 279,
+      "label": "Iowa Foundation For Agricultural Advancement",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 38141
+    },
+    {
+      "phase": 5,
+      "targetIndex": 280,
+      "label": "Minnesota Foundation For Agriculture",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 24556
+    },
+    {
+      "phase": 5,
+      "targetIndex": 281,
+      "label": "Sjfb Foundation For Agricultural Education",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20373
+    },
+    {
+      "phase": 5,
+      "targetIndex": 282,
+      "label": "Connecticut Agricultural Education Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 30585
+    },
+    {
+      "phase": 5,
+      "targetIndex": 283,
+      "label": "Farm Credit Foundation For Agricultural Advancement",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 23742
+    },
+    {
+      "phase": 5,
+      "targetIndex": 284,
+      "label": "Loudoun Agricultural & Chemical Institute Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17444
+    },
+    {
+      "phase": 5,
+      "targetIndex": 285,
+      "label": "The Arizona Agricultural Education/Ffa Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 34932
+    },
+    {
+      "phase": 5,
+      "targetIndex": 286,
+      "label": "Treasure Coast Agricultural Research Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17655
+    },
+    {
+      "phase": 5,
+      "targetIndex": 287,
+      "label": "Mind Science Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 28388
+    },
+    {
+      "phase": 5,
+      "targetIndex": 288,
+      "label": "Taylor Science Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 15575
+    },
+    {
+      "phase": 5,
+      "targetIndex": 289,
+      "label": "International Foundation For Science",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 31426
+    },
+    {
+      "phase": 5,
+      "targetIndex": 290,
+      "label": "Agronomic Science Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 14934
+    },
+    {
+      "phase": 5,
+      "targetIndex": 291,
+      "label": "Gorgas Science Foundation Inc",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 36532
+    },
+    {
+      "phase": 5,
+      "targetIndex": 292,
+      "label": "Locus Science Fiction Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 37067
+    },
+    {
+      "phase": 5,
+      "targetIndex": 293,
+      "label": "Poulsbo Marine Science Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 18950
+    },
+    {
+      "phase": 5,
+      "targetIndex": 294,
+      "label": "Foundation For Translational Science",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 19354
+    },
+    {
+      "phase": 5,
+      "targetIndex": 295,
+      "label": "Kern County Science Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 20687
+    },
+    {
+      "phase": 5,
+      "targetIndex": 296,
+      "label": "Sharp Science Students Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 13811
+    },
+    {
+      "phase": 5,
+      "targetIndex": 297,
+      "label": "Michigan Mortuary Science Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 17416
+    },
+    {
+      "phase": 5,
+      "targetIndex": 298,
+      "label": "Retirement Research Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 34037
+    },
+    {
+      "phase": 5,
+      "targetIndex": 299,
+      "label": "Polybio Research Foundation",
+      "result": {
+        "discovered": 0,
+        "stored": 1,
+        "errors": 0,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 303250
+    }
+  ],
+  "totalStored": 0,
+  "totalDiscovered": 0,
+  "totalErrors": 173,
+  "status": "completed"
+}

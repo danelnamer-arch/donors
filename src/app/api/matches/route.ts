@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
       matches: matches.map((m) => ({
         id: m.id,
         reasoning: m.reasoning,
+        scoreBreakdown: m.scoreBreakdown as Record<string, number> | null,
         donor: {
           id: m.donor.id,
           name: m.donor.name,

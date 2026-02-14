@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Privacy Policy - DonorMatch",
-  description: "How DonorMatch handles your data",
+  title: "Privacy Policy - Funderra",
+  description: "How Funderra handles your data",
 };
 
 export default function PrivacyPolicyPage() {
@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-xl font-semibold mt-8 mb-4">1. Introduction</h2>
           <p>
-            DonorMatch (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting your privacy. This
+            Funderra (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting your privacy. This
             Privacy Policy explains how we collect, use, and safeguard your information when you
             use our donor discovery and relationship management platform.
           </p>
@@ -109,8 +109,8 @@ export default function PrivacyPolicyPage() {
           </ul>
           <p className="mt-2">
             To exercise these rights, contact us at{" "}
-            <a href="mailto:privacy@donormatch.com" className="text-blue-600 hover:underline">
-              privacy@donormatch.com
+            <a href="mailto:privacy@funderra.app" className="text-blue-600 hover:underline">
+              privacy@funderra.app
             </a>.
           </p>
         </section>
@@ -145,8 +145,8 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-xl font-semibold mt-8 mb-4">11. Contact</h2>
           <p>
             For privacy-related questions, contact us at{" "}
-            <a href="mailto:privacy@donormatch.com" className="text-blue-600 hover:underline">
-              privacy@donormatch.com
+            <a href="mailto:privacy@funderra.app" className="text-blue-600 hover:underline">
+              privacy@funderra.app
             </a>.
           </p>
         </section>

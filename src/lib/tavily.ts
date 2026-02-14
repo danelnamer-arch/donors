@@ -57,7 +57,7 @@ export async function searchFoundationsByCause(
   region: string,
   options?: { maxResults?: number }
 ): Promise<TavilySearchResult[]> {
-  const query = `${cause} foundation donor grant funding ${region} nonprofit philanthropy`;
+  const query = `${cause} donor grant funding ${region} philanthropy`;
   return searchDonors(query, { maxResults: options?.maxResults ?? 10 });
 }
 

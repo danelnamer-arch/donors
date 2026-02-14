@@ -14,6 +14,7 @@ export async function deepDiscoverDonors(params: {
   cause: string;
   targetPopulation?: string;
   region?: string;
+  donorTypeHint?: "INDIVIDUAL" | "FOUNDATION";
 }): Promise<AgentResult<{ rawContent: string; parsedDonors: Partial<DonorCandidate>[] }>> {
   try {
     const result = await discoverDonors(params);
@@ -54,13 +55,33 @@ export async function deepDiscoverDonors(params: {
  * Research a specific donor in depth using Perplexity.
  */
 export async function deepResearchDonor(
-  donorName: string
+  donorName: string,
+  options?: { isIsraeli?: boolean }
 ): Promise<AgentResult<Partial<DonorCandidate>>> {
   try {
     const result = await researchDonor(donorName);
 
+    // For Israeli donors, run a supplementary search with Hebrew context
+    // and Israeli media sources for broader coverage
+    let supplementaryContent = "";
+    if (options?.isIsraeli) {
+      try {
+        const hebrewResult = await discoverDonors({
+          cause: `"${donorName}" donation OR philanthropy OR תרומה OR פילנתרופיה site:calcalist.co.il OR site:globes.co.il OR site:themarker.com OR site:guidestar.org.il`,
+          region: "Israel",
+        });
+        supplementaryContent = hebrewResult.content;
+      } catch {
+        // Non-critical — continue with primary results
+      }
+    }
+
+    const combinedContent = supplementaryContent
+      ? `${result.content}\n\n--- Additional Israeli sources ---\n${supplementaryContent}`
+      : result.content;
+
     // Parse the research into structured data
-    const parsed = await parseDonorResearch(donorName, result.content);
+    const parsed = await parseDonorResearch(donorName, combinedContent);
 
     const sources = result.citations.map((c) => ({
       url: c.url,
@@ -147,7 +168,7 @@ async function parseDiscoveryResults(
       {
         role: "system",
         content:
-          "You are a data extraction specialist. Parse the research text into structured donor profiles. Return a JSON array. Only include donors that are clearly identified with enough detail. Do not invent data.",
+          "You are a data extraction specialist. Parse the research text into structured donor profiles. Return a JSON array. Only include donors that are clearly identified with enough detail. Do not invent data.\n\nIMPORTANT: Classify each donor's type carefully:\n- INDIVIDUAL: A person who gives philanthropically (billionaire, HNW individual, tech entrepreneur, family patriarch/matriarch). Use this even if they have a personal foundation named after them.\n- FOUNDATION: A registered nonprofit/foundation entity (private foundation, family foundation, community foundation).\n- CORPORATE: A company or corporate giving program (CSR, corporate foundation).\n- GOVERNMENT: A government agency, fund, or quasi-governmental body.\n- OTHER: Federations, international orgs, or entities that don't fit above.\n\nDo NOT default everything to FOUNDATION. Many philanthropists are INDIVIDUAL donors.",
       },
       {
         role: "user",
@@ -164,6 +185,7 @@ Return JSON array:
   "causes": ["string"],
   "targetPopulations": ["string"],
   "geographicFocus": ["string"],
+  "politicalStance": "1-3 sentence description of political/ideological positioning, or null if unknown. For Israeli donors: note positions on settlements, security, peace process, religious-secular divide.",
   "grants": [{"recipientName": "string", "amount": number_in_whole_USD_dollars_or_null (e.g. 5000000 for $5 million, 250000 for $250K — NEVER use shorthand like 5.0 for $5M or 250 for $250K), "year": number_or_null, "purpose": "string_or_null"}]
 }]`,
       },
@@ -215,6 +237,7 @@ Return JSON:
   "targetPopulations": ["string"],
   "geographicFocus": ["string"],
   "politicalAffiliation": "LEFT" | "CENTER_LEFT" | "CENTER" | "CENTER_RIGHT" | "RIGHT" | "NONPARTISAN" | "UNKNOWN",
+  "politicalStance": "Describe the donor's political/ideological positioning in 1-3 sentences. Include: political leanings, ideological causes they champion, controversial positions, religious/secular orientation, nationalist/internationalist stance, and specific policy positions. For Israeli donors: note positions on settlements, security, peace process, religious-secular divide, economic policy. Be specific and nuanced — avoid simple left/right labels. Return null if unknown.",
   "contactEmail": "string or null",
   "contactPhone": "string or null",
   "socialLinks": {"linkedin": "url", "twitter": "url"},

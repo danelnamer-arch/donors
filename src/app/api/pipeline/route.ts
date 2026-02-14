@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { notifyFunded } from "@/lib/email/notifications";
 
 /**
  * GET /api/pipeline
@@ -80,9 +81,10 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Verify ownership
+    // Verify ownership — include donor name for FUNDED notification
     const entry = await prisma.pipelineEntry.findFirst({
       where: { id: entryId, organizationId: orgId },
+      include: { donor: { select: { name: true } } },
     });
     if (!entry) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
@@ -104,6 +106,11 @@ export async function PATCH(request: NextRequest) {
         ),
       },
     });
+
+    // Fire-and-forget FUNDED notification
+    if (stage === "FUNDED" && entry.donor?.name) {
+      notifyFunded(orgId, entry.donor.name).catch(() => {});
+    }
 
     return NextResponse.json({ entry: updated });
   } catch (error) {

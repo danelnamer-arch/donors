@@ -5,8 +5,8 @@ export default function Home() {
       <header className="border-b border-zinc-100 dark:border-zinc-800">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <span className="flex items-center gap-2 text-lg font-bold">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-xs font-bold text-white">D</span>
-            <span className="text-zinc-900 dark:text-zinc-100">Donor<span className="text-brand">Match</span></span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-xs font-bold text-white">F</span>
+            <span className="text-zinc-900 dark:text-zinc-100">Fund<span className="text-brand">erra</span></span>
           </span>
           <div className="flex items-center gap-3">
             <a
@@ -52,7 +52,7 @@ export default function Home() {
             <span className="bg-gradient-to-r from-brand to-indigo-400 bg-clip-text text-transparent">share your mission</span>
           </h1>
           <p className="mt-6 animate-fade-in text-lg leading-8 text-zinc-600 dark:text-zinc-400 [animation-delay:200ms]">
-            DonorMatch uses AI to connect your NGO with foundations, individuals, and organizations
+            Funderra uses AI to connect your NGO with foundations, individuals, and organizations
             that align with your cause. Swipe, match, and build lasting donor relationships.
           </p>
           <div className="mt-10 flex animate-fade-in flex-col items-center gap-4 sm:flex-row sm:justify-center [animation-delay:300ms]">
@@ -255,7 +255,7 @@ export default function Home() {
               Ready to find your ideal donors?
             </h2>
             <p className="mt-3 text-indigo-100">
-              Join hundreds of NGOs using DonorMatch to build donor relationships.
+              Join hundreds of NGOs using Funderra to build donor relationships.
             </p>
             <a
               href="/signup"
@@ -271,7 +271,7 @@ export default function Home() {
       <footer className="border-t border-zinc-100 px-6 py-8 dark:border-zinc-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <span className="text-sm text-zinc-400">
-            DonorMatch {new Date().getFullYear()}
+            Funderra {new Date().getFullYear()}
           </span>
           <div className="flex gap-6 text-sm text-zinc-400">
             <a href="/terms" className="transition-colors hover:text-zinc-600">

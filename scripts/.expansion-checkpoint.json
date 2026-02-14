@@ -1,0 +1,703 @@
+{
+  "runId": "e70d04b5-f895-46e2-a331-3c87d8780346",
+  "startedAt": "2026-02-13T11:40:31.243Z",
+  "lastUpdatedAt": "2026-02-14T06:04:27.079Z",
+  "currentPhase": 6,
+  "currentTargetIndex": 28,
+  "targetsCompleted": [
+    {
+      "phase": 6,
+      "targetIndex": 0,
+      "prong": "A",
+      "label": "Israeli family offices and private philanthropy (Israel)",
+      "result": {
+        "discovered": 19,
+        "stored": 3,
+        "errors": 6,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 384687
+    },
+    {
+      "phase": 6,
+      "targetIndex": 1,
+      "prong": "A",
+      "label": "Israeli corporate social responsibility CSR programs (Israel)",
+      "result": {
+        "discovered": 20,
+        "stored": 3,
+        "errors": 8,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 501484
+    },
+    {
+      "phase": 6,
+      "targetIndex": 1,
+      "prong": "A",
+      "label": "Israeli corporate social responsibility CSR programs (Israel)",
+      "result": {
+        "discovered": 15,
+        "stored": 0,
+        "errors": 6,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 317452
+    },
+    {
+      "phase": 6,
+      "targetIndex": 2,
+      "prong": "A",
+      "label": "Israeli venture philanthropy and impact investing funds (Israel)",
+      "result": {
+        "discovered": 16,
+        "stored": 1,
+        "errors": 8,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 652001
+    },
+    {
+      "phase": 6,
+      "targetIndex": 3,
+      "prong": "A",
+      "label": "Haredi ultra-Orthodox Jewish philanthropy foundations Israel (Israel)",
+      "result": {
+        "discovered": 17,
+        "stored": 0,
+        "errors": 8,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 2358782
+    },
+    {
+      "phase": 6,
+      "targetIndex": 4,
+      "prong": "A",
+      "label": "Israeli university endowment offices Hebrew University Technion Tel Aviv (Israel)",
+      "result": {
+        "discovered": 13,
+        "stored": 1,
+        "errors": 7,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 551197
+    },
+    {
+      "phase": 6,
+      "targetIndex": 5,
+      "prong": "A",
+      "label": "Jerusalem Foundation and Jerusalem-based philanthropic organizations (Israel)",
+      "result": {
+        "discovered": 13,
+        "stored": 0,
+        "errors": 13,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 134628
+    },
+    {
+      "phase": 6,
+      "targetIndex": 6,
+      "prong": "A",
+      "label": "Tel Aviv Foundation and municipal philanthropy Israel (Israel)",
+      "result": {
+        "discovered": 20,
+        "stored": 3,
+        "errors": 12,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 754618
+    },
+    {
+      "phase": 6,
+      "targetIndex": 7,
+      "prong": "A",
+      "label": "Israeli agricultural and rural development foundations (Israel)",
+      "result": {
+        "discovered": 20,
+        "stored": 2,
+        "errors": 4,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 645272
+    },
+    {
+      "phase": 6,
+      "targetIndex": 8,
+      "prong": "A",
+      "label": "Israeli women philanthropy and gender equality foundations (Israel)",
+      "result": {
+        "discovered": 18,
+        "stored": 1,
+        "errors": 3,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 365837
+    },
+    {
+      "phase": 6,
+      "targetIndex": 9,
+      "prong": "A",
+      "label": "Arab-Israeli civil society foundations and coexistence funding (Israel)",
+      "result": {
+        "discovered": 18,
+        "stored": 4,
+        "errors": 9,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 523802
+    },
+    {
+      "phase": 6,
+      "targetIndex": 10,
+      "prong": "A",
+      "label": "Israeli disability and special needs foundations (Israel)",
+      "result": {
+        "discovered": 16,
+        "stored": 1,
+        "errors": 7,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 428661
+    },
+    {
+      "phase": 6,
+      "targetIndex": 11,
+      "prong": "A",
+      "label": "Israeli immigrant absorption and aliyah support foundations (Israel)",
+      "result": {
+        "discovered": 20,
+        "stored": 2,
+        "errors": 11,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 766262
+    },
+    {
+      "phase": 6,
+      "targetIndex": 12,
+      "prong": "A",
+      "label": "Israeli environmental protection and climate foundations (Israel)",
+      "result": {
+        "discovered": 17,
+        "stored": 0,
+        "errors": 7,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 309268
+    },
+    {
+      "phase": 6,
+      "targetIndex": 13,
+      "prong": "A",
+      "label": "Israeli cultural institutions museums and performing arts funding (Israel)",
+      "result": {
+        "discovered": 17,
+        "stored": 2,
+        "errors": 5,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 403492
+    },
+    {
+      "phase": 6,
+      "targetIndex": 13,
+      "prong": "A",
+      "label": "Israeli cultural institutions museums and performing arts funding (Israel)",
+      "result": {
+        "discovered": 17,
+        "stored": 1,
+        "errors": 5,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 501262
+    },
+    {
+      "phase": 6,
+      "targetIndex": 13,
+      "prong": "A",
+      "label": "Israeli cultural institutions museums and performing arts funding (Israel)",
+      "result": {
+        "discovered": 16,
+        "stored": 2,
+        "errors": 4,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 239864
+    },
+    {
+      "phase": 6,
+      "targetIndex": 14,
+      "prong": "A",
+      "label": "Kibbutz movement foundations and communal giving Israel (Israel)",
+      "result": {
+        "discovered": 13,
+        "stored": 0,
+        "errors": 10,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 475453
+    },
+    {
+      "phase": 6,
+      "targetIndex": 15,
+      "prong": "A",
+      "label": "Israeli children and youth at-risk foundations (Israel)",
+      "result": {
+        "discovered": 20,
+        "stored": 1,
+        "errors": 5,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 337642
+    },
+    {
+      "phase": 6,
+      "targetIndex": 16,
+      "prong": "A",
+      "label": "Israeli elderly care and aging foundations (Israel)",
+      "result": {
+        "discovered": 18,
+        "stored": 1,
+        "errors": 10,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 554256
+    },
+    {
+      "phase": 6,
+      "targetIndex": 16,
+      "prong": "A",
+      "label": "Israeli elderly care and aging foundations (Israel)",
+      "result": {
+        "discovered": 19,
+        "stored": 4,
+        "errors": 9,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 538640
+    },
+    {
+      "phase": 6,
+      "targetIndex": 17,
+      "prong": "A",
+      "label": "Israeli sports and recreation foundations (Israel)",
+      "result": {
+        "discovered": 13,
+        "stored": 0,
+        "errors": 9,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 484037
+    },
+    {
+      "phase": 6,
+      "targetIndex": 17,
+      "prong": "A",
+      "label": "Israeli sports and recreation foundations (Israel)",
+      "result": {
+        "discovered": 17,
+        "stored": 2,
+        "errors": 10,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 465696
+    },
+    {
+      "phase": 6,
+      "targetIndex": 18,
+      "prong": "A",
+      "label": "Israeli media and press freedom foundations (Israel)",
+      "result": {
+        "discovered": 16,
+        "stored": 1,
+        "errors": 13,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 512676
+    },
+    {
+      "phase": 6,
+      "targetIndex": 0,
+      "prong": "B",
+      "label": "Jerusalem Foundation",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 34916
+    },
+    {
+      "phase": 6,
+      "targetIndex": 1,
+      "prong": "B",
+      "label": "Tel Aviv Foundation",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 3
+    },
+    {
+      "phase": 6,
+      "targetIndex": 2,
+      "prong": "B",
+      "label": "The New Israel Fund",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 0
+    },
+    {
+      "phase": 6,
+      "targetIndex": 3,
+      "prong": "B",
+      "label": "Yad Vashem Foundation",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 39723
+    },
+    {
+      "phase": 6,
+      "targetIndex": 4,
+      "prong": "B",
+      "label": "JNF-KKL Keren Kayemeth LeIsrael",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 56190
+    },
+    {
+      "phase": 6,
+      "targetIndex": 5,
+      "prong": "B",
+      "label": "Israel Venture Network IVN",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 49428
+    },
+    {
+      "phase": 6,
+      "targetIndex": 6,
+      "prong": "B",
+      "label": "Tmura Foundation Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 26
+    },
+    {
+      "phase": 6,
+      "targetIndex": 7,
+      "prong": "B",
+      "label": "Ogen Social Finance Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 36809
+    },
+    {
+      "phase": 6,
+      "targetIndex": 8,
+      "prong": "B",
+      "label": "The Edmond de Rothschild Foundation Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 5
+    },
+    {
+      "phase": 6,
+      "targetIndex": 9,
+      "prong": "B",
+      "label": "The Mifal HaPais Foundation",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 268809
+    },
+    {
+      "phase": 6,
+      "targetIndex": 10,
+      "prong": "B",
+      "label": "Birthright Israel Foundation",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 103609
+    },
+    {
+      "phase": 6,
+      "targetIndex": 11,
+      "prong": "B",
+      "label": "Masa Israel Journey",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 58236
+    },
+    {
+      "phase": 6,
+      "targetIndex": 12,
+      "prong": "B",
+      "label": "The Harry and Jeanette Weinberg Foundation",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 54273
+    },
+    {
+      "phase": 6,
+      "targetIndex": 13,
+      "prong": "B",
+      "label": "The Avi Chai Foundation Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 207217
+    },
+    {
+      "phase": 6,
+      "targetIndex": 14,
+      "prong": "B",
+      "label": "Karev Foundation Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 42232
+    },
+    {
+      "phase": 6,
+      "targetIndex": 15,
+      "prong": "B",
+      "label": "The Appleseeds Academy Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 1
+    },
+    {
+      "phase": 6,
+      "targetIndex": 16,
+      "prong": "B",
+      "label": "Or Yarok Israel road safety",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 42405
+    },
+    {
+      "phase": 6,
+      "targetIndex": 17,
+      "prong": "B",
+      "label": "Elem Youth in Distress Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 47500
+    },
+    {
+      "phase": 6,
+      "targetIndex": 18,
+      "prong": "B",
+      "label": "Latet Israeli Humanitarian Aid",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 2
+    },
+    {
+      "phase": 6,
+      "targetIndex": 19,
+      "prong": "B",
+      "label": "The Tami Steinmetz Center for Peace Research",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 1
+    },
+    {
+      "phase": 6,
+      "targetIndex": 20,
+      "prong": "B",
+      "label": "The Van Leer Jerusalem Institute",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 49277
+    },
+    {
+      "phase": 6,
+      "targetIndex": 21,
+      "prong": "B",
+      "label": "Yad Sarah Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 3
+    },
+    {
+      "phase": 6,
+      "targetIndex": 22,
+      "prong": "B",
+      "label": "ALYN Hospital Foundation",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 36328
+    },
+    {
+      "phase": 6,
+      "targetIndex": 23,
+      "prong": "B",
+      "label": "The Israel Center for Excellence through Education ICE",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 0,
+        "skippedDuplicates": 1
+      },
+      "durationMs": 0
+    },
+    {
+      "phase": 6,
+      "targetIndex": 24,
+      "prong": "B",
+      "label": "Yuri Milner philanthropy",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 74000
+    },
+    {
+      "phase": 6,
+      "targetIndex": 25,
+      "prong": "B",
+      "label": "Shari Arison philanthropy Israel",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 38028
+    },
+    {
+      "phase": 6,
+      "targetIndex": 26,
+      "prong": "B",
+      "label": "Teddy Sagi philanthropy",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 45903
+    },
+    {
+      "phase": 6,
+      "targetIndex": 27,
+      "prong": "B",
+      "label": "Gil Shwed philanthropy Check Point",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 32683
+    },
+    {
+      "phase": 6,
+      "targetIndex": 28,
+      "prong": "B",
+      "label": "Yossi Vardi philanthropy",
+      "result": {
+        "discovered": 1,
+        "stored": 0,
+        "errors": 1,
+        "skippedDuplicates": 0
+      },
+      "durationMs": 35248
+    }
+  ],
+  "totalStored": 35,
+  "totalDiscovered": 437,
+  "totalErrors": 209,
+  "status": "running",
+  "currentProng": "B"
+}

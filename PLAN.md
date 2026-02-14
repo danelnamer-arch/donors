@@ -1,4 +1,4 @@
-# DonorMatch — Comprehensive Project Plan
+# Funderra — Comprehensive Project Plan
 
 ## Vision
 A donor discovery platform for Israeli NGOs. Users describe their organization, get matched with relevant donors (foundations, individuals, corporates, government), swipe to keep or skip, enrich promising leads with deep research, and manage the relationship over time. The system learns from every interaction to improve future matches.
@@ -369,7 +369,7 @@ Cost: Part of subscription tier (e.g., 5 enrichments/month) + $3 per additional 
 
 ## Decisions Made
 
-1. **App name:** DonorMatch (working title)
+1. **App name:** Funderra (working title)
 2. **Hosting:** Vercel
 3. **API keys needed (stub for now, connect later):**
    - OpenAI — embeddings + matching reasoning

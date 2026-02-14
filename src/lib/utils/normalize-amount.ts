@@ -49,3 +49,59 @@ export function normalizeTotalGiving(
 
   return Math.round(amount);
 }
+
+// ─── Enhanced version with confidence tracking ────────────────────
+
+export interface NormalizedAmount {
+  /** Normalized value in whole USD, or undefined if suspicious */
+  value: number | undefined;
+  /** How confident we are in the normalization */
+  confidence: "high" | "medium" | "low";
+  /** Whether the value was transformed (not just rounded) */
+  wasNormalized: boolean;
+  /** The original input value for audit purposes */
+  originalValue: number | null | undefined;
+}
+
+/**
+ * Enhanced grant amount normalization with confidence tracking.
+ *
+ * Same heuristic as normalizeGrantAmount but returns metadata about
+ * the normalization so callers can flag uncertain values.
+ *
+ * Amounts exceeding $50B are flagged as suspicious (returns undefined).
+ */
+export function normalizeGrantAmountWithConfidence(
+  amount: number | null | undefined
+): NormalizedAmount {
+  if (amount == null || amount <= 0) {
+    return { value: undefined, confidence: "high", wasNormalized: false, originalValue: amount };
+  }
+
+  // Already in whole dollars — high confidence
+  if (amount >= 1000) {
+    if (amount > 50_000_000_000) {
+      // Exceeds $50B — suspicious
+      return { value: undefined, confidence: "low", wasNormalized: false, originalValue: amount };
+    }
+    return { value: Math.round(amount), confidence: "high", wasNormalized: false, originalValue: amount };
+  }
+
+  // Under 100 — assumed millions (medium confidence)
+  if (amount < 100) {
+    return {
+      value: Math.round(amount * 1_000_000),
+      confidence: "medium",
+      wasNormalized: true,
+      originalValue: amount,
+    };
+  }
+
+  // 100-999 — assumed thousands (medium confidence)
+  return {
+    value: Math.round(amount * 1_000),
+    confidence: "medium",
+    wasNormalized: true,
+    originalValue: amount,
+  };
+}

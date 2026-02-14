@@ -62,7 +62,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-black dark:text-white">
-            Sign in to DonorMatch
+            Sign in to Funderra
           </h1>
           <p className="mt-2 text-sm text-zinc-500">
             Find the right donors for your NGO
@@ -103,6 +103,15 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+
+              <div className="flex justify-end">
+                <a
+                  href="/forgot-password"
+                  className="text-xs text-zinc-400 hover:text-brand transition-colors"
+                >
+                  Forgot password?
+                </a>
+              </div>
 
               {error && (
                 <p className="text-sm text-red-500">{error}</p>

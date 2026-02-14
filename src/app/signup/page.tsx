@@ -83,7 +83,7 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-black dark:text-white">
-            Create your DonorMatch account
+            Create your Funderra account
           </h1>
           <p className="mt-2 text-sm text-zinc-500">
             Start finding donors for your NGO — it&apos;s free
