@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-black">
       {/* Hero — full-width background image */}
-      <section className="relative min-h-[85vh] overflow-hidden">
+      <section className="relative min-h-[75vh] overflow-hidden">
         {/* Background image */}
         <Image
           src="/hero.jpg"
@@ -14,9 +14,9 @@ export default function Home() {
           priority
         />
 
-        {/* Dark gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        {/* Gradient overlays — strong left for text, transparent right for flag */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
         {/* Nav — on top of image */}
         <header className="relative z-10">
@@ -49,9 +49,9 @@ export default function Home() {
         </header>
 
         {/* Hero content — positioned over image */}
-        <div className="relative z-10 flex min-h-[calc(85vh-4rem)] items-center px-6">
+        <div className="relative z-10 flex min-h-[calc(75vh-4rem)] items-center px-6 pb-12">
           <div className="mx-auto w-full max-w-6xl">
-            <div className="max-w-2xl">
+            <div className="max-w-3xl">
               <div className="mb-6 inline-flex animate-fade-in items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
                 <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
@@ -64,7 +64,7 @@ export default function Home() {
                   Israeli nonprofits
                 </span>
               </h1>
-              <p className="mt-6 animate-fade-in text-lg leading-8 text-white/80 [animation-delay:200ms]">
+              <p className="mt-6 max-w-xl animate-fade-in text-lg leading-8 text-white/80 [animation-delay:200ms]">
                 Funderra maps the entire Israeli and global donor ecosystem &mdash;
                 foundations, private philanthropists, and grant-makers &mdash; so your
                 amuta can focus on impact, not fundraising guesswork.
@@ -78,26 +78,26 @@ export default function Home() {
                 </a>
                 <a
                   href="#how-it-works"
-                  className="flex h-12 items-center justify-center rounded-xl border border-white/30 px-8 text-base font-medium text-white transition-colors hover:bg-white/10 backdrop-blur-sm"
+                  className="flex h-12 items-center justify-center rounded-xl border border-white/40 bg-white/10 px-8 text-base font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
                 >
                   See How It Works
                 </a>
               </div>
 
               {/* Stats row */}
-              <div className="mt-12 flex animate-fade-in gap-8 [animation-delay:400ms]">
+              <div className="mt-10 flex animate-fade-in gap-8 [animation-delay:400ms]">
                 <div>
-                  <p className="text-3xl font-bold text-white">5,100+</p>
+                  <p className="text-2xl font-bold text-white">5,100+</p>
                   <p className="text-sm text-white/60">donors mapped</p>
                 </div>
-                <div className="h-12 w-px bg-white/20" />
+                <div className="h-10 w-px bg-white/20" />
                 <div>
-                  <p className="text-3xl font-bold text-white">AI</p>
+                  <p className="text-2xl font-bold text-white">AI</p>
                   <p className="text-sm text-white/60">powered matching</p>
                 </div>
-                <div className="h-12 w-px bg-white/20" />
+                <div className="h-10 w-px bg-white/20" />
                 <div>
-                  <p className="text-3xl font-bold text-white">Free</p>
+                  <p className="text-2xl font-bold text-white">Free</p>
                   <p className="text-sm text-white/60">to start</p>
                 </div>
               </div>
