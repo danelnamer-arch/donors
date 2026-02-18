@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const metadata = {
   title: "Terms of Use - Funderra",
   description: "Terms and conditions for using Funderra",
@@ -6,7 +8,7 @@ export const metadata = {
 export default function TermsOfUsePage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
-      <a
+      <Link
         href="/"
         className="mb-8 inline-flex items-center gap-1 text-sm text-zinc-400 transition-colors hover:text-zinc-600"
       >
@@ -14,7 +16,7 @@ export default function TermsOfUsePage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         Back to home
-      </a>
+      </Link>
 
       <h1 className="text-3xl font-bold mb-8">Terms of Use</h1>
       <p className="text-sm text-gray-500 mb-8">Last updated: February 2026</p>

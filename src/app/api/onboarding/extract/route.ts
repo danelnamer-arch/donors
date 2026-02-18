@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/session";
-import { scrapePage } from "@/lib/firecrawl";
+import { scrapePage, scrapeSocialPage } from "@/lib/firecrawl";
 import {
   extractOrgProfile,
   extractTextFromPdf,
@@ -8,6 +8,40 @@ import {
   isSupportedDocumentType,
   extractYouTubeInfo,
 } from "@/lib/extraction";
+import type { ExtractedOrgProfile } from "@/lib/extraction";
+
+// ─── Vercel route config ────────────────────────────────────────
+// The extraction pipeline (scrape + parse + Gemini) takes 15-30s,
+// well beyond the default 10s serverless timeout.
+export const maxDuration = 60;
+export const runtime = "nodejs"; // pdf-parse needs Buffer
+
+// ─── Timeout helper ─────────────────────────────────────────────
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
+    ),
+  ]);
+}
+
+// ─── Empty profile (fallback when AI extraction fails) ──────────
+const EMPTY_PROFILE: ExtractedOrgProfile = {
+  name: null,
+  mission: null,
+  website: null,
+  country: null,
+  size: null,
+  annualBudgetRange: null,
+  israeliRegistrationNumber: null,
+  causes: [],
+  targetAudience: null,
+  geographicFocus: [],
+  similarOrgs: [],
+  existingDonors: [],
+  politicalStance: null,
+};
 
 interface SourceInput {
   type: "url" | "pdf" | "youtube" | "social" | "text" | "guidestar";
@@ -39,7 +73,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Gather raw text from each source
+    // Gather raw text from each source (with per-source timeouts)
     const textParts: string[] = [];
     const sourcesUsed: string[] = [];
     const errors: string[] = [];
@@ -48,7 +82,11 @@ export async function POST(request: NextRequest) {
       try {
         switch (source.type) {
           case "url": {
-            const scraped = await scrapePage(source.value);
+            const scraped = await withTimeout(
+              scrapePage(source.value),
+              15000,
+              `Scraping ${source.value}`
+            );
             textParts.push(
               `--- Source: Website (${source.value}) ---\n${scraped.content}`
             );
@@ -60,7 +98,11 @@ export async function POST(request: NextRequest) {
             );
             if (aboutLink) {
               try {
-                const aboutPage = await scrapePage(aboutLink);
+                const aboutPage = await withTimeout(
+                  scrapePage(aboutLink),
+                  10000,
+                  `Scraping about page`
+                );
                 textParts.push(
                   `--- Source: About Page (${aboutLink}) ---\n${aboutPage.content}`
                 );
@@ -84,10 +126,18 @@ export async function POST(request: NextRequest) {
             if (mimeType === "application/pdf") {
               // Standard PDF parsing
               const buffer = Buffer.from(source.fileBase64, "base64");
-              docText = await extractTextFromPdf(buffer);
+              docText = await withTimeout(
+                extractTextFromPdf(buffer),
+                10000,
+                "PDF parsing"
+              );
             } else if (isSupportedDocumentType(mimeType)) {
               // DOCX, PPTX, DOC, PPT — use Gemini multimodal
-              docText = await extractTextFromDocument(source.fileBase64, mimeType);
+              docText = await withTimeout(
+                extractTextFromDocument(source.fileBase64, mimeType),
+                20000,
+                "Document extraction"
+              );
             } else {
               errors.push(`Unsupported file type: ${mimeType}`);
               continue;
@@ -100,7 +150,11 @@ export async function POST(request: NextRequest) {
           }
 
           case "youtube": {
-            const ytText = await extractYouTubeInfo(source.value);
+            const ytText = await withTimeout(
+              extractYouTubeInfo(source.value),
+              10000,
+              "YouTube extraction"
+            );
             textParts.push(
               `--- Source: YouTube (${source.value}) ---\n${ytText}`
             );
@@ -109,7 +163,11 @@ export async function POST(request: NextRequest) {
           }
 
           case "social": {
-            const socialScraped = await scrapePage(source.value);
+            const socialScraped = await withTimeout(
+              scrapeSocialPage(source.value),
+              15000,
+              `Scraping social ${source.value}`
+            );
             textParts.push(
               `--- Source: Social Media (${source.value}) ---\n${socialScraped.content}`
             );
@@ -118,17 +176,22 @@ export async function POST(request: NextRequest) {
           }
 
           case "guidestar": {
-            // Scrape GuideStar Israel by registration number
-            const { scrapeGuidestarOrg } = await import(
-              "@/lib/guidestar-israel/scraper"
+            const gsResult = await withTimeout(
+              (async () => {
+                const { scrapeGuidestarOrg } = await import(
+                  "@/lib/guidestar-israel/scraper"
+                );
+                const { profileToText } = await import(
+                  "@/lib/guidestar-israel/extractor"
+                );
+                const gsProfile = await scrapeGuidestarOrg(source.value);
+                return profileToText(gsProfile);
+              })(),
+              15000,
+              "GuideStar scraping"
             );
-            const { profileToText } = await import(
-              "@/lib/guidestar-israel/extractor"
-            );
-            const gsProfile = await scrapeGuidestarOrg(source.value);
-            const gsText = profileToText(gsProfile);
             textParts.push(
-              `--- Source: GuideStar Israel (${source.value}) ---\n${gsText}`
+              `--- Source: GuideStar Israel (${source.value}) ---\n${gsResult}`
             );
             sourcesUsed.push(`guidestar:${source.value}`);
             break;
@@ -163,8 +226,20 @@ export async function POST(request: NextRequest) {
     // Concatenate and truncate
     const rawProfileText = textParts.join("\n\n").slice(0, 30000);
 
-    // Extract structured profile
-    const profile = await extractOrgProfile(rawProfileText);
+    // Extract structured profile with timeout + graceful fallback
+    let profile: ExtractedOrgProfile;
+    try {
+      profile = await withTimeout(
+        extractOrgProfile(rawProfileText),
+        25000,
+        "AI profile extraction"
+      );
+    } catch (extractErr) {
+      const msg = extractErr instanceof Error ? extractErr.message : "Unknown error";
+      console.error("[extract] AI extraction failed, returning empty profile:", msg);
+      errors.push(`AI extraction failed: ${msg} — please fill in manually`);
+      profile = EMPTY_PROFILE;
+    }
 
     return NextResponse.json({
       success: true,

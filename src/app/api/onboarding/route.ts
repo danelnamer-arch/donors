@@ -3,6 +3,9 @@ import { getAuthUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { generateEmbedding } from "@/lib/openai";
 
+// ─── Vercel route config ────────────────────────────────────────
+export const maxDuration = 30;
+
 /**
  * POST /api/onboarding
  * Create an organization and link the current user to it.
@@ -23,10 +26,10 @@ export async function POST(request: NextRequest) {
       size,
       annualBudgetRange,
       causes,
-      targetPopulations,
+      targetAudience,
       geographicFocus,
-      similarOrgNames,
-      existingDonorNames,
+      similarOrgs,
+      existingDonors,
       rawProfileText,
       politicalStance,
       israeliRegistrationNumber,
@@ -49,10 +52,10 @@ export async function POST(request: NextRequest) {
         size: size || null,
         annualBudgetRange: annualBudgetRange || null,
         causes: causes || [],
-        targetPopulations: targetPopulations || [],
+        targetAudience: targetAudience || null,
         geographicFocus: geographicFocus || [],
-        similarOrgNames: similarOrgNames || [],
-        existingDonorNames: existingDonorNames || [],
+        similarOrgs: similarOrgs || [],
+        existingDonors: existingDonors || [],
         rawProfileText: rawProfileText || null,
         politicalStance: politicalStance || null,
         israeliRegistrationNumber: israeliRegistrationNumber || null,
@@ -76,9 +79,7 @@ export async function POST(request: NextRequest) {
         : [
             mission,
             causes?.length ? `Causes: ${causes.join(", ")}` : "",
-            targetPopulations?.length
-              ? `Populations: ${targetPopulations.join(", ")}`
-              : "",
+            targetAudience ? `Target audience: ${targetAudience}` : "",
             geographicFocus?.length
               ? `Geographic focus: ${geographicFocus.join(", ")}`
               : "",

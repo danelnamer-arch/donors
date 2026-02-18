@@ -86,7 +86,7 @@ export default function SignupPage() {
             Create your Funderra account
           </h1>
           <p className="mt-2 text-sm text-zinc-500">
-            Start finding donors for your NGO — it&apos;s free
+            Join the future of Israeli fundraising — free to start
           </p>
         </div>
 

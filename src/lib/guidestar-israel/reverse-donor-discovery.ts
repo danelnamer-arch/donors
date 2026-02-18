@@ -25,6 +25,7 @@ import { callGemini } from "@/lib/gemini";
 import { scrapePage } from "@/lib/firecrawl";
 import { scrapeGuidestarOrg, searchGuidestarOrgs } from "./scraper";
 import type { GuidestarILProfile } from "./extractor";
+import { getExistingDonorNames, type JsonValue } from "@/lib/utils/org-helpers";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -570,10 +571,7 @@ export async function reverseDonorDiscovery(
       // Look up the org in our DB for additional context
       const existingOrg = await prisma.organization.findFirst({
         where: {
-          OR: [
-            { name: { contains: peerOrg, mode: "insensitive" } },
-            { similarOrgNames: { has: peerOrg } },
-          ],
+          name: { contains: peerOrg, mode: "insensitive" },
         },
         select: {
           israeliRegistrationNumber: true,
@@ -675,9 +673,8 @@ export async function storeDiscoveredDonors(
             country: "Israel",
             geographicFocus: ["Israel"],
             causes: [],
-            targetPopulations: [],
-            similarOrgNames: [],
-            existingDonorNames: [],
+            similarOrgs: [],
+            existingDonors: [],
           },
         });
         orgsStored++;
@@ -763,29 +760,29 @@ export async function storeDiscoveredDonors(
     }
   }
 
-  // Update the source org's existingDonorNames if provided
+  // Update the source org's existingDonors if provided
   if (sourceOrgId && donors.length > 0) {
     try {
       const org = await prisma.organization.findUnique({
         where: { id: sourceOrgId },
-        select: { existingDonorNames: true },
+        select: { existingDonors: true },
       });
       if (org) {
         const existingNames = new Set(
-          org.existingDonorNames.map((n) => n.toLowerCase())
+          getExistingDonorNames(org.existingDonors as JsonValue[]).map((n) => n.toLowerCase())
         );
-        const newNames = donors
-          .map((d) => d.name)
-          .filter((name) => !existingNames.has(name.toLowerCase()));
+        const newDonorObjects = donors
+          .filter((d) => !existingNames.has(d.name.toLowerCase()))
+          .map((d) => ({ name: d.name }));
 
-        if (newNames.length > 0) {
+        if (newDonorObjects.length > 0) {
           await prisma.organization.update({
             where: { id: sourceOrgId },
             data: {
-              existingDonorNames: [
-                ...org.existingDonorNames,
-                ...newNames,
-              ],
+              existingDonors: [
+                ...(org.existingDonors as unknown[]),
+                ...newDonorObjects,
+              ] as { name: string }[],
             },
           });
         }

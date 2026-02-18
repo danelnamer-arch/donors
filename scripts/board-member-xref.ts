@@ -368,7 +368,7 @@ async function storeOrgCrossReferences(
 
   const orgNames = occurrences.map((o) => o.orgName);
 
-  // For each pair of orgs sharing this board member, add each to the other's similarOrgNames
+  // For each pair of orgs sharing this board member, add each to the other's similarOrgs
   for (const occ of occurrences) {
     const otherOrgNames = orgNames.filter((n) => n !== occ.orgName);
 
@@ -382,12 +382,13 @@ async function storeOrgCrossReferences(
             },
           ],
         },
-        select: { id: true, similarOrgNames: true },
+        select: { id: true, similarOrgs: true },
       });
 
       if (org) {
+        const existingOrgs = org.similarOrgs as { name: string }[];
         const existing = new Set(
-          org.similarOrgNames.map((n) => n.toLowerCase())
+          existingOrgs.map((o) => o.name.toLowerCase())
         );
         const newNames = otherOrgNames.filter(
           (n) => !existing.has(n.toLowerCase())
@@ -397,7 +398,7 @@ async function storeOrgCrossReferences(
           await prisma.organization.update({
             where: { id: org.id },
             data: {
-              similarOrgNames: [...org.similarOrgNames, ...newNames],
+              similarOrgs: [...existingOrgs, ...newNames.map((n) => ({ name: n }))],
             },
           });
         }
@@ -410,9 +411,8 @@ async function storeOrgCrossReferences(
             country: "Israel",
             geographicFocus: ["Israel"],
             causes: [],
-            targetPopulations: [],
-            similarOrgNames: otherOrgNames,
-            existingDonorNames: [],
+            similarOrgs: otherOrgNames.map((n) => ({ name: n })),
+            existingDonors: [],
           },
         });
       }

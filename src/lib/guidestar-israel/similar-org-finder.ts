@@ -8,13 +8,14 @@
  * Signal 2: GuideStar IL category peers (requires scraping)
  * Signal 3: Shared board members (novel, requires GuideStar data)
  *
- * Discovered orgs get appended to Organization.similarOrgNames[] and stored
+ * Discovered orgs get appended to Organization.similarOrgs[] and stored
  * in the Organization DB for future use.
  */
 
 import { prisma } from "@/lib/prisma";
 import { callGemini } from "@/lib/gemini";
 import { searchGuidestarOrgs } from "./scraper";
+import { getSimilarOrgNames, type JsonValue } from "@/lib/utils/org-helpers";
 
 // ─── Interfaces ──────────────────────────────────────────────
 
@@ -229,7 +230,7 @@ export async function discoverBoardOverlapOrgs(
 
 /**
  * Run all discovery signals and combine results.
- * Updates the Organization's similarOrgNames in the database.
+ * Updates the Organization's similarOrgs in the database.
  *
  * @param orgId — Organization ID to discover similar orgs for
  * @param options — Which signals to use
@@ -259,7 +260,7 @@ export async function discoverAndStoreSimilarOrgs(
       mission: true,
       causes: true,
       geographicFocus: true,
-      similarOrgNames: true,
+      similarOrgs: true,
     },
   });
 
@@ -302,22 +303,30 @@ export async function discoverAndStoreSimilarOrgs(
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, maxResults);
 
-  // Merge with existing similarOrgNames (don't replace user-provided names)
-  const existingNames = new Set(org.similarOrgNames.map((n) => n.toLowerCase()));
+  // Merge with existing similarOrgs (don't replace user-provided entries)
+  const existingNames = new Set(getSimilarOrgNames(org.similarOrgs as JsonValue[]).map((n) => n.toLowerCase()));
   const newNames = ranked
     .map((r) => r.name)
     .filter((name) => !existingNames.has(name.toLowerCase()));
 
-  const updatedNames = [...org.similarOrgNames, ...newNames];
+  // Build Json objects for newly discovered orgs
+  const newSimilarOrgObjects = ranked
+    .filter((r) => !existingNames.has(r.name.toLowerCase()))
+    .map((r) => ({
+      name: r.name,
+      ...(r.registrationNumber ? { registrationNumber: r.registrationNumber } : {}),
+    }));
+
+  const updatedSimilarOrgs = [...(org.similarOrgs as JsonValue[]), ...newSimilarOrgObjects];
 
   // Update the organization
   if (newNames.length > 0) {
     await prisma.organization.update({
       where: { id: org.id },
-      data: { similarOrgNames: updatedNames },
+      data: { similarOrgs: updatedSimilarOrgs as { name: string; registrationNumber?: string }[] },
     });
     console.log(
-      `[similar-org] Updated "${org.name}": added ${newNames.length} new similar orgs (total: ${updatedNames.length})`
+      `[similar-org] Updated "${org.name}": added ${newNames.length} new similar orgs (total: ${updatedSimilarOrgs.length})`
     );
   } else {
     console.log(`[similar-org] No new similar orgs found for "${org.name}"`);
@@ -333,7 +342,7 @@ export async function discoverAndStoreSimilarOrgs(
     totalFound: ranked.length,
     bySource,
     newNames,
-    existingNames: org.similarOrgNames,
+    existingNames: getSimilarOrgNames(org.similarOrgs as JsonValue[]),
   };
 }
 

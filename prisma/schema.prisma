@@ -95,10 +95,10 @@ model Organization {
   guidestarIsraelUrl         String?   // Full GuideStar Israel profile URL
 
   causes              String[]
-  targetPopulations   String[]
+  targetAudience      String?  @db.Text  // Free-text description of who the org serves
   geographicFocus     String[]
-  existingDonorNames  String[]
-  similarOrgNames     String[]
+  similarOrgs         Json[]   @default([])  // Array of { name, registrationNumber?, website? }
+  existingDonors      Json[]   @default([])  // Array of { name, website? }
 
   rawProfileText      String?  @db.Text  // Full extracted text from onboarding sources — used for richer embeddings + reasoning
 

@@ -4,7 +4,7 @@
  */
 
 import { searchDonors, searchFoundationsByCause, searchDonorDetails, searchDonorPublications } from "@/lib/tavily";
-import type { AgentResult, DonorCandidate } from "./types";
+import type { AgentResult } from "./types";
 
 interface SearchDiscoveryResult {
   candidates: {

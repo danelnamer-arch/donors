@@ -7,7 +7,6 @@ import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
   CAUSE_OPTIONS,
-  POPULATION_OPTIONS,
   GEOGRAPHY_OPTIONS,
   SIZE_OPTIONS,
   BUDGET_OPTIONS,
@@ -15,6 +14,12 @@ import {
 import { SparkleIcon } from "./sparkle-icon";
 import { ReExtractCard } from "./re-extract-card";
 import type { SourceChip } from "./link-chip";
+import {
+  SimilarOrgsInput,
+  ExistingDonorsInput,
+  type SimilarOrg,
+  type ExistingDonor,
+} from "./structured-tag-input";
 
 // ─── Types ──────────────────────────────────────────
 
@@ -28,10 +33,10 @@ export interface ReviewFormState {
   israeliRegNumber: string;
   politicalStance: string;
   causes: string[];
-  populations: string[];
+  targetAudience: string;
   geography: string[];
-  similarOrgs: string;
-  existingDonors: string;
+  similarOrgs: SimilarOrg[];
+  existingDonors: ExistingDonor[];
 }
 
 interface StepReviewProps {
@@ -118,8 +123,7 @@ export function StepReview({
 }: StepReviewProps) {
   const canSubmit =
     form.orgName.trim() &&
-    form.causes.length > 0 &&
-    form.geography.length > 0;
+    form.causes.length > 0;
 
   return (
     <div className="space-y-5">
@@ -266,39 +270,25 @@ export function StepReview({
               </div>
             </div>
 
-            {/* Target Populations */}
+            {/* Target Audience */}
             <div>
-              <FieldLabel
-                label="Target Populations"
-                aiField="populations"
-                aiFields={aiFields}
-                count={form.populations.length}
+              <FieldLabel label="Target Audience" aiField="targetAudience" aiFields={aiFields} />
+              <Textarea
+                placeholder="Describe who your organization serves — e.g. 'At-risk youth ages 14-18 in peripheral Israeli towns, Ethiopian-Israeli immigrant families, and single mothers in southern Israel'"
+                value={form.targetAudience}
+                onChange={(e) => onFormChange("targetAudience", e.target.value)}
+                rows={3}
+                className="mt-1.5"
               />
-              <div className="mt-2 flex flex-wrap gap-2">
-                {POPULATION_OPTIONS.map((pop) => (
-                  <button
-                    key={pop}
-                    type="button"
-                    onClick={() =>
-                      onFormChange("populations", toggleItem(form.populations, pop))
-                    }
-                    className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                      form.populations.includes(pop)
-                        ? "bg-brand text-white"
-                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
-                    }`}
-                  >
-                    {pop}
-                  </button>
-                ))}
-              </div>
+              <p className="mt-1 text-xs text-zinc-400">
+                Be specific — the more detail you provide, the better we can match you with relevant donors
+              </p>
             </div>
 
             {/* Geographic Focus */}
             <div>
               <FieldLabel
                 label="Geographic Focus"
-                required
                 aiField="geography"
                 aiFields={aiFields}
                 count={form.geography.length}
@@ -347,28 +337,32 @@ export function StepReview({
             <div>
               <FieldLabel label="Similar Organizations" aiField="similarOrgs" aiFields={aiFields} />
               <span className="ml-1 text-xs text-zinc-400">(optional)</span>
-              <Textarea
-                placeholder="Names of organizations similar to yours, separated by commas"
-                hint="We'll look at their donors to find matches for you"
-                value={form.similarOrgs}
-                onChange={(e) => onFormChange("similarOrgs", e.target.value)}
-                rows={2}
-                className="mt-1.5"
-              />
+              <p className="mt-1 text-xs text-zinc-500">
+                Add organizations similar to yours — include their registration number for better results. We&apos;ll look at their donors to find matches for you.
+              </p>
+              <div className="mt-2">
+                <SimilarOrgsInput
+                  items={form.similarOrgs}
+                  onAdd={(item) => onFormChange("similarOrgs", [...form.similarOrgs, item])}
+                  onRemove={(idx) => onFormChange("similarOrgs", form.similarOrgs.filter((_, i) => i !== idx))}
+                />
+              </div>
             </div>
 
             {/* Existing Donors */}
             <div>
               <FieldLabel label="Existing Donors" aiField="existingDonors" aiFields={aiFields} />
               <span className="ml-1 text-xs text-zinc-400">(optional)</span>
-              <Textarea
-                placeholder="Names of donors who already support you, separated by commas"
-                hint="We won't show you donors you already have"
-                value={form.existingDonors}
-                onChange={(e) => onFormChange("existingDonors", e.target.value)}
-                rows={2}
-                className="mt-1.5"
-              />
+              <p className="mt-1 text-xs text-zinc-500">
+                Donors who already support you — we&apos;ll find similar donors in their circles, and won&apos;t show you ones you already have.
+              </p>
+              <div className="mt-2">
+                <ExistingDonorsInput
+                  items={form.existingDonors}
+                  onAdd={(item) => onFormChange("existingDonors", [...form.existingDonors, item])}
+                  onRemove={(idx) => onFormChange("existingDonors", form.existingDonors.filter((_, i) => i !== idx))}
+                />
+              </div>
             </div>
           </div>
 

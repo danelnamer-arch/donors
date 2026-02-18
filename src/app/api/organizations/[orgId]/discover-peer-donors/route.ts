@@ -6,6 +6,7 @@ import {
   reverseDonorDiscovery,
   storeDiscoveredDonors,
 } from "@/lib/guidestar-israel/reverse-donor-discovery";
+import { getSimilarOrgNames } from "@/lib/utils/org-helpers";
 
 /**
  * POST /api/organizations/[orgId]/discover-peer-donors
@@ -41,7 +42,7 @@ export async function POST(
         mission: true,
         causes: true,
         geographicFocus: true,
-        similarOrgNames: true,
+        similarOrgs: true,
         israeliRegistrationNumber: true,
         users: { where: { id: user.id }, select: { id: true } },
       },
@@ -80,9 +81,9 @@ export async function POST(
     const maxPeers = Math.min(body.maxPeers ?? 5, 15); // Cap at 15 to control costs
 
     // Step 1: Discover/refresh similar organizations if needed
-    let similarOrgs = org.similarOrgNames;
+    let similarOrgNames = getSimilarOrgNames(org.similarOrgs);
 
-    if (refreshSimilarOrgs || similarOrgs.length < 5) {
+    if (refreshSimilarOrgs || similarOrgNames.length < 5) {
       console.log(
         `[discover-peer-donors] Refreshing similar orgs for "${org.name}"...`
       );
@@ -93,20 +94,20 @@ export async function POST(
         useBoardOverlap: false, // Slow — skip for user-triggered action
       });
 
-      // Reload org to get updated similarOrgNames
+      // Reload org to get updated similarOrgs
       const updatedOrg = await prisma.organization.findUnique({
         where: { id: orgId },
-        select: { similarOrgNames: true },
+        select: { similarOrgs: true },
       });
 
-      similarOrgs = updatedOrg?.similarOrgNames ?? similarOrgs;
+      similarOrgNames = updatedOrg ? getSimilarOrgNames(updatedOrg.similarOrgs) : similarOrgNames;
 
       console.log(
         `[discover-peer-donors] Similar org discovery: ${discoverySummary.totalFound} found, ${discoverySummary.newNames.length} new`
       );
     }
 
-    if (similarOrgs.length === 0) {
+    if (similarOrgNames.length === 0) {
       return NextResponse.json({
         message: "No similar organizations found to investigate",
         donors: [],
@@ -117,10 +118,10 @@ export async function POST(
 
     // Step 2: Run reverse donor discovery on peer orgs
     console.log(
-      `[discover-peer-donors] Running reverse discovery on ${Math.min(maxPeers, similarOrgs.length)} peers...`
+      `[discover-peer-donors] Running reverse discovery on ${Math.min(maxPeers, similarOrgNames.length)} peers...`
     );
 
-    const result = await reverseDonorDiscovery(similarOrgs, {
+    const result = await reverseDonorDiscovery(similarOrgNames, {
       maxPeers,
       useGuidestar: body.useGuidestar ?? true,
       useMedia: body.useMedia ?? true,
@@ -149,7 +150,7 @@ export async function POST(
         recipientOrg: d.recipientOrgName,
         confidence: d.confidence,
       })),
-      similarOrgs,
+      similarOrgs: similarOrgNames,
       stats: {
         peersProcessed: result.peersProcessed,
         donorsFound: result.totalDonorsFound,

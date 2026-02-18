@@ -65,7 +65,7 @@ export default function LoginPage() {
             Sign in to Funderra
           </h1>
           <p className="mt-2 text-sm text-zinc-500">
-            Find the right donors for your NGO
+            Your AI fundraising partner
           </p>
         </div>
 

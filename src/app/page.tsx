@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-black">
@@ -31,8 +33,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 py-24">
+      {/* Hero — split layout */}
+      <section className="relative overflow-hidden px-6 py-20 lg:py-28">
         {/* Gradient mesh */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-brand/10 blur-3xl" />
@@ -40,34 +42,59 @@ export default function Home() {
           <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-purple-400/5 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-2xl text-center">
-          <div className="mb-6 inline-flex animate-fade-in items-center rounded-full border border-brand/20 bg-brand-light px-4 py-1.5 text-sm font-medium text-brand dark:text-brand-dark">
-            <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-            </svg>
-            AI-powered donor discovery for nonprofits
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Left column — text */}
+          <div className="max-w-xl">
+            <div className="mb-6 inline-flex animate-fade-in items-center rounded-full border border-brand/20 bg-brand-light px-4 py-1.5 text-sm font-medium text-brand dark:text-brand-dark">
+              <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+              Built for Israeli civil society
+            </div>
+            <h1 className="animate-fade-in text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl lg:text-6xl dark:text-white [animation-delay:100ms]">
+              The donor intelligence platform for{" "}
+              <span className="bg-gradient-to-r from-brand to-indigo-400 bg-clip-text text-transparent">
+                Israeli nonprofits
+              </span>
+            </h1>
+            <p className="mt-6 animate-fade-in text-lg leading-8 text-zinc-600 dark:text-zinc-400 [animation-delay:200ms]">
+              Funderra maps the entire Israeli and global donor ecosystem &mdash;
+              foundations, private philanthropists, and grant-makers &mdash; so your
+              amuta can focus on impact, not fundraising guesswork.
+            </p>
+            <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row [animation-delay:300ms]">
+              <a
+                href="/signup"
+                className="flex h-12 items-center justify-center rounded-xl bg-brand px-8 text-base font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand-dark hover:shadow-xl hover:-translate-y-0.5"
+              >
+                Start Free
+              </a>
+              <a
+                href="#how-it-works"
+                className="flex h-12 items-center justify-center rounded-xl border border-zinc-200 px-8 text-base font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              >
+                See How It Works
+              </a>
+            </div>
           </div>
-          <h1 className="animate-fade-in text-5xl font-bold tracking-tight text-zinc-900 sm:text-6xl dark:text-white [animation-delay:100ms]">
-            Find donors who{" "}
-            <span className="bg-gradient-to-r from-brand to-indigo-400 bg-clip-text text-transparent">share your mission</span>
-          </h1>
-          <p className="mt-6 animate-fade-in text-lg leading-8 text-zinc-600 dark:text-zinc-400 [animation-delay:200ms]">
-            Funderra uses AI to connect your NGO with foundations, individuals, and organizations
-            that align with your cause. Swipe, match, and build lasting donor relationships.
-          </p>
-          <div className="mt-10 flex animate-fade-in flex-col items-center gap-4 sm:flex-row sm:justify-center [animation-delay:300ms]">
-            <a
-              href="/signup"
-              className="flex h-12 w-full items-center justify-center rounded-xl bg-brand px-8 text-base font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand-dark hover:shadow-xl hover:-translate-y-0.5 sm:w-auto"
-            >
-              Start Free
-            </a>
-            <a
-              href="#how-it-works"
-              className="flex h-12 w-full items-center justify-center rounded-xl border border-zinc-200 px-8 text-base font-medium text-zinc-700 transition-colors hover:bg-zinc-50 sm:w-auto dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-            >
-              See How It Works
-            </a>
+
+          {/* Right column — hero image */}
+          <div className="relative animate-fade-in [animation-delay:400ms]">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl shadow-zinc-900/10">
+              <Image
+                src="/hero.jpg"
+                alt="People working together outdoors in an Israeli landscape"
+                width={720}
+                height={480}
+                className="h-auto w-full object-cover"
+                priority
+              />
+            </div>
+            {/* Floating stats card */}
+            <div className="absolute -bottom-4 -right-4 rounded-xl border border-zinc-200/80 bg-white/90 px-5 py-3 shadow-lg backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-900/90 sm:-bottom-6 sm:-right-6">
+              <p className="text-2xl font-bold text-zinc-900 dark:text-white">4,900+</p>
+              <p className="text-xs font-medium text-zinc-500">donors mapped</p>
+            </div>
           </div>
         </div>
       </section>
@@ -79,23 +106,23 @@ export default function Home() {
             How it works
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-zinc-500">
-            Three simple steps to find and manage your ideal donors
+            Three simple steps to discover and manage your ideal donors
           </p>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-3">
             {[
               {
                 step: "1",
-                title: "Tell us about your NGO",
-                desc: "Share your mission, causes, and geographic focus. Our AI builds a profile of your ideal donor.",
+                title: "Tell us about your amuta",
+                desc: "Share your mission, registration number, or just paste your GuideStar Israel page. Our AI does the rest.",
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 ),
               },
               {
                 step: "2",
-                title: "Swipe through matches",
-                desc: "Review AI-curated donor profiles. Swipe right on promising matches, left to pass.",
+                title: "Discover matching donors",
+                desc: "Browse AI-curated profiles of foundations and individuals who fund causes like yours \u2014 in Israel and worldwide.",
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 ),
@@ -103,7 +130,7 @@ export default function Home() {
               {
                 step: "3",
                 title: "Manage your pipeline",
-                desc: "Track donors from discovery to funded. Get enriched research and manage outreach.",
+                desc: "Track every prospect from first discovery to signed grant. Never lose a lead.",
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 ),
@@ -135,7 +162,7 @@ export default function Home() {
             Simple, transparent pricing
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-zinc-500">
-            Start free. Upgrade when you need more matches and research.
+            Start free. Upgrade when you need deeper donor intelligence.
           </p>
 
           <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -145,12 +172,12 @@ export default function Home() {
                 price: "$0",
                 period: "",
                 features: [
-                  "5 donor matches total",
-                  "3 matches per day",
+                  "5 donor discoveries",
+                  "3 discoveries per day",
                   "Basic donor info",
                   "Pipeline board",
                 ],
-                limitations: ["No enrichment", "Limited matches"],
+                limitations: ["No enrichment", "Limited discoveries"],
                 popular: false,
               },
               {
@@ -158,7 +185,7 @@ export default function Home() {
                 price: "$29",
                 period: "/mo",
                 features: [
-                  "Unlimited donor matches",
+                  "Unlimited donor discoveries",
                   "5 enrichments/month",
                   "Deep donor research",
                   "Pipeline board",
@@ -172,7 +199,7 @@ export default function Home() {
                 price: "$79",
                 period: "/mo",
                 features: [
-                  "Unlimited donor matches",
+                  "Unlimited donor discoveries",
                   "20 enrichments/month",
                   "Deep donor research",
                   "Pipeline board",
@@ -252,10 +279,10 @@ export default function Home() {
           </div>
           <div className="relative">
             <h2 className="text-3xl font-bold text-white">
-              Ready to find your ideal donors?
+              Ready to transform your fundraising?
             </h2>
             <p className="mt-3 text-indigo-100">
-              Join hundreds of NGOs using Funderra to build donor relationships.
+              Israeli nonprofits are already discovering donors they never knew existed.
             </p>
             <a
               href="/signup"

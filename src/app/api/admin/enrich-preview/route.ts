@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { extractDonorProfile, analyzeGrantGeography } from "@/lib/gemini";
 import { findAndVerifyWebsite } from "@/lib/agents/website-verifier";
-import { deepResearchDonor, deepEnrichDonor } from "@/lib/agents/deep-research-agent";
+import { deepResearchDonor } from "@/lib/agents/deep-research-agent";
 import { searchForDonorInfo } from "@/lib/agents/search-agent";
 import { crawlDonorWebsite } from "@/lib/agents/crawl-agent";
 

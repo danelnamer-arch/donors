@@ -12,11 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import {
   CAUSE_OPTIONS,
-  POPULATION_OPTIONS,
   GEOGRAPHY_OPTIONS,
   SIZE_OPTIONS,
   BUDGET_OPTIONS,
 } from "@/lib/constants/onboarding-options";
+import { getSimilarOrgNames, getExistingDonorNames, type JsonValue } from "@/lib/utils/org-helpers";
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -34,10 +34,10 @@ interface OrgProfile {
   israeliRegistrationNumber: string | null;
   guidestarIsraelUrl: string | null;
   causes: string[];
-  targetPopulations: string[];
+  targetAudience: string | null;
   geographicFocus: string[];
-  similarOrgNames: string[];
-  existingDonorNames: string[];
+  similarOrgs: JsonValue[];
+  existingDonors: JsonValue[];
 }
 
 // ─── Profile completeness fields ─────────────────────────
@@ -48,7 +48,7 @@ const COMPLETENESS_FIELDS = [
   { key: "causes", label: "Focus areas", check: (o: OrgProfile) => o.causes.length > 0 },
   { key: "geo", label: "Target regions", check: (o: OrgProfile) => o.geographicFocus.length > 0 },
   { key: "website", label: "Website", check: (o: OrgProfile) => !!o.website },
-  { key: "similar", label: "Similar organizations", check: (o: OrgProfile) => o.similarOrgNames.length > 0 },
+  { key: "similar", label: "Similar organizations", check: (o: OrgProfile) => getSimilarOrgNames(o.similarOrgs).length > 0 },
 ] as const;
 
 function getCompleteness(org: OrgProfile): { percent: number; fields: { label: string; done: boolean }[] } {
@@ -322,10 +322,11 @@ export default function SettingsPage() {
     patchOrg({ causes: items });
   }
 
-  function updatePopulations(items: string[]) {
+  function updateTargetAudience(value: string) {
     if (!org) return;
-    setOrg({ ...org, targetPopulations: items });
-    patchOrg({ targetPopulations: items });
+    const trimmed = value || null;
+    setOrg({ ...org, targetAudience: trimmed });
+    patchOrg({ targetAudience: trimmed });
   }
 
   function updateGeography(items: string[]) {
@@ -336,14 +337,16 @@ export default function SettingsPage() {
 
   function updateSimilarOrgs(items: string[]) {
     if (!org) return;
-    setOrg({ ...org, similarOrgNames: items });
-    patchOrg({ similarOrgNames: items });
+    const jsonValues = items.map((name) => ({ name })) as JsonValue[];
+    setOrg({ ...org, similarOrgs: jsonValues });
+    patchOrg({ similarOrgs: jsonValues });
   }
 
   function updateExistingDonors(items: string[]) {
     if (!org) return;
-    setOrg({ ...org, existingDonorNames: items });
-    patchOrg({ existingDonorNames: items });
+    const jsonValues = items.map((name) => ({ name })) as JsonValue[];
+    setOrg({ ...org, existingDonors: jsonValues });
+    patchOrg({ existingDonors: jsonValues });
   }
 
   // ─── Generate similar orgs ─────────────────────────────
@@ -574,17 +577,28 @@ export default function SettingsPage() {
           saving={saving}
         />
 
-        {/* ─── Target Populations ─────────────────────── */}
-        <ChipListCard
-          icon={<span>👥</span>}
-          title="Target Populations"
-          subtitle="Who does your organization serve?"
-          items={org.targetPopulations}
-          onUpdate={updatePopulations}
-          suggestions={POPULATION_OPTIONS}
-          placeholder="Type to search populations..."
-          saving={saving}
-        />
+        {/* ─── Target Audience ──────────────────────────── */}
+        <Card>
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">👥</span>
+              <div>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                  Target Audience
+                </h3>
+                <p className="text-sm text-zinc-500">Who does your organization serve?</p>
+              </div>
+            </div>
+            <Textarea
+              value={org.targetAudience ?? ""}
+              onChange={(e) => setOrg({ ...org, targetAudience: e.target.value || null })}
+              onBlur={() => updateTargetAudience(org.targetAudience ?? "")}
+              rows={3}
+              placeholder="Describe the populations and communities your organization serves..."
+              className="mt-4"
+            />
+          </CardContent>
+        </Card>
 
         {/* ─── Geographic Focus ───────────────────────── */}
         <ChipListCard
@@ -603,7 +617,7 @@ export default function SettingsPage() {
           icon={<span>📋</span>}
           title="Similar Organizations"
           subtitle="Add look-alike organizations to find donors who support similar causes"
-          items={org.similarOrgNames}
+          items={getSimilarOrgNames(org.similarOrgs)}
           onUpdate={updateSimilarOrgs}
           placeholder="Enter organization name..."
           saving={saving}
@@ -627,7 +641,7 @@ export default function SettingsPage() {
           icon={<span>💰</span>}
           title="Existing Donors"
           subtitle="Donors who already support you — we won't show them as matches"
-          items={org.existingDonorNames}
+          items={getExistingDonorNames(org.existingDonors)}
           onUpdate={updateExistingDonors}
           placeholder="Enter donor name..."
           saving={saving}

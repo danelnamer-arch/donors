@@ -40,10 +40,10 @@ export async function GET(
         israeliRegistrationNumber: true,
         guidestarIsraelUrl: true,
         causes: true,
-        targetPopulations: true,
+        targetAudience: true,
         geographicFocus: true,
-        similarOrgNames: true,
-        existingDonorNames: true,
+        similarOrgs: true,
+        existingDonors: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -91,7 +91,7 @@ export async function PATCH(
         politicalStance: true,
         israeliRegistrationNumber: true,
         causes: true,
-        targetPopulations: true,
+        targetAudience: true,
         geographicFocus: true,
       },
     });
@@ -113,10 +113,10 @@ export async function PATCH(
     if (body.politicalAffiliation !== undefined) updateData.politicalAffiliation = body.politicalAffiliation;
     if (body.politicalStance !== undefined) updateData.politicalStance = body.politicalStance || null;
     if (body.causes !== undefined) updateData.causes = body.causes;
-    if (body.targetPopulations !== undefined) updateData.targetPopulations = body.targetPopulations;
+    if (body.targetAudience !== undefined) updateData.targetAudience = body.targetAudience;
     if (body.geographicFocus !== undefined) updateData.geographicFocus = body.geographicFocus;
-    if (body.similarOrgNames !== undefined) updateData.similarOrgNames = body.similarOrgNames;
-    if (body.existingDonorNames !== undefined) updateData.existingDonorNames = body.existingDonorNames;
+    if (body.similarOrgs !== undefined) updateData.similarOrgs = body.similarOrgs;
+    if (body.existingDonors !== undefined) updateData.existingDonors = body.existingDonors;
 
     if (body.israeliRegistrationNumber !== undefined) {
       updateData.israeliRegistrationNumber = body.israeliRegistrationNumber || null;
@@ -146,8 +146,8 @@ export async function PATCH(
         (body.causes || existingOrg.causes)?.length
           ? `Causes: ${(body.causes || existingOrg.causes).join(", ")}`
           : "",
-        (body.targetPopulations || existingOrg.targetPopulations)?.length
-          ? `Populations: ${(body.targetPopulations || existingOrg.targetPopulations).join(", ")}`
+        (body.targetAudience || existingOrg.targetAudience)
+          ? `Populations: ${body.targetAudience || existingOrg.targetAudience}`
           : "",
         (body.geographicFocus || existingOrg.geographicFocus)?.length
           ? `Geographic focus: ${(body.geographicFocus || existingOrg.geographicFocus).join(", ")}`

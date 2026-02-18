@@ -54,7 +54,7 @@ interface UsageInfo {
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [matches, setMatches] = useState<MatchData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                 </svg>
               }
               title="No more matches right now"
-              description="We're looking for more donors that fit your organization. Check back soon!"
+              description="We're searching for more donors that fit your amuta. Check back soon!"
               action={
                 <Button variant="outline" onClick={fetchMatches}>
                   Check for New Matches

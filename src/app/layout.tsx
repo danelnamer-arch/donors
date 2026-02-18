@@ -20,9 +20,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Funderra — Find the Right Donors for Your NGO",
+  title: "Funderra — Donor Intelligence for Israeli Nonprofits",
   description:
-    "Discover, match, and manage donor relationships. AI-powered donor discovery for nonprofits.",
+    "AI-powered donor discovery for Israeli nonprofits. Map foundations, private philanthropists, and grant-makers across Israel and worldwide.",
 };
 
 export default function RootLayout({

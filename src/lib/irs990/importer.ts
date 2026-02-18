@@ -496,11 +496,11 @@ async function importSingleFoundation(
     return "skipped";
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const donor = await prisma.donor.create({
     data: {
       ...parsed.data,
       lastResearchedAt: new Date(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
   });
 

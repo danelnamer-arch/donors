@@ -23,13 +23,13 @@ import { deepResearchDonor } from "./deep-research-agent";
 import { crawlDonorWebsite } from "./crawl-agent";
 import { validateDonorCandidate } from "./validator-agent";
 import { findAndVerifyWebsite } from "./website-verifier";
-import { extractDonorProfile, analyzeGrantGeography } from "@/lib/gemini";
+import { extractProfile, analyzeGeo } from "./orchestrator";
 import { generateEmbedding } from "@/lib/openai";
 import { normalizeGrantAmount, normalizeTotalGiving } from "@/lib/utils/normalize-amount";
 import { validateDonorCreate, validateGrant } from "@/lib/validation/validate-and-normalize";
 import { importAllSectors } from "@/lib/irs990";
 import { DedupChecker } from "./dedup-checker";
-import { MARATHON_PHASES, getPhase } from "./marathon-targets";
+import { getPhase } from "./marathon-targets";
 import type {
   MarathonConfig,
   MarathonCheckpoint,
@@ -144,13 +144,13 @@ async function researchAndStoreDonor(
     donorConfidence: target.defaultConfidence ?? "CONFIRMED",
   };
 
-  // Step 2: Gemini structured extraction
-  if (donorData.description && process.env.GEMINI_API_KEY) {
+  // Step 2: Structured extraction (OpenAI or Gemini via provider config)
+  if (donorData.description) {
     try {
       const rawText = [donorData.description, donorData.causes?.join(", "), donorData.geographicFocus?.join(", ")]
         .filter(Boolean)
         .join("\n");
-      const geminiProfile = await extractDonorProfile(rawText, name);
+      const geminiProfile = await extractProfile(rawText, name);
 
       donorData = {
         ...donorData,
@@ -158,7 +158,7 @@ async function researchAndStoreDonor(
         headquartersCity: donorData.headquartersCity ?? geminiProfile.headquartersCity ?? undefined,
         activeRegions: mergeArrays(donorData.activeRegions, geminiProfile.activeRegions),
         causes: mergeArrays(donorData.causes, geminiProfile.causes),
-        targetPopulations: mergeArrays(donorData.targetPopulations, geminiProfile.targetPopulations),
+        targetAudience: donorData.targetAudience ?? geminiProfile.targetPopulations?.join(", ") ?? undefined,
         geographicFocus: mergeArrays(donorData.geographicFocus, geminiProfile.geographicFocus),
         totalGivingUsd: normalizeTotalGiving(donorData.totalGivingUsd ?? geminiProfile.totalGivingUsd) ?? undefined,
         avgGrantSizeUsd: normalizeGrantAmount(donorData.avgGrantSizeUsd ?? geminiProfile.avgGrantSizeUsd) ?? undefined,
@@ -193,7 +193,7 @@ async function researchAndStoreDonor(
               ? donorData.description
               : crawlResult.data.description ?? donorData.description,
           causes: mergeArrays(donorData.causes, crawlResult.data.causes),
-          targetPopulations: mergeArrays(donorData.targetPopulations, crawlResult.data.targetPopulations),
+          targetAudience: donorData.targetAudience ?? crawlResult.data.targetAudience,
           geographicFocus: mergeArrays(donorData.geographicFocus, crawlResult.data.geographicFocus),
           grants: deduplicateGrants([...(donorData.grants ?? []), ...(crawlResult.data.grants ?? [])]),
           dataSources: [...(donorData.dataSources ?? []), ...(crawlResult.data.dataSources ?? [])],
@@ -220,10 +220,10 @@ async function researchAndStoreDonor(
     log(config, `  Website verification failed for ${name}: ${err}`);
   }
 
-  // Step 5: Grant geography analysis
-  if ((donorData.grants?.length ?? 0) > 0 && process.env.GEMINI_API_KEY) {
+  // Step 5: Grant geography analysis (OpenAI or Gemini via provider config)
+  if ((donorData.grants?.length ?? 0) > 0) {
     try {
-      const grantGeo = await analyzeGrantGeography(
+      const grantGeo = await analyzeGeo(
         name,
         donorData.grants!.map((g) => ({
           recipientName: g.recipientName,
@@ -282,7 +282,7 @@ async function storeDonorDirect(
       politicalAffiliation: candidate.politicalAffiliation ?? "UNKNOWN",
       politicalStance: candidate.politicalStance,
       causes: candidate.causes ?? [],
-      targetPopulations: candidate.targetPopulations ?? [],
+      targetPopulations: candidate.targetAudience ? [candidate.targetAudience] : [],
       geographicFocus: candidate.geographicFocus ?? [],
       totalGivingUsd: candidate.totalGivingUsd,
       avgGrantSizeUsd: candidate.avgGrantSizeUsd,
@@ -301,8 +301,8 @@ async function storeDonorDirect(
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const donor = await prisma.donor.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: { ...validation.data, lastResearchedAt: new Date() } as any,
   });
 
@@ -332,7 +332,7 @@ async function storeDonorDirect(
     donor.name,
     donor.description,
     donor.causes.length ? `Causes: ${donor.causes.join(", ")}` : null,
-    donor.targetPopulations.length ? `Populations: ${donor.targetPopulations.join(", ")}` : null,
+    donor.targetPopulations?.length ? `Populations: ${donor.targetPopulations.join(", ")}` : null,
     donor.geographicFocus.length ? `Geography: ${donor.geographicFocus.join(", ")}` : null,
     donor.activeRegions?.length ? `Active regions: ${donor.activeRegions.join(", ")}` : null,
   ]
@@ -404,7 +404,7 @@ function computeGivingStats(donorData: Partial<DonorCandidate>): void {
 async function executePhase1(
   config: MarathonConfig,
   checkpoint: MarathonCheckpoint,
-  dedupChecker: DedupChecker
+  _dedupChecker: DedupChecker
 ): Promise<PhaseResult> {
   const phase = getPhase(1)!;
   const start = Date.now();
@@ -513,7 +513,7 @@ async function executeDiscoveryPhase(
     let stored = 0;
     let discovered = 0;
     let errors = 0;
-    let skippedDups = 0;
+    const skippedDups = 0;
 
     try {
       const result = await runDiscoveryPipeline({
@@ -666,7 +666,7 @@ async function executeDiscoveryPhase(
 async function executePhase5(
   config: MarathonConfig,
   checkpoint: MarathonCheckpoint,
-  dedupChecker: DedupChecker
+  _dedupChecker: DedupChecker
 ): Promise<PhaseResult> {
   const phase = getPhase(5)!;
   const start = Date.now();

@@ -7,7 +7,7 @@
  * For each org:
  * 1. Runs Perplexity similar org discovery (Signal 1)
  * 2. Optionally runs GuideStar IL category search (Signal 2)
- * 3. Appends discovered names to Organization.similarOrgNames[]
+ * 3. Appends discovered orgs to Organization.similarOrgs[]
  * 4. Stores discovered orgs in the Organization DB
  *
  * Usage:
@@ -53,7 +53,7 @@ async function main(): Promise<void> {
       mission: true,
       causes: true,
       geographicFocus: true,
-      similarOrgNames: true,
+      similarOrgs: true,
       israeliRegistrationNumber: true,
     },
     orderBy: { createdAt: "asc" },
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
 
   // Filter to those with fewer than MIN_EXISTING similar orgs
   const orgsToProcess = allOrgs.filter(
-    (org) => org.similarOrgNames.length < MIN_EXISTING
+    (org) => (org.similarOrgs as { name: string }[]).length < MIN_EXISTING
   );
 
   const effectiveLimit = LIMIT > 0 ? Math.min(LIMIT, orgsToProcess.length) : orgsToProcess.length;
@@ -74,7 +74,7 @@ async function main(): Promise<void> {
     console.log("Sample orgs to process:");
     for (const org of orgsToProcess.slice(0, 10)) {
       console.log(
-        `  - ${org.name} (${org.similarOrgNames.length} similar orgs, ${org.causes.length} causes, reg: ${org.israeliRegistrationNumber || "N/A"})`
+        `  - ${org.name} (${(org.similarOrgs as { name: string }[]).length} similar orgs, ${org.causes.length} causes, reg: ${org.israeliRegistrationNumber || "N/A"})`
       );
     }
     console.log("\n--- DRY RUN complete ---\n");
@@ -91,7 +91,7 @@ async function main(): Promise<void> {
   for (let i = 0; i < effectiveLimit; i++) {
     const org = orgsToProcess[i];
     console.log(
-      `\n[${i + 1}/${effectiveLimit}] Processing: "${org.name}" (${org.similarOrgNames.length} existing similar orgs)`
+      `\n[${i + 1}/${effectiveLimit}] Processing: "${org.name}" (${(org.similarOrgs as { name: string }[]).length} existing similar orgs)`
     );
 
     try {
@@ -145,14 +145,14 @@ async function main(): Promise<void> {
   // Collect all new similar org names across all processed orgs
   const reloadedOrgs = await prisma.organization.findMany({
     where: { id: { in: orgsToProcess.slice(0, effectiveLimit).map((o) => o.id) } },
-    select: { similarOrgNames: true },
+    select: { similarOrgs: true },
   });
 
   const allSimilarNames = new Set<string>();
   for (const org of reloadedOrgs) {
-    for (const name of org.similarOrgNames) {
-      if (!allOrgNames.has(name.toLowerCase())) {
-        allSimilarNames.add(name);
+    for (const entry of org.similarOrgs as { name: string }[]) {
+      if (!allOrgNames.has(entry.name.toLowerCase())) {
+        allSimilarNames.add(entry.name);
       }
     }
   }
@@ -165,9 +165,8 @@ async function main(): Promise<void> {
           country: "Israel",
           geographicFocus: ["Israel"],
           causes: [],
-          targetPopulations: [],
-          similarOrgNames: [],
-          existingDonorNames: [],
+          similarOrgs: [],
+          existingDonors: [],
         },
       });
       orgsCreated++;

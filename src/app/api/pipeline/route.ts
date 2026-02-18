@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Complete onboarding first" }, { status: 400 });
     }
 
+    const includeMatch = request.nextUrl.searchParams.get("include") === "match";
+
     const entries = await prisma.pipelineEntry.findMany({
       where: { organizationId: orgId },
       include: {
@@ -30,14 +32,43 @@ export async function GET(request: NextRequest) {
             description: true,
             website: true,
             country: true,
+            city: true,
             causes: true,
+            geographicFocus: true,
+            totalGivingUsd: true,
+            avgGrantSizeUsd: true,
+            grantCount: true,
+            givingYearRange: true,
+            dataQualityScore: true,
+            researchStatus: true,
           },
         },
       },
       orderBy: { updatedAt: "desc" },
     });
 
-    return NextResponse.json({ entries });
+    // Optionally join match scores for the current org
+    let matchScores: Record<string, number> = {};
+    if (includeMatch) {
+      const donorIds = entries.map((e) => e.donor.id);
+      if (donorIds.length > 0) {
+        const matches = await prisma.match.findMany({
+          where: {
+            organizationId: orgId,
+            donorId: { in: donorIds },
+          },
+          select: { donorId: true, score: true },
+        });
+        matchScores = Object.fromEntries(matches.map((m) => [m.donorId, m.score]));
+      }
+    }
+
+    const enrichedEntries = entries.map((entry) => ({
+      ...entry,
+      matchScore: matchScores[entry.donor.id] ?? null,
+    }));
+
+    return NextResponse.json({ entries: enrichedEntries });
   } catch (error) {
     console.error("Pipeline error:", error);
     return NextResponse.json({ error: "Failed to load pipeline" }, { status: 500 });

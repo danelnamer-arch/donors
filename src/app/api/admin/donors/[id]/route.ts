@@ -47,9 +47,9 @@ export async function PATCH(
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const donor = await prisma.donor.update({
     where: { id },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: validation.data as any,
   });
 

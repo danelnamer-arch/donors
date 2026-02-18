@@ -15,7 +15,7 @@ export interface DonorCandidate {
   headquartersCity?: string;
   activeRegions?: string[];
   causes: string[];
-  targetPopulations: string[];
+  targetAudience?: string;
   geographicFocus: string[];
   politicalAffiliation?: string;
   politicalStance?: string;

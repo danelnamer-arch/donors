@@ -5,8 +5,18 @@
  */
 
 import { searchDonors } from "@/lib/tavily";
-import { verifyWebsite } from "@/lib/gemini";
+import { verifyWebsite as verifyWebsiteGemini } from "@/lib/gemini";
+import { verifyWebsiteOpenAI } from "@/lib/openai";
 import { scrapePage } from "@/lib/firecrawl";
+
+const extractionProvider = process.env.EXTRACTION_PROVIDER?.toLowerCase() ?? "openai";
+
+async function verifyWebsiteAI(donorName: string, claimedUrl: string, pageContent: string) {
+  if (extractionProvider === "gemini" && process.env.GEMINI_API_KEY) {
+    return verifyWebsiteGemini(donorName, claimedUrl, pageContent);
+  }
+  return verifyWebsiteOpenAI(donorName, claimedUrl, pageContent);
+}
 
 interface VerificationResult {
   verified: boolean;
@@ -51,7 +61,7 @@ export async function findAndVerifyWebsite(
       try {
         const page = await scrapePage(claimed);
         if (page?.content) {
-          const verification = await verifyWebsite(donorName, claimed, page.content);
+          const verification = await verifyWebsiteAI(donorName, claimed, page.content);
           if (verification.verified && verification.confidence >= 0.7) {
             strategies.push({
               verified: true,

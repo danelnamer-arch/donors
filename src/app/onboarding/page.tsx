@@ -9,6 +9,7 @@ import { StepIndicator } from "./_components/step-indicator";
 import { StepSources } from "./_components/step-sources";
 import { StepReview, type ReviewFormState } from "./_components/step-review";
 import type { SourceChip } from "./_components/link-chip";
+import type { SimilarOrg, ExistingDonor } from "./_components/structured-tag-input";
 
 // ─── Types ───────────────────────────────────────────
 interface ExtractedProfile {
@@ -21,10 +22,10 @@ interface ExtractedProfile {
   israeliRegistrationNumber: string | null;
   politicalStance: string | null;
   causes: string[];
-  targetPopulations: string[];
+  targetAudience: string | null;
   geographicFocus: string[];
-  similarOrgNames: string[];
-  existingDonorNames: string[];
+  similarOrgs: SimilarOrg[];
+  existingDonors: ExistingDonor[];
 }
 
 // ─── Animation variants ──────────────────────────────
@@ -67,10 +68,10 @@ export default function OnboardingPage() {
     israeliRegNumber: "",
     politicalStance: "",
     causes: [],
-    populations: [],
+    targetAudience: "",
     geography: [],
-    similarOrgs: "",
-    existingDonors: "",
+    similarOrgs: [],
+    existingDonors: [],
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -147,29 +148,34 @@ export default function OnboardingPage() {
         if (profile.politicalStance) { next.politicalStance = profile.politicalStance; newAiFields.add("politicalStance"); }
       }
 
+      // Target audience: free text — merge by appending
+      if (!merge || !next.targetAudience) {
+        if (profile.targetAudience) { next.targetAudience = profile.targetAudience; newAiFields.add("targetAudience"); }
+      }
+
       // Arrays: always merge (deduplicate)
       if (profile.causes.length > 0) {
         next.causes = [...new Set([...next.causes, ...profile.causes])];
         newAiFields.add("causes");
       }
-      if (profile.targetPopulations.length > 0) {
-        next.populations = [...new Set([...next.populations, ...profile.targetPopulations])];
-        newAiFields.add("populations");
-      }
       if (profile.geographicFocus.length > 0) {
         next.geography = [...new Set([...next.geography, ...profile.geographicFocus])];
         newAiFields.add("geography");
       }
-      if (profile.similarOrgNames.length > 0) {
-        const existing = next.similarOrgs ? next.similarOrgs.split(",").map((s) => s.trim()).filter(Boolean) : [];
-        const merged = [...new Set([...existing, ...profile.similarOrgNames])];
-        next.similarOrgs = merged.join(", ");
+
+      // Similar orgs: merge by name (deduplicate)
+      if (profile.similarOrgs.length > 0) {
+        const existingNames = new Set(next.similarOrgs.map((o) => o.name.toLowerCase()));
+        const newOrgs = profile.similarOrgs.filter((o) => !existingNames.has(o.name.toLowerCase()));
+        next.similarOrgs = [...next.similarOrgs, ...newOrgs];
         newAiFields.add("similarOrgs");
       }
-      if (profile.existingDonorNames.length > 0) {
-        const existing = next.existingDonors ? next.existingDonors.split(",").map((s) => s.trim()).filter(Boolean) : [];
-        const merged = [...new Set([...existing, ...profile.existingDonorNames])];
-        next.existingDonors = merged.join(", ");
+
+      // Existing donors: merge by name (deduplicate)
+      if (profile.existingDonors.length > 0) {
+        const existingNames = new Set(next.existingDonors.map((d) => d.name.toLowerCase()));
+        const newDonors = profile.existingDonors.filter((d) => !existingNames.has(d.name.toLowerCase()));
+        next.existingDonors = [...next.existingDonors, ...newDonors];
         newAiFields.add("existingDonors");
       }
 
@@ -242,10 +248,6 @@ export default function OnboardingPage() {
       toast.error("Select at least one cause area");
       return;
     }
-    if (form.geography.length === 0) {
-      toast.error("Select at least one geographic focus");
-      return;
-    }
 
     setSubmitting(true);
 
@@ -263,14 +265,10 @@ export default function OnboardingPage() {
           israeliRegistrationNumber: form.israeliRegNumber || undefined,
           politicalStance: form.politicalStance || undefined,
           causes: form.causes,
-          targetPopulations: form.populations,
+          targetAudience: form.targetAudience || undefined,
           geographicFocus: form.geography,
-          similarOrgNames: form.similarOrgs
-            ? form.similarOrgs.split(",").map((s) => s.trim()).filter(Boolean)
-            : [],
-          existingDonorNames: form.existingDonors
-            ? form.existingDonors.split(",").map((s) => s.trim()).filter(Boolean)
-            : [],
+          similarOrgs: form.similarOrgs,
+          existingDonors: form.existingDonors,
           rawProfileText,
         }),
       });

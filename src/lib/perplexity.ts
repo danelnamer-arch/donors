@@ -107,8 +107,10 @@ export async function discoverDonors(params: {
   targetPopulation?: string;
   region?: string;
   donorTypeHint?: "INDIVIDUAL" | "FOUNDATION";
+  /** Names to exclude from results — already in our DB */
+  excludeNames?: string[];
 }): Promise<DeepResearchResult> {
-  const { cause, targetPopulation, region, donorTypeHint } = params;
+  const { cause, targetPopulation, region, donorTypeHint, excludeNames } = params;
 
   const entityLabel = donorTypeHint === "INDIVIDUAL"
     ? "wealthy individuals, personal philanthropists, and private donors who fund"
@@ -124,9 +126,15 @@ export async function discoverDonors(params: {
     query += ` Include data from guidestar.org.il, Rasham Ha'amutot (Israeli registrar of associations), Israeli news sources (Calcalist, Globes, TheMarker), and Maala CSR rankings. Search for articles that mention donations, fundraising events, or philanthropic activities related to Israeli organizations.`;
   }
 
-  const systemPrompt = donorTypeHint === "INDIVIDUAL"
+  let systemPrompt = donorTypeHint === "INDIVIDUAL"
     ? "You are a philanthropy research assistant specializing in individual donors and wealthy philanthropists. List real, verifiable individuals who give philanthropically. Include their business background, source of wealth, and specific donations. Only include people you are confident exist."
     : "You are a philanthropy research assistant. List real, verifiable donors and foundations. Only include organizations you are confident exist. Provide specific, factual details.";
+
+  // Inject exclusion list to reduce duplicates (saves downstream API calls)
+  if (excludeNames?.length) {
+    const excludeList = excludeNames.slice(0, 50).join(", ");
+    systemPrompt += `\n\nIMPORTANT: Do NOT include these already-known donors in your response: ${excludeList}. Focus on donors NOT in this list.`;
+  }
 
   const messages: PerplexityMessage[] = [
     {

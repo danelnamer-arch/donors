@@ -11,8 +11,8 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { generateEmbedding } from "@/lib/openai";
-import { extractDonorProfile, analyzeGrantGeography } from "@/lib/gemini";
+import { generateEmbedding, extractDonorProfileOpenAI, analyzeGrantGeographyOpenAI } from "@/lib/openai";
+import { extractDonorProfile as extractDonorProfileGemini, analyzeGrantGeography as analyzeGrantGeographyGemini } from "@/lib/gemini";
 import { discoverDonorsBySearch, searchForDonorInfo } from "./search-agent";
 import { crawlDonorWebsite } from "./crawl-agent";
 import { deepDiscoverDonors, deepResearchDonor, deepEnrichDonor } from "./deep-research-agent";
@@ -23,6 +23,37 @@ import { validateDonorCreate, validateGrant } from "@/lib/validation/validate-an
 import { computeQualityScore } from "@/lib/validation/compute-quality-score";
 import { normalizeCauses } from "@/lib/utils/normalize-causes";
 import type { DonorCandidate } from "./types";
+
+// ─── Provider Selection Layer ────────────────────────────────────
+// Configurable via EXTRACTION_PROVIDER env var (default: "openai")
+// This avoids Gemini 429 rate limits while keeping Gemini as fallback.
+
+const extractionProvider = process.env.EXTRACTION_PROVIDER?.toLowerCase() ?? "openai";
+
+/**
+ * Extract structured donor profile — routes to OpenAI or Gemini.
+ * Exported for use in marathon-runner.ts.
+ */
+export async function extractProfile(rawText: string, donorName: string) {
+  if (extractionProvider === "gemini" && process.env.GEMINI_API_KEY) {
+    return extractDonorProfileGemini(rawText, donorName);
+  }
+  return extractDonorProfileOpenAI(rawText, donorName);
+}
+
+/**
+ * Analyze grant geography — routes to OpenAI or Gemini.
+ * Exported for use in marathon-runner.ts.
+ */
+export async function analyzeGeo(
+  donorName: string,
+  grants: { recipientName: string; purpose: string | null }[]
+) {
+  if (extractionProvider === "gemini" && process.env.GEMINI_API_KEY) {
+    return analyzeGrantGeographyGemini(donorName, grants);
+  }
+  return analyzeGrantGeographyOpenAI(donorName, grants);
+}
 
 /**
  * Run a full donor discovery pipeline for a given cause/region.
@@ -47,6 +78,21 @@ export async function runDiscoveryPipeline(params: {
   let validated = 0;
   let stored = 0;
 
+  // Pre-load existing donor names for the region to reduce Perplexity duplicates
+  let existingNames: string[] = [];
+  try {
+    const regionFilter = params.region ? { geographicFocus: { has: params.region } } : {};
+    const existingDonors = await prisma.donor.findMany({
+      where: regionFilter,
+      select: { name: true },
+      orderBy: { dataQualityScore: "desc" },
+      take: 50,
+    });
+    existingNames = existingDonors.map((d) => d.name);
+  } catch {
+    // Non-critical — continue without exclusion list
+  }
+
   // Step 1: Discover donors via Tavily search + Perplexity deep research
   const [searchResult, deepResult] = await Promise.all([
     discoverDonorsBySearch(params),
@@ -55,6 +101,7 @@ export async function runDiscoveryPipeline(params: {
       targetPopulation: params.targetPopulation,
       region: params.region,
       donorTypeHint: params.donorTypeHint,
+      existingDonorNames: existingNames,
     }),
   ]);
 
@@ -105,8 +152,15 @@ export async function runDiscoveryPipeline(params: {
         }
       }
 
-      // Step 4: Use Gemini to extract structured data from research text
-      if (donorData.description && process.env.GEMINI_API_KEY) {
+      // Skip-extraction guard: if candidate has no description AND no website,
+      // skip Steps 4-7 entirely (saves 3 API calls + crawl + search per empty candidate)
+      if (!donorData.description && !donorData.website) {
+        console.log(`[orchestrator] Skipping empty candidate: ${name} (no description or website)`);
+        continue;
+      }
+
+      // Step 4: Extract structured data (OpenAI or Gemini via provider config)
+      if (donorData.description) {
         try {
           const rawText = [
             donorData.description,
@@ -114,7 +168,7 @@ export async function runDiscoveryPipeline(params: {
             donorData.geographicFocus?.join(", "),
           ].filter(Boolean).join("\n");
 
-          const geminiProfile = await extractDonorProfile(rawText, name);
+          const geminiProfile = await extractProfile(rawText, name);
 
           // Merge Gemini-extracted data (fills gaps, doesn't overwrite existing)
           donorData = {
@@ -123,7 +177,7 @@ export async function runDiscoveryPipeline(params: {
             headquartersCity: donorData.headquartersCity ?? geminiProfile.headquartersCity ?? undefined,
             activeRegions: mergeArrays(donorData.activeRegions, geminiProfile.activeRegions),
             causes: mergeArrays(donorData.causes, geminiProfile.causes),
-            targetPopulations: mergeArrays(donorData.targetPopulations, geminiProfile.targetPopulations),
+            targetAudience: donorData.targetAudience ?? geminiProfile.targetPopulations?.join(", ") ?? undefined,
             geographicFocus: mergeArrays(donorData.geographicFocus, geminiProfile.geographicFocus),
             totalGivingUsd: normalizeTotalGiving(donorData.totalGivingUsd ?? geminiProfile.totalGivingUsd) ?? undefined,
             avgGrantSizeUsd: normalizeGrantAmount(donorData.avgGrantSizeUsd ?? geminiProfile.avgGrantSizeUsd) ?? undefined,
@@ -154,7 +208,7 @@ export async function runDiscoveryPipeline(params: {
               ? donorData.description
               : crawlResult.data.description ?? donorData.description,
             causes: mergeArrays(donorData.causes, crawlResult.data.causes),
-            targetPopulations: mergeArrays(donorData.targetPopulations, crawlResult.data.targetPopulations),
+            targetAudience: donorData.targetAudience ?? crawlResult.data.targetAudience,
             geographicFocus: mergeArrays(donorData.geographicFocus, crawlResult.data.geographicFocus),
             grants: deduplicateGrants([...(donorData.grants ?? []), ...(crawlResult.data.grants ?? [])]),
             dataSources: [...(donorData.dataSources ?? []), ...(crawlResult.data.dataSources ?? [])],
@@ -179,9 +233,9 @@ export async function runDiscoveryPipeline(params: {
       }
 
       // Step 7: Analyze grant geography → activeRegions
-      if ((donorData.grants?.length ?? 0) > 0 && process.env.GEMINI_API_KEY) {
+      if ((donorData.grants?.length ?? 0) > 0) {
         try {
-          const grantGeo = await analyzeGrantGeography(
+          const grantGeo = await analyzeGeo(
             name,
             donorData.grants!.map(g => ({
               recipientName: g.recipientName,
@@ -275,13 +329,13 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
       })),
     ];
 
-    // Use Gemini to extract structured data from the enrichment report
-    let geminiProfile: Awaited<ReturnType<typeof extractDonorProfile>> | null = null;
-    if (enrichResult.data.enrichedReport && process.env.GEMINI_API_KEY) {
+    // Extract structured data from the enrichment report (OpenAI or Gemini)
+    let geminiProfile: Awaited<ReturnType<typeof extractProfile>> | null = null;
+    if (enrichResult.data.enrichedReport) {
       try {
-        geminiProfile = await extractDonorProfile(enrichResult.data.enrichedReport, donor.name);
+        geminiProfile = await extractProfile(enrichResult.data.enrichedReport, donor.name);
       } catch (err) {
-        console.error("[orchestrator] Gemini extraction failed during enrichment:", err);
+        console.error("[orchestrator] Extraction failed during enrichment:", err);
       }
     }
 
@@ -310,9 +364,9 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
       ...newGrants.map(g => ({ recipientName: g.recipientName, purpose: g.purpose ?? null })),
     ];
     let activeRegions = donor.activeRegions;
-    if (allGrants.length > 0 && process.env.GEMINI_API_KEY) {
+    if (allGrants.length > 0) {
       try {
-        const grantGeo = await analyzeGrantGeography(donor.name, allGrants);
+        const grantGeo = await analyzeGeo(donor.name, allGrants);
         activeRegions = [...new Set([...activeRegions, ...grantGeo])];
       } catch (err) {
         console.error("[orchestrator] Grant geography analysis failed:", err);
@@ -359,8 +413,8 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
           causes: profile.causes?.length
             ? normalizeCauses([...new Set([...donor.causes, ...profile.causes])])
             : donor.causes,
-          targetPopulations: profile.targetPopulations?.length
-            ? [...new Set([...donor.targetPopulations, ...profile.targetPopulations])]
+          targetPopulations: profile.targetAudience
+            ? [profile.targetAudience, ...donor.targetPopulations.filter((t) => t !== profile.targetAudience)]
             : donor.targetPopulations,
           geographicFocus: profile.geographicFocus?.length
             ? [...new Set([...donor.geographicFocus, ...profile.geographicFocus])]
@@ -381,8 +435,8 @@ export async function runEnrichmentPipeline(donorId: string): Promise<{
             causes: profile.causes?.length
               ? normalizeCauses([...new Set([...donor.causes, ...profile.causes])])
               : donor.causes,
-            targetPopulations: profile.targetPopulations?.length
-              ? [...new Set([...donor.targetPopulations, ...profile.targetPopulations])]
+            targetPopulations: profile.targetAudience
+              ? [profile.targetAudience, ...donor.targetPopulations.filter((t) => t !== profile.targetAudience)]
               : donor.targetPopulations,
             geographicFocus: profile.geographicFocus?.length
               ? [...new Set([...donor.geographicFocus, ...profile.geographicFocus])]
@@ -522,7 +576,7 @@ async function storeDonor(
       politicalAffiliation: candidate.politicalAffiliation ?? "UNKNOWN",
       politicalStance: candidate.politicalStance,
       causes: candidate.causes ?? [],
-      targetPopulations: candidate.targetPopulations ?? [],
+      targetPopulations: candidate.targetAudience ? [candidate.targetAudience] : [],
       geographicFocus: candidate.geographicFocus ?? [],
       totalGivingUsd: candidate.totalGivingUsd,
       avgGrantSizeUsd: candidate.avgGrantSizeUsd,
@@ -543,11 +597,11 @@ async function storeDonor(
 
   const data = validation.data;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const donor = await prisma.donor.create({
     data: {
       ...data,
       lastResearchedAt: new Date(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
   });
 
@@ -676,7 +730,7 @@ function buildEmbeddingText(donor: {
   name: string;
   description?: string | null;
   causes: string[];
-  targetPopulations: string[];
+  targetPopulations?: string[];
   geographicFocus: string[];
   activeRegions?: string[];
 }): string {
@@ -684,7 +738,7 @@ function buildEmbeddingText(donor: {
     donor.name,
     donor.description,
     donor.causes.length ? `Causes: ${donor.causes.join(", ")}` : null,
-    donor.targetPopulations.length ? `Populations: ${donor.targetPopulations.join(", ")}` : null,
+    donor.targetPopulations?.length ? `Populations: ${donor.targetPopulations.join(", ")}` : null,
     donor.geographicFocus.length ? `Geography: ${donor.geographicFocus.join(", ")}` : null,
     donor.activeRegions?.length ? `Active regions: ${donor.activeRegions.join(", ")}` : null,
   ]

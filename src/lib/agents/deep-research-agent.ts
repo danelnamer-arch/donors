@@ -15,9 +15,14 @@ export async function deepDiscoverDonors(params: {
   targetPopulation?: string;
   region?: string;
   donorTypeHint?: "INDIVIDUAL" | "FOUNDATION";
+  /** Names already in DB — passed to Perplexity to reduce duplicates */
+  existingDonorNames?: string[];
 }): Promise<AgentResult<{ rawContent: string; parsedDonors: Partial<DonorCandidate>[] }>> {
   try {
-    const result = await discoverDonors(params);
+    const result = await discoverDonors({
+      ...params,
+      excludeNames: params.existingDonorNames,
+    });
 
     // Parse the Perplexity response into structured donor candidates
     const parsedDonors = await parseDiscoveryResults(result.content);
@@ -183,7 +188,7 @@ Return JSON array:
   "description": "string (2-3 sentences)",
   "website": "string or null",
   "causes": ["string"],
-  "targetPopulations": ["string"],
+  "targetAudience": "string describing target populations/audience, or null",
   "geographicFocus": ["string"],
   "politicalStance": "1-3 sentence description of political/ideological positioning, or null if unknown. For Israeli donors: note positions on settlements, security, peace process, religious-secular divide.",
   "grants": [{"recipientName": "string", "amount": number_in_whole_USD_dollars_or_null (e.g. 5000000 for $5 million, 250000 for $250K — NEVER use shorthand like 5.0 for $5M or 250 for $250K), "year": number_or_null, "purpose": "string_or_null"}]
@@ -234,7 +239,7 @@ Return JSON:
   "country": "string or null",
   "city": "string or null",
   "causes": ["string"],
-  "targetPopulations": ["string"],
+  "targetAudience": "string describing target populations/audience, or null",
   "geographicFocus": ["string"],
   "politicalAffiliation": "LEFT" | "CENTER_LEFT" | "CENTER" | "CENTER_RIGHT" | "RIGHT" | "NONPARTISAN" | "UNKNOWN",
   "politicalStance": "Describe the donor's political/ideological positioning in 1-3 sentences. Include: political leanings, ideological causes they champion, controversial positions, religious/secular orientation, nationalist/internationalist stance, and specific policy positions. For Israeli donors: note positions on settlements, security, peace process, religious-secular divide, economic policy. Be specific and nuanced — avoid simple left/right labels. Return null if unknown.",

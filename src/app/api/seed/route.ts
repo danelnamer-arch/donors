@@ -352,7 +352,7 @@ export async function POST() {
   try {
     let created = 0;
     let updated = 0;
-    let skipped = 0;
+    const skipped = 0;
     const donorMap = new Map<string, string>();
 
     for (const donor of testDonors) {

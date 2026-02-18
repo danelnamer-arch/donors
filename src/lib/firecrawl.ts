@@ -95,6 +95,72 @@ export async function scrapePage(url: string): Promise<{
 }
 
 /**
+ * Scrape a social media page with enhanced settings for JS-rendered content.
+ * Uses longer wait times and retry logic for dynamic pages (LinkedIn, Facebook, etc.)
+ */
+export async function scrapeSocialPage(url: string): Promise<{
+  content: string;
+  title: string;
+  description: string;
+  links: string[];
+  sourceUrl: string;
+}> {
+  const maxRetries = 2;
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(`${FIRECRAWL_BASE_URL}/scrape`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({
+          url,
+          formats: ["markdown"],
+          waitFor: 3000,
+          timeout: 30000,
+          removeBase64Images: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Firecrawl social scrape error (${response.status}): ${error}`);
+      }
+
+      const result: FirecrawlScrapeResponse = await response.json();
+
+      if (!result.success || !result.data) {
+        throw new Error(`Firecrawl social scrape failed: ${result.error ?? "Unknown error"}`);
+      }
+
+      const content = result.data.markdown ?? "";
+
+      // If we got very little content, retry (social pages sometimes need extra time)
+      if (content.length < 100 && attempt < maxRetries) {
+        lastError = new Error("Content too short, retrying...");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        continue;
+      }
+
+      return {
+        content,
+        title: result.data.metadata?.title ?? result.data.metadata?.ogTitle ?? "",
+        description: result.data.metadata?.description ?? result.data.metadata?.ogDescription ?? "",
+        links: result.data.links ?? [],
+        sourceUrl: result.data.metadata?.sourceURL ?? url,
+      };
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+  }
+
+  throw lastError ?? new Error("Social page scrape failed after retries");
+}
+
+/**
  * Start crawling a website. Returns a job ID to check status.
  */
 export async function startCrawl(

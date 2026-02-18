@@ -27,6 +27,7 @@ import { generateEmbedding } from "@/lib/openai";
 import { formatGrantAmount } from "@/lib/utils/format-amount";
 import { normalizeCause } from "@/lib/utils/normalize-causes";
 import { getSwipeFeedbackSignals, calculateFeedbackBoost, type SwipeFeedbackSignals } from "@/lib/matching/feedback";
+import { getSimilarOrgNames, type JsonValue } from "@/lib/utils/org-helpers";
 import OpenAI from "openai";
 
 // ==========================================
@@ -272,7 +273,7 @@ const CANDIDATE_SELECT = `
  * Three sources merged: cause-filtered, vector-similar, and fallback by quality.
  */
 async function findCandidates(
-  org: { id: string; causes: string[]; targetPopulations: string[]; geographicFocus: string[]; mission: string | null },
+  org: { id: string; causes: string[]; targetAudience: string | null; geographicFocus: string[]; mission: string | null },
   excludeIds: string[],
   limit: number,
   orgEmbeddingStr: string | null
@@ -413,7 +414,7 @@ async function findFallbackCandidates(
  * Uses fuzzy matching, vector similarity, grant-size alignment, and recency.
  */
 function scoreCandidate(
-  org: { causes: string[]; targetPopulations: string[]; geographicFocus: string[]; annualBudgetRange: string | null; similarOrgNames: string[] },
+  org: { causes: string[]; targetAudience: string | null; geographicFocus: string[]; annualBudgetRange: string | null; similarOrgs: JsonValue[] },
   candidate: MatchCandidate,
   orgBudget: number | null,
   feedbackSignals: SwipeFeedbackSignals,
@@ -440,11 +441,15 @@ function scoreCandidate(
     }
   }
 
-  const populationOverlap = fuzzyJaccardSimilarity(org.targetPopulations, candidate.donorPopulations);
+  // targetAudience is now a single text string; split by common delimiters for fuzzy matching
+  const orgPopulations = org.targetAudience
+    ? org.targetAudience.split(/[,;]+/).map((s) => s.trim()).filter(Boolean)
+    : [];
+  const populationOverlap = fuzzyJaccardSimilarity(orgPopulations, candidate.donorPopulations);
 
   // Grant recipient similarity: does this donor fund orgs similar to ours?
   const grantRecipientSimilarity = grantRecipientSimilarityScore(
-    org.similarOrgNames,
+    getSimilarOrgNames(org.similarOrgs),
     candidate.grantRecipientNames
   );
 
@@ -496,7 +501,7 @@ function recencyScore(latestGrantYear: number | null): number {
 
 /**
  * Grant recipient similarity: does this donor fund organizations similar to ours?
- * Compares donor's grant recipients against org.similarOrgNames using fuzzy matching.
+ * Compares donor's grant recipients against org.similarOrgs using fuzzy matching.
  * Even a single match is a strong signal — this is the "social proof" factor.
  */
 function grantRecipientSimilarityScore(similarOrgNames: string[], grantRecipients: string[]): number {
@@ -808,7 +813,7 @@ async function bulkPoliticalSimilarity(
  * Tries Gemini first (with grant data), falls back to OpenAI, then to template.
  */
 async function generateReasoning(
-  org: { name: string; causes: string[]; targetPopulations: string[]; geographicFocus: string[]; mission: string | null; rawProfileText?: string | null; politicalStance?: string | null },
+  org: { name: string; causes: string[]; targetAudience: string | null; geographicFocus: string[]; mission: string | null; rawProfileText?: string | null; politicalStance?: string | null },
   candidate: MatchCandidate,
   grants: { recipientName: string; amount: number | null; year: number | null }[],
   scoreBreakdown?: ScoredMatch["scoreBreakdown"]

@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -120,8 +119,9 @@ export function StepSources({
       if (!/^https?:\/\//i.test(finalUrl)) finalUrl = `https://${finalUrl}`;
 
       const isYouTube = /youtube\.com|youtu\.be/i.test(finalUrl);
+      const isSocial = /linkedin\.com|facebook\.com|fb\.com|instagram\.com|twitter\.com|x\.com/i.test(finalUrl);
       newSources.push({
-        type: isYouTube ? "youtube" : "url",
+        type: isYouTube ? "youtube" : isSocial ? "social" : "url",
         label: finalUrl.replace(/^https?:\/\/(www\.)?/, "").slice(0, 40),
         value: finalUrl,
       });
@@ -205,8 +205,8 @@ export function StepSources({
               Your Organization
             </h2>
             <p className="mt-1.5 text-sm text-zinc-500">
-              Add your website and social links — we&apos;ll extract everything
-              automatically
+              Add your website, GuideStar Israel page, or upload documents — we&apos;ll
+              extract everything automatically
             </p>
           </div>
 

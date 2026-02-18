@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
       );
     }
     const validatedData = validation.data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await prisma.donor.update({
       where: { id: donorId },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: validatedData as any,
     });
     fieldsUpdated = Object.keys(validatedData).length;

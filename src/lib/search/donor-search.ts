@@ -344,7 +344,7 @@ export async function findDonorsForOrg(
   const searchQuery = [
     org.mission,
     org.causes.length ? `Causes: ${org.causes.join(", ")}` : null,
-    org.targetPopulations.length ? `Populations: ${org.targetPopulations.join(", ")}` : null,
+    org.targetAudience ? `Target audience: ${org.targetAudience}` : null,
     org.geographicFocus.length ? `Geographic focus: ${org.geographicFocus.join(", ")}` : null,
   ]
     .filter(Boolean)

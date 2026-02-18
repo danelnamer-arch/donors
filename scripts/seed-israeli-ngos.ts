@@ -35,10 +35,9 @@ interface SeedNGO {
   size: "SOLO" | "SMALL" | "MEDIUM" | "LARGE" | "ENTERPRISE";
   annualBudgetRange: string;
   causes: string[];
-  targetPopulations: string[];
   geographicFocus: string[];
-  existingDonorNames: string[];
-  similarOrgNames: string[];
+  existingDonors: { name: string }[];
+  similarOrgs: { name: string }[];
 }
 
 const SEED_NGOS: SeedNGO[] = [
@@ -58,20 +57,13 @@ const SEED_NGOS: SeedNGO[] = [
       "Community Development",
       "Social Services",
     ],
-    targetPopulations: [
-      "Low-income families",
-      "Children",
-      "Elderly",
-      "Holocaust survivors",
-      "Single-parent families",
-    ],
     geographicFocus: ["Israel"],
-    existingDonorNames: [],
-    similarOrgNames: [
-      "City Harvest",
-      "Feeding America",
-      "Table to Table",
-      "Latet",
+    existingDonors: [],
+    similarOrgs: [
+      { name: "City Harvest" },
+      { name: "Feeding America" },
+      { name: "Table to Table" },
+      { name: "Latet" },
     ],
   },
   {
@@ -90,19 +82,12 @@ const SEED_NGOS: SeedNGO[] = [
       "Education",
       "Human Rights",
     ],
-    targetPopulations: [
-      "At-risk youth",
-      "Homeless youth",
-      "Immigrant youth",
-      "Arab youth",
-      "Ethiopian-Israeli youth",
-    ],
     geographicFocus: ["Israel"],
-    existingDonorNames: [],
-    similarOrgNames: [
-      "Covenant House",
-      "Boys Town Jerusalem",
-      "Youth Futures Israel",
+    existingDonors: [],
+    similarOrgs: [
+      { name: "Covenant House" },
+      { name: "Boys Town Jerusalem" },
+      { name: "Youth Futures Israel" },
     ],
   },
   {
@@ -121,19 +106,13 @@ const SEED_NGOS: SeedNGO[] = [
       "Democracy & Governance",
       "Peace & Conflict Resolution",
     ],
-    targetPopulations: [
-      "Torture victims",
-      "Palestinian detainees",
-      "Asylum seekers",
-      "Prisoners",
-    ],
     geographicFocus: ["Israel", "Palestine"],
-    existingDonorNames: [],
-    similarOrgNames: [
-      "B'Tselem",
-      "HaMoked",
-      "Amnesty International",
-      "Human Rights Watch",
+    existingDonors: [],
+    similarOrgs: [
+      { name: "B'Tselem" },
+      { name: "HaMoked" },
+      { name: "Amnesty International" },
+      { name: "Human Rights Watch" },
     ],
   },
 ];
@@ -168,10 +147,9 @@ async function seedNGOs(): Promise<string[]> {
         size: ngo.size,
         annualBudgetRange: ngo.annualBudgetRange,
         causes: ngo.causes,
-        targetPopulations: ngo.targetPopulations,
         geographicFocus: ngo.geographicFocus,
-        existingDonorNames: ngo.existingDonorNames,
-        similarOrgNames: ngo.similarOrgNames,
+        existingDonors: ngo.existingDonors,
+        similarOrgs: ngo.similarOrgs,
       },
     });
 
@@ -180,7 +158,6 @@ async function seedNGOs(): Promise<string[]> {
       ngo.name,
       ngo.mission,
       `Causes: ${ngo.causes.join(", ")}`,
-      `Target populations: ${ngo.targetPopulations.join(", ")}`,
       `Geographic focus: ${ngo.geographicFocus.join(", ")}`,
     ].join(". ");
 
