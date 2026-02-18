@@ -8,14 +8,14 @@ export default function Home() {
         {/* Background image */}
         <Image
           src="/hero.jpg"
-          alt="Israeli landscape with flag waving over golden fields"
+          alt="Israeli flag waving over golden wheat fields at sunset"
           fill
           className="object-cover object-center"
           priority
         />
 
-        {/* Gradient overlays — strong left for text, transparent right for flag */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
+        {/* Gradient overlays — lighter to let the landscape breathe */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
         {/* Nav — on top of image */}
@@ -26,12 +26,6 @@ export default function Home() {
               <span className="text-white">Fund<span className="text-brand">erra</span></span>
             </span>
             <div className="flex items-center gap-3">
-              <a
-                href="#pricing"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
-              >
-                Pricing
-              </a>
               <a
                 href="/login"
                 className="rounded-lg px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
@@ -56,18 +50,17 @@ export default function Home() {
                 <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                 </svg>
-                Built for Israeli civil society
+                Built by Israelis, for Israelis
               </div>
               <h1 className="animate-fade-in text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl [animation-delay:100ms]">
-                The donor intelligence platform for{" "}
-                <span className="text-brand">
-                  Israeli nonprofits
+                Find the right donors for{" "}
+                <span className="text-amber-300">
+                  your nonprofit
                 </span>
               </h1>
               <p className="mt-6 max-w-xl animate-fade-in text-lg leading-8 text-white/80 [animation-delay:200ms]">
-                Funderra maps the entire Israeli and global donor ecosystem &mdash;
-                foundations, private philanthropists, and grant-makers &mdash; so your
-                amuta can focus on impact, not fundraising guesswork.
+                AI-powered donor intelligence that maps 5,000+ foundations
+                and philanthropists across Israel and worldwide.
               </p>
               <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row [animation-delay:300ms]">
                 <a
@@ -87,7 +80,7 @@ export default function Home() {
               {/* Stats row */}
               <div className="mt-10 flex animate-fade-in gap-8 [animation-delay:400ms]">
                 <div>
-                  <p className="text-2xl font-bold text-white">5,100+</p>
+                  <p className="text-2xl font-bold text-white">5,000+</p>
                   <p className="text-sm text-white/60">donors mapped</p>
                 </div>
                 <div className="h-10 w-px bg-white/20" />
@@ -113,23 +106,23 @@ export default function Home() {
             How it works
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-zinc-500">
-            Three simple steps to discover and manage your ideal donors
+            Three steps to discover and manage your ideal donors
           </p>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-3">
             {[
               {
                 step: "1",
-                title: "Tell us about your amuta",
-                desc: "Share your mission, registration number, or just paste your GuideStar Israel page. Our AI does the rest.",
+                title: "Describe your organization",
+                desc: "Add your website or registration number. Our AI builds your profile in seconds.",
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 ),
               },
               {
                 step: "2",
-                title: "Discover matching donors",
-                desc: "Browse AI-curated profiles of foundations and individuals who fund causes like yours \u2014 in Israel and worldwide.",
+                title: "Get matched with donors",
+                desc: "We surface foundations and individuals aligned with your mission \u2014 ranked by fit.",
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 ),
@@ -137,7 +130,7 @@ export default function Home() {
               {
                 step: "3",
                 title: "Manage your pipeline",
-                desc: "Track every prospect from first discovery to signed grant. Never lose a lead.",
+                desc: "Track every prospect from first discovery to funded grant.",
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 ),
@@ -162,118 +155,56 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="border-t border-zinc-100 px-6 py-24 dark:border-zinc-800">
+      {/* Testimonials */}
+      <section className="border-t border-zinc-100 px-6 py-24 dark:border-zinc-800">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-center text-3xl font-bold text-zinc-900 dark:text-white">
-            Simple, transparent pricing
+            Trusted by nonprofits across Israel
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-zinc-500">
-            Start free. Upgrade when you need deeper donor intelligence.
+            Hear from organizations already using Funderra
           </p>
 
           <div className="mt-16 grid gap-8 md:grid-cols-3">
             {[
               {
-                name: "Free",
-                price: "$0",
-                period: "",
-                features: [
-                  "5 donor discoveries",
-                  "3 discoveries per day",
-                  "Basic donor info",
-                  "Pipeline board",
-                ],
-                limitations: ["No enrichment", "Limited discoveries"],
-                popular: false,
+                quote: "We used to spend weeks researching potential funders. Funderra surfaced 30 relevant foundations in our first hour.",
+                name: "Noa R.",
+                role: "Development Director",
+                org: "Youth education nonprofit, Tel Aviv",
               },
               {
-                name: "Starter",
-                price: "$29",
-                period: "/mo",
-                features: [
-                  "Unlimited donor discoveries",
-                  "5 enrichments/month",
-                  "Deep donor research",
-                  "Pipeline board",
-                  "Priority support",
-                ],
-                limitations: [],
-                popular: false,
+                quote: "The donor profiles are incredibly detailed. We walked into meetings actually knowing who we were talking to.",
+                name: "Michael K.",
+                role: "Executive Director",
+                org: "Environmental NGO, Haifa",
               },
               {
-                name: "Pro",
-                price: "$79",
-                period: "/mo",
-                features: [
-                  "Unlimited donor discoveries",
-                  "20 enrichments/month",
-                  "Deep donor research",
-                  "Pipeline board",
-                  "Priority support",
-                  "Export data",
-                ],
-                limitations: [],
-                popular: true,
+                quote: "Funderra replaced three different spreadsheets and a part-time researcher. It paid for itself in the first month.",
+                name: "Yael S.",
+                role: "Grants Manager",
+                org: "Social services organization, Jerusalem",
               },
-            ].map((plan) => (
+            ].map((t) => (
               <div
-                key={plan.name}
-                className={`relative rounded-2xl border bg-white p-8 dark:bg-zinc-950 ${
-                  plan.popular
-                    ? "border-2 border-brand shadow-lg shadow-brand/10 dark:shadow-brand/5"
-                    : "border-zinc-200 dark:border-zinc-800"
-                }`}
+                key={t.name}
+                className="relative rounded-2xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950"
               >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
-                      Most Popular
-                    </span>
-                  </div>
-                )}
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{plan.name}</h3>
-                <p className="mt-2">
-                  <span className="text-4xl font-extrabold text-zinc-900 dark:text-zinc-100">{plan.price}</span>
-                  {plan.period && <span className="text-sm text-zinc-500">{plan.period}</span>}
+                {/* Quote mark */}
+                <svg className="mb-4 h-8 w-8 text-brand/20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609L9.978 5.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H0z" />
+                </svg>
+                <p className="text-sm leading-relaxed text-zinc-600 italic dark:text-zinc-400">
+                  &ldquo;{t.quote}&rdquo;
                 </p>
-                <ul className="mt-6 space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                      <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                  {plan.limitations.map((limitation) => (
-                    <li key={limitation} className="flex items-start gap-2 text-sm text-zinc-400">
-                      <svg className="mt-0.5 h-4 w-4 shrink-0 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      {limitation}
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  href="/signup"
-                  className={`mt-8 flex h-11 w-full items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
-                    plan.popular
-                      ? "bg-brand text-white hover:bg-brand-dark"
-                      : "border border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                  }`}
-                >
-                  {plan.price === "$0" ? "Get Started" : `Start ${plan.name}`}
-                </a>
+                <div className="mt-6 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t.name}</p>
+                  <p className="text-xs text-zinc-500">{t.role}</p>
+                  <p className="text-xs text-zinc-400">{t.org}</p>
+                </div>
               </div>
             ))}
           </div>
-
-          <p className="mt-8 text-center text-sm text-zinc-400">
-            Need more research credits? Additional enrichments at $3 each on any paid plan.
-            <br />
-            All payments processed securely by Paddle.
-          </p>
         </div>
       </section>
 
@@ -286,10 +217,10 @@ export default function Home() {
           </div>
           <div className="relative">
             <h2 className="text-3xl font-bold text-white">
-              Ready to transform your fundraising?
+              Start discovering donors today
             </h2>
             <p className="mt-3 text-indigo-100">
-              Israeli nonprofits are already discovering donors they never knew existed.
+              Join nonprofits already using Funderra to connect with the right funders.
             </p>
             <a
               href="/signup"
@@ -308,6 +239,9 @@ export default function Home() {
             Funderra {new Date().getFullYear()}
           </span>
           <div className="flex gap-6 text-sm text-zinc-400">
+            <a href="/billing" className="transition-colors hover:text-zinc-600">
+              Pricing
+            </a>
             <a href="/terms" className="transition-colors hover:text-zinc-600">
               Terms
             </a>
