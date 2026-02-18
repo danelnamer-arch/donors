@@ -3,97 +3,104 @@ import Image from "next/image";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-black">
-      {/* Nav */}
-      <header className="border-b border-zinc-100 dark:border-zinc-800">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <span className="flex items-center gap-2 text-lg font-bold">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-xs font-bold text-white">F</span>
-            <span className="text-zinc-900 dark:text-zinc-100">Fund<span className="text-brand">erra</span></span>
-          </span>
-          <div className="flex items-center gap-3">
-            <a
-              href="#pricing"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
-            >
-              Pricing
-            </a>
-            <a
-              href="/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
-            >
-              Sign In
-            </a>
-            <a
-              href="/signup"
-              className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
-            >
-              Get Started
-            </a>
-          </div>
-        </div>
-      </header>
+      {/* Hero — full-width background image */}
+      <section className="relative min-h-[85vh] overflow-hidden">
+        {/* Background image */}
+        <Image
+          src="/hero.jpg"
+          alt="Israeli landscape with flag waving over golden fields"
+          fill
+          className="object-cover object-center"
+          priority
+        />
 
-      {/* Hero — split layout */}
-      <section className="relative overflow-hidden px-6 py-20 lg:py-28">
-        {/* Gradient mesh */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-brand/10 blur-3xl" />
-          <div className="absolute -bottom-24 right-1/4 h-96 w-96 rounded-full bg-indigo-400/10 blur-3xl" />
-          <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-purple-400/5 blur-3xl" />
-        </div>
+        {/* Dark gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          {/* Left column — text */}
-          <div className="max-w-xl">
-            <div className="mb-6 inline-flex animate-fade-in items-center rounded-full border border-brand/20 bg-brand-light px-4 py-1.5 text-sm font-medium text-brand dark:text-brand-dark">
-              <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-              </svg>
-              Built for Israeli civil society
-            </div>
-            <h1 className="animate-fade-in text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl lg:text-6xl dark:text-white [animation-delay:100ms]">
-              The donor intelligence platform for{" "}
-              <span className="bg-gradient-to-r from-brand to-indigo-400 bg-clip-text text-transparent">
-                Israeli nonprofits
-              </span>
-            </h1>
-            <p className="mt-6 animate-fade-in text-lg leading-8 text-zinc-600 dark:text-zinc-400 [animation-delay:200ms]">
-              Funderra maps the entire Israeli and global donor ecosystem &mdash;
-              foundations, private philanthropists, and grant-makers &mdash; so your
-              amuta can focus on impact, not fundraising guesswork.
-            </p>
-            <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row [animation-delay:300ms]">
+        {/* Nav — on top of image */}
+        <header className="relative z-10">
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+            <span className="flex items-center gap-2 text-lg font-bold">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-xs font-bold text-white">F</span>
+              <span className="text-white">Fund<span className="text-brand">erra</span></span>
+            </span>
+            <div className="flex items-center gap-3">
+              <a
+                href="#pricing"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
+              >
+                Pricing
+              </a>
+              <a
+                href="/login"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
+              >
+                Sign In
+              </a>
               <a
                 href="/signup"
-                className="flex h-12 items-center justify-center rounded-xl bg-brand px-8 text-base font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand-dark hover:shadow-xl hover:-translate-y-0.5"
+                className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
               >
-                Start Free
-              </a>
-              <a
-                href="#how-it-works"
-                className="flex h-12 items-center justify-center rounded-xl border border-zinc-200 px-8 text-base font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-              >
-                See How It Works
+                Get Started
               </a>
             </div>
           </div>
+        </header>
 
-          {/* Right column — hero image */}
-          <div className="relative animate-fade-in [animation-delay:400ms]">
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl shadow-zinc-900/10">
-              <Image
-                src="/hero.jpg"
-                alt="People working together outdoors in an Israeli landscape"
-                width={720}
-                height={480}
-                className="h-auto w-full object-cover"
-                priority
-              />
-            </div>
-            {/* Floating stats card */}
-            <div className="absolute -bottom-4 -right-4 rounded-xl border border-zinc-200/80 bg-white/90 px-5 py-3 shadow-lg backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-900/90 sm:-bottom-6 sm:-right-6">
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">4,900+</p>
-              <p className="text-xs font-medium text-zinc-500">donors mapped</p>
+        {/* Hero content — positioned over image */}
+        <div className="relative z-10 flex min-h-[calc(85vh-4rem)] items-center px-6">
+          <div className="mx-auto w-full max-w-6xl">
+            <div className="max-w-2xl">
+              <div className="mb-6 inline-flex animate-fade-in items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
+                <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                </svg>
+                Built for Israeli civil society
+              </div>
+              <h1 className="animate-fade-in text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl [animation-delay:100ms]">
+                The donor intelligence platform for{" "}
+                <span className="text-brand">
+                  Israeli nonprofits
+                </span>
+              </h1>
+              <p className="mt-6 animate-fade-in text-lg leading-8 text-white/80 [animation-delay:200ms]">
+                Funderra maps the entire Israeli and global donor ecosystem &mdash;
+                foundations, private philanthropists, and grant-makers &mdash; so your
+                amuta can focus on impact, not fundraising guesswork.
+              </p>
+              <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row [animation-delay:300ms]">
+                <a
+                  href="/signup"
+                  className="flex h-12 items-center justify-center rounded-xl bg-brand px-8 text-base font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand-dark hover:shadow-xl hover:-translate-y-0.5"
+                >
+                  Start Free
+                </a>
+                <a
+                  href="#how-it-works"
+                  className="flex h-12 items-center justify-center rounded-xl border border-white/30 px-8 text-base font-medium text-white transition-colors hover:bg-white/10 backdrop-blur-sm"
+                >
+                  See How It Works
+                </a>
+              </div>
+
+              {/* Stats row */}
+              <div className="mt-12 flex animate-fade-in gap-8 [animation-delay:400ms]">
+                <div>
+                  <p className="text-3xl font-bold text-white">5,100+</p>
+                  <p className="text-sm text-white/60">donors mapped</p>
+                </div>
+                <div className="h-12 w-px bg-white/20" />
+                <div>
+                  <p className="text-3xl font-bold text-white">AI</p>
+                  <p className="text-sm text-white/60">powered matching</p>
+                </div>
+                <div className="h-12 w-px bg-white/20" />
+                <div>
+                  <p className="text-3xl font-bold text-white">Free</p>
+                  <p className="text-sm text-white/60">to start</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
