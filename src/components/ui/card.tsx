@@ -10,7 +10,7 @@ const cardVariants = {
   interactive:
     "rounded-xl border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md cursor-pointer dark:border-zinc-800 dark:bg-zinc-950",
   gradient:
-    "rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-gradient-to-r before:from-brand before:to-indigo-400",
+    "rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-gradient-to-r before:from-brand before:to-emerald-400",
 };
 
 export function Card({ children, variant = "default", className = "", ...props }: CardProps) {

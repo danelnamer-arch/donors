@@ -155,7 +155,7 @@ export function SwipeCard({ match, onSwipe, disabled }: SwipeCardProps) {
         </motion.div>
 
         {/* Header with gradient accent */}
-        <div className="bg-gradient-to-r from-brand/5 via-brand/10 to-indigo-500/5 px-6 pt-6 pb-5">
+        <div className="bg-gradient-to-r from-brand/5 via-brand/10 to-emerald-500/5 px-6 pt-6 pb-5">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h2 className="text-xl font-bold text-zinc-900 dark:text-white">

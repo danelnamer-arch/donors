@@ -54,7 +54,7 @@ export default function Home() {
               </div>
               <h1 className="animate-fade-in text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl [animation-delay:100ms]">
                 Find the right donors for{" "}
-                <span className="text-amber-300">
+                <span className="text-emerald-300">
                   your nonprofit
                 </span>
               </h1>
@@ -219,12 +219,12 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-white">
               Start discovering donors today
             </h2>
-            <p className="mt-3 text-indigo-100">
+            <p className="mt-3 text-emerald-100">
               Join nonprofits already using Funderra to connect with the right funders.
             </p>
             <a
               href="/signup"
-              className="mt-8 inline-flex h-12 items-center rounded-xl bg-white px-8 text-base font-semibold text-brand transition-all hover:bg-indigo-50 hover:-translate-y-0.5 hover:shadow-lg"
+              className="mt-8 inline-flex h-12 items-center rounded-xl bg-white px-8 text-base font-semibold text-brand transition-all hover:bg-emerald-50 hover:-translate-y-0.5 hover:shadow-lg"
             >
               Get Started Free
             </a>
